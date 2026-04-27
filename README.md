@@ -23,10 +23,10 @@ http://127.0.0.1:8066/index.html
 Or run it manually:
 
 ```bash
-npx --yes http-server . -p 8066 -a 127.0.0.1
+uv run dev
 ```
 
-The project vendors its local Three.js build under `vendor/three`, so it can run without pulling a CDN at startup.
+The FastAPI authoring server serves the static game and local labs from the same URL. The project vendors its local Three.js build under `vendor/three`, so it can run without pulling a CDN at startup.
 
 ## Controls And Mechanics
 
@@ -55,11 +55,16 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 - Generated hell-material textures in `assets/textures`.
 - Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
 - A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background with PMREM-processed environment lighting for PBR materials.
+- A Meshy-generated floating hell platform in `assets/environment/floating-hell-platform`, with concept art, authoring GLB, remeshed runtime GLB, and a simple gameplay collision proxy.
 - A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
+- A local `runtime_asset_lab.html` for environment prefab calibration only: finalized runtime GLBs, local mesh transform, yellow editable collision proxy, explicit manifest save, and query-param preloading for assets such as `?asset=floating-hell-platform`.
 - A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
+- A local `weapon_lab.html` for inspecting procedural or finalized Meshy weapon viewmodels with game-style PBR lighting, bloom, bounds, and first-person camera presets.
 - A local `texture_lab.html` for previewing manifest-backed PBR materials on sphere, box, plane, and kit primitives under the game's sky, PMREM environment, bloom, and shadowed lighting.
 - A lighting lab mode at `index.html?lightingLab` with fixed camera presets, cinematic lighting defaults, soft shadows, and bloom for iterating on arena lighting, shadows, and material readability without playing the real-time game.
+- A local FastAPI authoring server, started with `uv run dev`, that serves the static game and provides narrow save endpoints for lab-authored manifests.
 - A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, the Ember Runt husk asset, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
+- Level material sets live under `assets/textures/<material>/source` as 2048px base/basecolor/normal/roughness/metalness/height maps generated through Chord.
 
 ## Character Asset Flow
 
@@ -74,6 +79,26 @@ assets/characters/ember-runt/runtime/textures/*
 ```
 
 The runtime GLB has embedded texture images stripped out; `material-overrides.json` reattaches the base color, normal, roughness, metallic, and emissive maps. Use `character_lab.html?model=assets/characters/ember-runt/runtime/models/ember-runt-walking.glb%3Fv=ember-runt-v2` to inspect the exact runtime path with cache-busted sidecar textures.
+
+## Environment Asset Flow
+
+Environment assets are treated as prefabs. `runtime_asset_lab.html` edits the prefab's local visual transform and local collision proxy, then saves those values into the runtime manifest only when `Save` is clicked. The level still places each prefab instance separately, so calibrating the asset and deciding where it lives in the arena remain separate steps.
+
+## Weapon Asset Flow
+
+Weapons follow the same authoring/runtime split as characters, but without rigging. Authoring concepts, Meshy downloads, and full PBR maps live under `assets/weapons/<weapon>/authoring`; the game loads only `assets/weapons/<weapon>/runtime/runtime-manifest.json`, `runtime/models/viewmodel.glb`, sidecar material overrides, and runtime textures.
+
+Use `weapon_lab.html` to compare the procedural fallback against the finalized runtime GLB. Once a runtime manifest exists, `src/game.js` loads the weapon during the boot screen, applies sidecar PBR/emissive maps, warms the model with the rest of the scene, and attaches it to the first-person weapon root.
+
+Weapon placement, scale, anchor, and muzzle sockets belong in `weapon_lab.html`; weapons are intentionally not listed in the generic runtime asset lab.
+
+Finalize a Meshy weapon folder with:
+
+```bash
+python tools/finalize_weapon_asset.py --weapon-dir assets/weapons/ssg --name "Twin Anvil + Meat Hook"
+```
+
+The helper strips embedded GLB images by default, writes compressed runtime maps, generates `models/material-overrides.json`, and writes the attach/muzzle metadata contract used by both the lab and game.
 
 ## PBR Texture Flow
 

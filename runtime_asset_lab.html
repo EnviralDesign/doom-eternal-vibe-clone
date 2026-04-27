@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hellrush Runtime Asset Lab</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; background:#080706; color:#f8efe2; }
+    * { box-sizing:border-box; }
+    body { margin:0; overflow:hidden; background:#080706; }
+    canvas { display:block; width:100vw; height:100vh; }
+    .panel { position:fixed; left:14px; top:14px; width:min(430px, calc(100vw - 28px)); max-height:calc(100vh - 28px); overflow:auto; padding:14px; background:rgba(14,9,7,.84); border:1px solid rgba(255,142,72,.28); box-shadow:0 20px 80px rgba(0,0,0,.52); backdrop-filter:blur(16px); }
+    h1 { margin:0 0 6px; font-size:21px; }
+    p { margin:5px 0 10px; color:#d9c9ba; font-size:13px; line-height:1.35; }
+    label { display:grid; gap:5px; margin:9px 0; color:#cdbdaf; font-size:11px; font-weight:800; text-transform:uppercase; }
+    select, input, textarea, button { width:100%; min-height:34px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.08); color:#fff1de; padding:7px 9px; font:inherit; font-weight:720; }
+    select option { color:#111; }
+    button { cursor:pointer; color:#180703; background:linear-gradient(180deg,#ffc46c,#f05a21); border-color:#ffd59a; }
+    textarea { min-height:112px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size:12px; white-space:pre; }
+    .row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .actions { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+    .tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin:9px 0; }
+    .tabs button { background:rgba(255,255,255,.08); color:#f8efe2; border-color:rgba(255,255,255,.14); }
+    .tabs button.active { background:#9ce8ff; color:#051116; }
+    output, pre { display:block; margin:9px 0 0; padding:9px; background:rgba(0,0,0,.48); border:1px solid rgba(255,255,255,.11); color:#ffdcb0; white-space:pre-wrap; font-size:12px; line-height:1.42; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.full.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="panel">
+    <h1>Hellrush Runtime Asset Lab</h1>
+    <p>Environment prefab GLB inspection with editable local mesh and collision calibration. Left-drag orbits, right-drag pans, wheel zooms. Yellow wireframe is the local gameplay proxy; cyan wireframe is mesh bounds.</p>
+    <label>Asset <select id="assetSelect"></select></label>
+    <label>Model URL <input id="modelUrl" /></label>
+    <div class="tabs">
+      <button id="boundsButton" class="active" type="button">Bounds</button>
+      <button id="colliderButton" class="active" type="button">Collider</button>
+      <button id="wireButton" type="button">Wire</button>
+      <button id="gridButton" class="active" type="button">Grid</button>
+    </div>
+    <label>Visual Position</label>
+    <div class="row">
+      <input id="visualX" type="number" step="0.05" />
+      <input id="visualY" type="number" step="0.05" />
+      <input id="visualZ" type="number" step="0.05" />
+    </div>
+    <label>Visual Rotation</label>
+    <div class="row">
+      <input id="visualRotX" type="number" step="0.01" />
+      <input id="visualRotY" type="number" step="0.01" />
+      <input id="visualRotZ" type="number" step="0.01" />
+    </div>
+    <label>Visual Scale</label>
+    <div class="row">
+      <input id="visualScale" type="number" step="0.01" />
+      <button id="alignTopButton" type="button">Top To 0</button>
+      <button id="homeButton" type="button">Home</button>
+    </div>
+    <label>Collider Center</label>
+    <div class="row">
+      <input id="colX" type="number" step="0.05" />
+      <input id="colY" type="number" step="0.05" />
+      <input id="colZ" type="number" step="0.05" />
+    </div>
+    <label>Collider Size</label>
+    <div class="row">
+      <input id="sizeX" type="number" step="0.05" />
+      <input id="sizeY" type="number" step="0.05" />
+      <input id="sizeZ" type="number" step="0.05" />
+    </div>
+    <label>Material <select id="materialSelect"></select></label>
+    <div class="row">
+      <label>Roughness <input id="matRoughness" type="number" min="0" max="1" step="0.01" /></label>
+      <label>Metalness <input id="matMetalness" type="number" min="0" max="1" step="0.01" /></label>
+      <label>Env <input id="matEnv" type="number" min="0" max="2" step="0.05" /></label>
+    </div>
+    <div class="actions">
+      <button id="loadButton">Load</button>
+      <button id="copyButton">Copy JSON</button>
+      <button id="saveButton" type="button">Save</button>
+    </div>
+    <button id="homeButton2" type="button">Home</button>
+    <textarea id="jsonOut" spellcheck="false"></textarea>
+    <pre id="stats">Loading...</pre>
+  </div>
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+    const qs = new URLSearchParams(location.search);
+    const presets = [
+      {
+        id: 'floating-hell-platform',
+        name: 'Floating Hell Platform',
+        manifest: 'assets/environment/floating-hell-platform/runtime/runtime-manifest.json',
+      },
+    ];
+    const $ = id => document.getElementById(id);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080706);
+    scene.fog = new THREE.Fog(0x080706, 14, 36);
+    const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.02, 160);
+    const renderer = new THREE.WebGLRenderer({ antialias:false, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    document.body.appendChild(renderer.domElement);
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.22, 0.42, 0.86));
+    composer.addPass(new OutputPass());
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromEquirectangular(makeEnv()).texture;
+    scene.add(new THREE.HemisphereLight(0xadc7ff, 0x260d05, 0.52));
+    const key = new THREE.SpotLight(0xffd2a0, 620, 30, Math.PI * 0.24, 0.55, 1.25);
+    key.position.set(-5, 6, 5); key.target.position.set(0, 0, 0); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.00003; key.shadow.normalBias = 0.055; scene.add(key, key.target);
+    const rim = new THREE.SpotLight(0x5ad7ff, 260, 28, Math.PI * 0.26, 0.55, 1.3);
+    rim.position.set(5, 3.2, -6); rim.target.position.set(0, 0, 0); scene.add(rim, rim.target);
+    const warm = new THREE.PointLight(0xff4a18, 2.4, 10, 2); warm.position.set(0, 1.5, -2.5); scene.add(warm);
+    const grid = new THREE.GridHelper(16, 16, 0x603224, 0x2c2522); scene.add(grid);
+
+    const root = new THREE.Group(); scene.add(root);
+    let current = null, loadedManifest = {}, currentPreset = null, materialEntries = [];
+    const meshBox = new THREE.Box3();
+    const meshHelper = new THREE.Box3Helper(meshBox, 0x62e8ff); scene.add(meshHelper);
+    const collider = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ color:0xffd24a, wireframe:true, transparent:true, opacity:0.9, depthTest:false }));
+    collider.renderOrder = 10; scene.add(collider);
+    const state = {
+      theta: 0.55,
+      phi: 0.22,
+      dist: 12,
+      homeDist: 12,
+      dragging: false,
+      dragButton: 0,
+      x: 0,
+      y: 0,
+      target: new THREE.Vector3(0, 0.5, 0),
+      homeTarget: new THREE.Vector3(0, 0.5, 0)
+    };
+
+    for (const p of presets) {
+      const opt = document.createElement('option'); opt.value = p.id; opt.textContent = p.name; $('assetSelect').appendChild(opt);
+    }
+    if (qs.get('asset')) $('assetSelect').value = qs.get('asset');
+    if (qs.get('model')) $('modelUrl').value = qs.get('model');
+
+    function makeEnv() {
+      const c = document.createElement('canvas'); c.width = 768; c.height = 384;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0,0,0,c.height);
+      g.addColorStop(0,'#ffdfb5'); g.addColorStop(.42,'#334253'); g.addColorStop(.72,'#1b0c08'); g.addColorStop(1,'#050303');
+      ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
+      for (const [x,y,color] of [[150,90,'rgba(255,198,96,.9)'],[570,118,'rgba(92,205,255,.65)'],[405,310,'rgba(255,70,20,.75)']]) {
+        const r = ctx.createRadialGradient(x,y,0,x,y,180); r.addColorStop(0,color); r.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle = r; ctx.fillRect(0,0,c.width,c.height);
+      }
+      const tex = new THREE.CanvasTexture(c); tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; return tex;
+    }
+    async function fetchJson(url) {
+      const resp = await fetch(url, { cache:'no-store' });
+      if (!resp.ok) throw new Error(`${resp.status} ${url}`);
+      return resp.json();
+    }
+    async function saveManifest() {
+      const preset = currentPreset || presets.find(p => p.id === $('assetSelect').value) || presets[0];
+      const body = {
+        path: preset.manifest,
+        json: mergedManifestDraft()
+      };
+      const resp = await fetch('/__hellrush/save-json', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(result.error || `Save failed (${resp.status}). Restart with run_server.bat if this page is on a static server.`);
+      loadedManifest = result.json || body.json;
+      $('stats').textContent = `${$('stats').textContent}\nSaved: ${result.path || preset.manifest}`;
+    }
+    function dir(url) {
+      const clean = url.split('?')[0]; return clean.includes('/') ? clean.slice(0, clean.lastIndexOf('/') + 1) : './';
+    }
+    function num(id) { return Number($(id).value); }
+    function setNum(id, v) { $(id).value = Number(v).toFixed(3).replace(/\\.000$/,''); }
+    function currentAssetDraft() {
+      const materialOverrides = {};
+      for (const entry of materialEntries) {
+        if (!entry.override) continue;
+        materialOverrides[entry.key] = {
+          roughness: Number(entry.override.roughness.toFixed(3)),
+          metalness: Number(entry.override.metalness.toFixed(3)),
+          envMapIntensity: Number(entry.override.envMapIntensity.toFixed(3))
+        };
+      }
+      return {
+        prefab: {
+          visual: {
+            position: [Number(num('visualX').toFixed(3)), Number(num('visualY').toFixed(3)), Number(num('visualZ').toFixed(3))],
+            rotation: [Number(num('visualRotX').toFixed(3)), Number(num('visualRotY').toFixed(3)), Number(num('visualRotZ').toFixed(3))],
+            scale: Number(num('visualScale').toFixed(3))
+          },
+          collision: {
+            type: 'box',
+            center: [Number(num('colX').toFixed(3)), Number(num('colY').toFixed(3)), Number(num('colZ').toFixed(3))],
+            size: [Number(num('sizeX').toFixed(3)), Number(num('sizeY').toFixed(3)), Number(num('sizeZ').toFixed(3))]
+          }
+        },
+        materialOverrides
+      };
+    }
+    function mergedManifestDraft() {
+      return {
+        ...loadedManifest,
+        ...currentAssetDraft()
+      };
+    }
+    function updateCollider() {
+      collider.position.set(num('colX'), num('colY'), num('colZ'));
+      collider.scale.set(num('sizeX'), num('sizeY'), num('sizeZ'));
+      if (current) {
+        current.position.set(num('visualX'), num('visualY'), num('visualZ'));
+        current.scale.setScalar(num('visualScale'));
+        current.rotation.set(num('visualRotX'), num('visualRotY'), num('visualRotZ'));
+        current.updateMatrixWorld(true);
+        meshBox.setFromObject(current);
+      }
+      meshHelper.visible = $('boundsButton').classList.contains('active');
+      collider.visible = $('colliderButton').classList.contains('active');
+      grid.visible = $('gridButton').classList.contains('active');
+      $('jsonOut').value = JSON.stringify(currentAssetDraft(), null, 2);
+    }
+    function homeCamera() {
+      state.theta = 0.55;
+      state.phi = 0.22;
+      state.dist = state.homeDist;
+      state.target.copy(state.homeTarget);
+    }
+    function alignMeshTopCenterToOrigin() {
+      if (!current) return;
+      updateCollider();
+      meshBox.setFromObject(current);
+      const center = meshBox.getCenter(new THREE.Vector3());
+      setNum('visualX', num('visualX') - center.x);
+      setNum('visualY', num('visualY') - meshBox.max.y);
+      setNum('visualZ', num('visualZ') - center.z);
+      updateCollider();
+    }
+    function applyMaterials(object) {
+      object.traverse(o => {
+        o.frustumCulled = false;
+        if (!o.isMesh) return;
+        o.castShadow = true; o.receiveShadow = false;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const mat of mats) {
+          if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
+          if (mat.emissiveMap) { mat.emissive?.set(0xffffff); mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, 1.4); }
+          mat.needsUpdate = true;
+        }
+      });
+    }
+    function materialKey(mat, index) {
+      return mat.name || `material-${index + 1}`;
+    }
+    function rebuildMaterialInspector() {
+      const select = $('materialSelect');
+      select.innerHTML = '';
+      materialEntries = [];
+      const seen = new Set();
+      if (current) current.traverse((o) => {
+        if (!o.isMesh || !o.material) return;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const mat of mats) {
+          if (!mat || seen.has(mat.uuid)) continue;
+          seen.add(mat.uuid);
+          const key = materialKey(mat, materialEntries.length);
+          const saved = loadedManifest.materialOverrides?.[key] || {};
+          const entry = {
+            key,
+            mat,
+            original: {
+              roughness: mat.roughness ?? 1,
+              metalness: mat.metalness ?? 0,
+              envMapIntensity: mat.envMapIntensity ?? 1
+            },
+            maps: {
+              map: !!mat.map,
+              normal: !!mat.normalMap,
+              roughness: !!mat.roughnessMap,
+              metalness: !!mat.metalnessMap,
+              emissive: !!mat.emissiveMap
+            },
+            override: {
+              roughness: saved.roughness ?? mat.roughness ?? 1,
+              metalness: saved.metalness ?? mat.metalness ?? 0,
+              envMapIntensity: saved.envMapIntensity ?? mat.envMapIntensity ?? 1
+            }
+          };
+          materialEntries.push(entry);
+          const option = document.createElement('option');
+          option.value = key;
+          option.textContent = key;
+          select.appendChild(option);
+        }
+      });
+      if (materialEntries.length) select.value = materialEntries[0].key;
+      applyAllMaterialOverrides();
+      syncMaterialControls();
+    }
+    function selectedMaterialEntry() {
+      return materialEntries.find(entry => entry.key === $('materialSelect').value) || materialEntries[0] || null;
+    }
+    function applyMaterialOverride(entry) {
+      if (!entry) return;
+      entry.mat.roughness = entry.override.roughness;
+      entry.mat.metalness = entry.override.metalness;
+      entry.mat.envMapIntensity = entry.override.envMapIntensity;
+      entry.mat.needsUpdate = true;
+    }
+    function applyAllMaterialOverrides() {
+      for (const entry of materialEntries) applyMaterialOverride(entry);
+    }
+    function syncMaterialControls() {
+      const entry = selectedMaterialEntry();
+      const disabled = !entry;
+      for (const id of ['matRoughness','matMetalness','matEnv']) $(id).disabled = disabled;
+      if (!entry) return;
+      setNum('matRoughness', entry.override.roughness);
+      setNum('matMetalness', entry.override.metalness);
+      setNum('matEnv', entry.override.envMapIntensity);
+    }
+    function updateSelectedMaterialFromControls() {
+      const entry = selectedMaterialEntry();
+      if (!entry) return;
+      entry.override.roughness = THREE.MathUtils.clamp(num('matRoughness'), 0, 1);
+      entry.override.metalness = THREE.MathUtils.clamp(num('matMetalness'), 0, 1);
+      entry.override.envMapIntensity = THREE.MathUtils.clamp(num('matEnv'), 0, 2);
+      applyMaterialOverride(entry);
+      updateCollider();
+    }
+    async function resolveSelection() {
+      if (qs.get('model') && !$('modelUrl').value) return { modelUrl: qs.get('model'), manifest:{} };
+      const preset = presets.find(p => p.id === $('assetSelect').value) || presets[0];
+      currentPreset = preset;
+      try {
+        const manifest = await fetchJson(`${preset.manifest}?v=${Date.now()}`);
+        const model = manifest.model ? `${dir(preset.manifest)}${manifest.model}` : '';
+        return { modelUrl: $('modelUrl').value || model, manifest };
+      } catch (err) {
+        if ($('modelUrl').value) return { modelUrl: $('modelUrl').value, manifest:{} };
+        throw err;
+      }
+    }
+    async function loadAsset() {
+      $('stats').textContent = 'Loading...';
+      const resolved = await resolveSelection();
+      loadedManifest = resolved.manifest || {};
+      $('modelUrl').value = resolved.modelUrl;
+      if (!resolved.modelUrl) throw new Error('No model URL for selected asset yet.');
+      if (current) root.remove(current);
+      const gltf = await new GLTFLoader().loadAsync(`${resolved.modelUrl}${resolved.modelUrl.includes('?') ? '&' : '?'}v=${Date.now()}`);
+      current = gltf.scene;
+      applyMaterials(current);
+      root.add(current);
+      rebuildMaterialInspector();
+      current.updateMatrixWorld(true);
+      meshBox.setFromObject(current);
+      const size = meshBox.getSize(new THREE.Vector3());
+      const center = meshBox.getCenter(new THREE.Vector3());
+      current.position.sub(center);
+      current.position.y += size.y * 0.5;
+      current.updateMatrixWorld(true);
+      meshBox.setFromObject(current);
+      const normalizedSize = meshBox.getSize(new THREE.Vector3());
+      const prefab = loadedManifest.prefab || {};
+      const placement = prefab.visual || loadedManifest.placement || {};
+      const collision = prefab.collision || loadedManifest.collision || {};
+      const cSize = collision.size || [normalizedSize.x, Math.max(0.5, normalizedSize.y * 0.25), normalizedSize.z];
+      const topY = collision.topY ?? cSize[1] * 0.5;
+      const pos = placement.position || [];
+      setNum('visualX', placement.x ?? pos[0] ?? 0);
+      setNum('visualY', placement.y ?? pos[1] ?? 0);
+      setNum('visualZ', placement.z ?? pos[2] ?? 0);
+      const runtimeScale = placement.scale ?? (
+        placement.width && placement.depth
+          ? Math.max(placement.width / Math.max(0.001, normalizedSize.x), placement.depth / Math.max(0.001, normalizedSize.z)) * (placement.scaleBoost ?? 1)
+          : (placement.scaleBoost ?? 1)
+      );
+      setNum('visualScale', runtimeScale);
+      const rot = placement.rotation || [];
+      setNum('visualRotX', placement.rotationX ?? rot[0] ?? 0);
+      setNum('visualRotY', placement.rotationY ?? rot[1] ?? 0);
+      setNum('visualRotZ', placement.rotationZ ?? rot[2] ?? 0);
+      setNum('sizeX', cSize[0]); setNum('sizeY', cSize[1]); setNum('sizeZ', cSize[2]);
+      const centerArr = collision.center || [0, topY - cSize[1] * 0.5, 0];
+      setNum('colX', centerArr[0]); setNum('colY', centerArr[1]); setNum('colZ', centerArr[2]);
+      updateCollider();
+      state.target.set(num('colX'), num('colY'), num('colZ'));
+      state.homeTarget.copy(state.target);
+      let meshes=0, tris=0, textures=new Set();
+      current.traverse(o => { if (!o.isMesh) return; meshes++; const g=o.geometry; tris += g.index ? g.index.count/3 : (g.attributes.position?.count||0)/3; const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>['map','normalMap','roughnessMap','metalnessMap','emissiveMap'].forEach(k=>{ if(m?.[k]) textures.add(m[k].uuid); })); });
+      state.dist = Math.max(8, Math.max(num('sizeX'), num('sizeY'), num('sizeZ'), normalizedSize.x * runtimeScale, normalizedSize.y * runtimeScale, normalizedSize.z * runtimeScale) * 2.0);
+      state.homeDist = state.dist;
+      const matLines = materialEntries.map(entry => `${entry.key}: rough ${entry.override.roughness.toFixed(2)} metal ${entry.override.metalness.toFixed(2)} env ${entry.override.envMapIntensity.toFixed(2)} maps ${Object.entries(entry.maps).filter(([,v])=>v).map(([k])=>k).join('/') || 'none'}`);
+      $('stats').textContent = [`Asset: ${currentPreset?.name || 'custom model'}`, `Model: ${resolved.modelUrl}`, `Meshes: ${meshes}`, `Materials: ${materialEntries.length}`, `Triangles: ${Math.round(tris).toLocaleString()}`, `Textures: ${textures.size}`, `Mesh bounds: ${normalizedSize.x.toFixed(2)} x ${normalizedSize.y.toFixed(2)} x ${normalizedSize.z.toFixed(2)}`, '', ...matLines].join('\\n');
+    }
+
+    ['visualX','visualY','visualZ','visualScale','visualRotX','visualRotY','visualRotZ','colX','colY','colZ','sizeX','sizeY','sizeZ'].forEach(id => $(id).addEventListener('input', updateCollider));
+    ['matRoughness','matMetalness','matEnv'].forEach(id => $(id).addEventListener('input', updateSelectedMaterialFromControls));
+    $('materialSelect').addEventListener('change', syncMaterialControls);
+    for (const id of ['boundsButton','colliderButton','wireButton','gridButton']) $(id).addEventListener('click', () => {
+      $(id).classList.toggle('active');
+      if (id === 'wireButton' && current) current.traverse(o => { if (o.isMesh) { const mats=Array.isArray(o.material)?o.material:[o.material]; mats.forEach(m=>m.wireframe = $('wireButton').classList.contains('active')); }});
+      updateCollider();
+    });
+    $('assetSelect').addEventListener('change', () => { $('modelUrl').value = ''; loadAsset().catch(err => $('stats').textContent = String(err.message || err)); });
+    $('loadButton').addEventListener('click', () => loadAsset().catch(err => $('stats').textContent = String(err.message || err)));
+    $('copyButton').addEventListener('click', async () => navigator.clipboard?.writeText($('jsonOut').value));
+    $('saveButton').addEventListener('click', () => saveManifest().catch(err => $('stats').textContent = String(err.message || err)));
+    $('alignTopButton').addEventListener('click', alignMeshTopCenterToOrigin);
+    $('homeButton').addEventListener('click', homeCamera);
+    $('homeButton2').addEventListener('click', homeCamera);
+    renderer.domElement.addEventListener('contextmenu', ev => ev.preventDefault());
+    renderer.domElement.addEventListener('pointerdown', ev => {
+      state.dragging = true;
+      state.dragButton = ev.button;
+      state.x = ev.clientX;
+      state.y = ev.clientY;
+      renderer.domElement.setPointerCapture(ev.pointerId);
+    });
+    renderer.domElement.addEventListener('pointerup', ev => { state.dragging=false; renderer.domElement.releasePointerCapture(ev.pointerId); });
+    renderer.domElement.addEventListener('pointermove', ev => {
+      if (!state.dragging) return;
+      const dx = ev.clientX - state.x;
+      const dy = ev.clientY - state.y;
+      if (state.dragButton === 2) {
+        const viewDir = new THREE.Vector3();
+        camera.getWorldDirection(viewDir);
+        const right = new THREE.Vector3().crossVectors(viewDir, camera.up).normalize();
+        const up = new THREE.Vector3().crossVectors(right, viewDir).normalize();
+        const panScale = Math.max(0.004, state.dist * 0.0015);
+        state.target.addScaledVector(right, -dx * panScale);
+        state.target.addScaledVector(up, dy * panScale);
+      } else {
+        state.theta -= dx * 0.006;
+        state.phi = THREE.MathUtils.clamp(state.phi + dy * 0.004, -0.9, 0.9);
+      }
+      state.x=ev.clientX; state.y=ev.clientY;
+    });
+    renderer.domElement.addEventListener('wheel', ev => { state.dist = THREE.MathUtils.clamp(state.dist + ev.deltaY * 0.006, 1.5, 80); }, { passive:true });
+    addEventListener('resize', () => { camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight); });
+    function animate() {
+      requestAnimationFrame(animate);
+      const x = Math.sin(state.theta) * Math.cos(state.phi) * state.dist;
+      const y = 1.1 + Math.sin(state.phi) * state.dist;
+      const z = Math.cos(state.theta) * Math.cos(state.phi) * state.dist;
+      camera.position.set(state.target.x + x, state.target.y + y, state.target.z + z);
+      camera.lookAt(state.target);
+      composer.render();
+    }
+    loadAsset().catch(err => $('stats').textContent = String(err.message || err));
+    animate();
+  </script>
+</body>
+</html>

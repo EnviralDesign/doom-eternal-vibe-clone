@@ -1,0 +1,88 @@
+{
+  "prompt_id": "510c9987-1efa-4895-bd88-ffb28e2cbf07",
+  "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\hell-rune\\source\\hell-rune_base.png",
+  "uploaded_name": "hell-rune_base.png",
+  "load_node_id": "2",
+  "patched_save_nodes": {
+    "4": {
+      "map": "basecolor",
+      "mode": "preview"
+    },
+    "5": {
+      "map": "normal",
+      "mode": "preview"
+    },
+    "6": {
+      "map": "roughness",
+      "mode": "preview"
+    },
+    "7": {
+      "map": "metalness",
+      "mode": "preview"
+    },
+    "9": {
+      "map": "height",
+      "mode": "preview"
+    }
+  },
+  "outputs": [
+    {
+      "map": "roughness",
+      "path": "assets\\textures\\hell-rune\\source\\hell-rune_roughness.png",
+      "source": {
+        "filename": "ComfyUI_temp_updif_00005_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "normal",
+      "path": "assets\\textures\\hell-rune\\source\\hell-rune_normal.png",
+      "source": {
+        "filename": "ComfyUI_temp_iptqc_00005_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "metalness",
+      "path": "assets\\textures\\hell-rune\\source\\hell-rune_metalness.png",
+      "source": {
+        "filename": "ComfyUI_temp_lgtig_00005_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "basecolor",
+      "path": "assets\\textures\\hell-rune\\source\\hell-rune_basecolor.png",
+      "source": {
+        "filename": "ComfyUI_temp_jjerq_00005_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "height",
+      "path": "assets\\textures\\hell-rune\\source\\hell-rune_height.png",
+      "source": {
+        "filename": "ComfyUI_temp_xhcyr_00005_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    }
+  ],
+  "manifest_entry": {
+    "id": "hell-rune",
+    "name": "Hell Rune Chord PBR",
+    "tile": 3,
+    "roughness": 1.0,
+    "metalness": 1.0,
+    "baseColor": "hell-rune/source/hell-rune_basecolor.png",
+    "normal": "hell-rune/source/hell-rune_normal.png",
+    "roughnessMap": "hell-rune/source/hell-rune_roughness.png",
+    "metalnessMap": "hell-rune/source/hell-rune_metalness.png",
+    "heightMap": "hell-rune/source/hell-rune_height.png",
+    "displacementScale": 0.012
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "floating-hell-platform",
+  "task_id": "019dd071-0d64-7a34-9dd8-c21b9f72a658",
+  "task_type": "image-to-3d",
+  "prompt": "floating hell platform asymmetrical obsidian rock slab with forged metal top, lava fissures, cyan rune inlays, thick jagged underside, game environment prop",
+  "source_concept": "assets/environment/floating-hell-platform/source/floating-hell-platform-concept.png",
+  "meshy_project": "meshy_output/20260427_144043_floating-hell-platform_019dd071",
+  "promoted_glb": "assets/environment/floating-hell-platform/source/floating-hell-platform-meshy.glb",
+  "model_urls": [
+    "glb",
+    "fbx",
+    "usdz",
+    "obj",
+    "mtl",
+    "stl"
+  ],
+  "face_count": null,
+  "texture_urls": true,
+  "created_at": "2026-04-27T14:40:44.487039"
+}

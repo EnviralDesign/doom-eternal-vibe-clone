@@ -12,7 +12,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   Three.js is loaded from the local import map in index.html.
 */
 
-const VERSION = 'threejs-eternalish-6.2-lighting-pipeline';
+const VERSION = 'threejs-eternalish-6.4-environment-runtime-pipeline';
 const CDN_VERSION = 'three-local-r184-full';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -62,6 +62,8 @@ const world = {
 const materials = {};
 const textures = {};
 const characterAssets = {};
+const weaponAssets = {};
+const environmentAssets = {};
 const enemies = [];
 const projectiles = [];
 const pickups = [];
@@ -696,7 +698,13 @@ async function main() {
   setBootProgress(0.25, 'Loading enemy assets');
   await nextFrame();
   await loadCharacterAssets();
-  setBootProgress(0.30, 'Igniting arena lights');
+  setBootProgress(0.29, 'Loading weapon assets');
+  await nextFrame();
+  await loadWeaponAssets();
+  setBootProgress(0.32, 'Loading environment assets');
+  await nextFrame();
+  await loadEnvironmentAssets();
+  setBootProgress(0.36, 'Igniting arena lights');
   await nextFrame();
   initScene();
   setBootProgress(0.42, 'Allocating combat pools');
@@ -964,6 +972,31 @@ function cloneMaterialInstances(object) {
   });
 }
 
+function materialOverrideKey(mat, index) {
+  return mat.name || `material-${index + 1}`;
+}
+
+function applyScalarMaterialOverrides(object, overrides = {}) {
+  if (!overrides || !Object.keys(overrides).length) return;
+  const seen = new Set();
+  let index = 0;
+  object.traverse((child) => {
+    if (!child.isMesh || !child.material) return;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    for (const mat of mats) {
+      if (!mat || seen.has(mat.uuid)) continue;
+      seen.add(mat.uuid);
+      const key = materialOverrideKey(mat, index++);
+      const spec = overrides[key] || overrides[mat.name];
+      if (!spec) continue;
+      if (Number.isFinite(spec.roughness)) mat.roughness = clamp(spec.roughness, 0, 1);
+      if (Number.isFinite(spec.metalness)) mat.metalness = clamp(spec.metalness, 0, 1);
+      if (Number.isFinite(spec.envMapIntensity)) mat.envMapIntensity = clamp(spec.envMapIntensity, 0, 2);
+      mat.needsUpdate = true;
+    }
+  });
+}
+
 async function applySidecarMaterialOverrides(modelUrl, object) {
   const bust = cacheSuffix(modelUrl);
   const dir = urlDirectory(modelUrl);
@@ -1036,6 +1069,131 @@ async function loadCharacterAssets() {
     };
   } catch (err) {
     console.warn('Ember Runt runtime asset unavailable; using procedural husk.', err);
+  }
+}
+
+async function fetchJsonOptional(url) {
+  try {
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (resp.ok) return await resp.json();
+  } catch {
+    // Optional runtime assets are expected to be missing until finalized.
+  }
+  return null;
+}
+
+function applyWeaponRuntimeDefaults(object, manifest) {
+  const emissiveIntensity = manifest?.emissiveIntensity ?? 1.4;
+  object.traverse((child) => {
+    child.frustumCulled = false;
+    if (!child.isMesh) return;
+    child.castShadow = false;
+    child.receiveShadow = false;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    for (const mat of mats) {
+      if (!mat) continue;
+      if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
+      if (mat.emissiveMap) {
+        mat.emissive?.set(0xffffff);
+        mat.emissiveIntensity = mat.emissiveIntensity || emissiveIntensity;
+      }
+      mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+      mat.needsUpdate = true;
+    }
+    const name = `${child.name || ''} ${child.parent?.name || ''}`.toLowerCase();
+    if (manifest?.spinTargets?.some(token => name.includes(String(token).toLowerCase()))) {
+      child.userData.spinBarrel = true;
+    }
+  });
+}
+
+async function loadWeaponRuntimeAsset(id) {
+  const base = `./assets/weapons/${id}/runtime/`;
+  const manifestUrl = `${base}runtime-manifest.json?v=weapon-runtime-1`;
+  const manifest = await fetchJsonOptional(manifestUrl);
+  if (!manifest?.model) return null;
+  const modelUrl = `${base}${manifest.model}?v=${manifest.version || 'weapon-runtime-1'}`;
+  const gltf = await loadGltf(modelUrl);
+  await applySidecarMaterialOverrides(modelUrl, gltf.scene);
+  applyWeaponRuntimeDefaults(gltf.scene, manifest);
+  return {
+    id,
+    name: manifest.name || id,
+    scene: gltf.scene,
+    animations: gltf.animations || [],
+    attach: manifest.attach || {},
+    muzzle: manifest.muzzle || null,
+    stats: manifest.stats || null,
+    source: modelUrl
+  };
+}
+
+function normalizeMuzzleSocket(raw, fallback = [0, 0.02, -1.08]) {
+  if (Array.isArray(raw)) return { position: raw, rotation: [0, 0, 0] };
+  return {
+    position: raw?.position || fallback,
+    rotation: raw?.rotation || raw?.euler || [0, 0, 0]
+  };
+}
+
+function activeWeaponAssetId() {
+  return player.weapon === 1 ? 'heavy' : 'ssg';
+}
+
+function getWeaponMuzzleSocket(id) {
+  const fallback = id === 'heavy' ? [0, 0.02, -1.02] : [0, 0.02, -1.08];
+  return normalizeMuzzleSocket(weaponAssets[id]?.muzzle, fallback);
+}
+
+async function loadWeaponAssets() {
+  await Promise.all(['ssg', 'heavy'].map(async (id) => {
+    try {
+      const asset = await loadWeaponRuntimeAsset(id);
+      if (asset) weaponAssets[id] = asset;
+    } catch (err) {
+      console.warn(`Runtime weapon asset unavailable for ${id}; using procedural fallback.`, err);
+    }
+  }));
+}
+
+async function loadEnvironmentAssets() {
+  const base = './assets/environment/floating-hell-platform/runtime/';
+  const manifest = await fetchJsonOptional(`${base}runtime-manifest.json?v=platform-50k-2`) || {};
+  const platformUrl = `${base}${manifest.model || 'models/floating-hell-platform.glb'}?v=${manifest.version || 'platform-50k-1'}`;
+  try {
+    const gltf = await loadGltf(platformUrl);
+    const root = gltf.scene;
+    applyScalarMaterialOverrides(root, manifest.materialOverrides);
+    root.traverse((child) => {
+      child.frustumCulled = false;
+      if (!child.isMesh) return;
+      child.castShadow = true;
+      child.receiveShadow = true;
+      const mats = Array.isArray(child.material) ? child.material : [child.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
+        if (mat.emissiveMap) {
+          mat.emissive?.set(0xffffff);
+          mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, 1.35);
+        }
+        mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+        mat.needsUpdate = true;
+      }
+    });
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    root.position.sub(center);
+    root.position.y += size.y * 0.5;
+    environmentAssets.floatingHellPlatform = {
+      scene: root,
+      size,
+      source: platformUrl,
+      manifest
+    };
+  } catch (err) {
+    console.warn('Floating hell platform runtime asset unavailable; using blockout sky altar.', err);
   }
 }
 
@@ -2130,6 +2288,29 @@ function addSlab(name, cx, topY, cz, sx, sz, mat = materials.floor, opts = {}) {
   return addBlock(name, cx, topY, cz, sx, opts.thickness ?? 0.34, sz, mat, { ...opts, collide: true, walk: true, receive: true });
 }
 
+function addFloatingHellPlatformVisual(name, cx, y, cz, sx, sz, opts = {}) {
+  const asset = environmentAssets.floatingHellPlatform;
+  if (!asset?.scene || !asset.size) return null;
+  const visual = SkeletonUtils.clone(asset.scene);
+  cloneMaterialInstances(visual);
+  const scale = opts.scale ?? Math.max(sx / Math.max(0.001, asset.size.x), sz / Math.max(0.001, asset.size.z)) * (opts.scaleBoost ?? 1.04);
+  visual.name = name;
+  visual.scale.setScalar(scale);
+  visual.position.set(cx, y, cz);
+  const rotation = opts.rotationArray || [0, opts.rotation ?? 0, 0];
+  visual.rotation.set(rotation[0] || 0, rotation[1] || 0, rotation[2] || 0);
+  visual.traverse((child) => {
+    child.frustumCulled = false;
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  scene.add(visual);
+  world.decorations.push({ mesh: visual });
+  return visual;
+}
+
 function addMovingPlatform(name, cx, topY, cz, sx, sz, mat, opts = {}) {
   const mesh = addSlab(name, cx, topY, cz, sx, sz, mat, { ...opts, edgeColor: opts.edgeColor || 0x76f4ff, edgeOpacity: opts.edgeOpacity ?? 0.28 });
   const box = mesh.userData.box;
@@ -2238,7 +2419,52 @@ function createLevel() {
   addSlab('outer-south-runway', 0, 7.65, 39.0, 32, 5.2, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
   addSlab('outer-west-runway', -39.0, 7.65, 0, 5.2, 32, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
   addSlab('outer-east-runway', 39.0, 7.65, 0, 5.2, 32, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
-  addSlab('sky-center-altar', 0, 12.35, 0, 7.4, 7.4, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.34 });
+  const platformManifest = environmentAssets.floatingHellPlatform?.manifest || {};
+  const platformPrefab = platformManifest.prefab || null;
+  const platformCollision = platformPrefab?.collision || platformManifest.collision || {};
+  const platformPlacement = platformPrefab?.visual || platformManifest.placement || {};
+  const platformInstance = platformManifest.levelPlacement || { position: [0, 0, 0], topY: platformManifest.collision?.topY ?? 10.5, rotation: [0, 0, 0], scale: 1 };
+  const platformInstancePos = platformInstance.position || [0, 0, 0];
+  const platformInstanceScale = platformInstance.scale ?? 1;
+  const platformCollisionSize = platformCollision.size || [7.4, 0.72, 7.4];
+  const platformCollisionCenter = platformCollision.center || [0, -platformCollisionSize[1] * 0.5, 0];
+  const platformLocalTop = platformCollisionCenter[1] + platformCollisionSize[1] * 0.5;
+  const skyCenterAltarTop = platformPrefab
+    ? (platformInstance.topY ?? (platformInstancePos[1] + platformLocalTop * platformInstanceScale))
+    : (platformCollision.topY ?? 10.5);
+  const skyCenterAltarX = platformPrefab ? platformInstancePos[0] + platformCollisionCenter[0] * platformInstanceScale : 0;
+  const skyCenterAltarZ = platformPrefab ? platformInstancePos[2] + platformCollisionCenter[2] * platformInstanceScale : 0;
+  const skyCenterAltar = addSlab('sky-center-altar', skyCenterAltarX, skyCenterAltarTop, skyCenterAltarZ, platformCollisionSize[0] * platformInstanceScale, platformCollisionSize[2] * platformInstanceScale, materials.obsidian, {
+    edgeColor: 0xa65cff,
+    edgeOpacity: 0.34,
+    thickness: platformCollisionSize[1] * platformInstanceScale || 0.72
+  });
+  if (environmentAssets.floatingHellPlatform) {
+    skyCenterAltar.visible = false;
+    if (platformPrefab) {
+      const platformRotation = platformPlacement.rotation || [platformPlacement.rotationX ?? 0, platformPlacement.rotationY ?? 0, platformPlacement.rotationZ ?? 0];
+      const instanceY = skyCenterAltarTop - platformLocalTop * platformInstanceScale;
+      const visualPos = platformPlacement.position || [platformPlacement.x ?? 0, platformPlacement.y ?? 0, platformPlacement.z ?? 0];
+      addFloatingHellPlatformVisual('sky-center-altar-floating-hell-platform',
+        platformInstancePos[0] + visualPos[0] * platformInstanceScale,
+        instanceY + visualPos[1] * platformInstanceScale,
+        platformInstancePos[2] + visualPos[2] * platformInstanceScale,
+        platformCollisionSize[0] * platformInstanceScale,
+        platformCollisionSize[2] * platformInstanceScale, {
+        rotationArray: platformRotation,
+        scale: (platformPlacement.scale ?? 1) * platformInstanceScale,
+        scaleBoost: platformPlacement.scaleBoost ?? 1
+      });
+    } else {
+      const platformRotation = platformPlacement.rotation || null;
+      addFloatingHellPlatformVisual('sky-center-altar-floating-hell-platform', platformPlacement.x ?? 0, platformPlacement.y ?? 8.15, platformPlacement.z ?? 0, platformPlacement.width ?? 7.4, platformPlacement.depth ?? 7.4, {
+        rotation: platformPlacement.rotationY ?? Math.PI * 0.12,
+        rotationArray: platformRotation,
+        scale: platformPlacement.scale,
+        scaleBoost: platformPlacement.scaleBoost ?? 1.04
+      });
+    }
+  }
   addSlab('sky-nw-island', -22, 11.45, -22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
   addSlab('sky-ne-island', 22, 11.45, -22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
   addSlab('sky-sw-island', -22, 11.45, 22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
@@ -2358,6 +2584,36 @@ function addHookNode(pos, label) {
   world.hookNodes.push({ pos: pos.clone(), label, group, core, radius: 0.8, alive: true, isHookNode: true });
 }
 
+function setProceduralWeaponVisible(group, visible) {
+  group.traverse((child) => {
+    if (child.isMesh || child.isLine) child.visible = visible;
+  });
+}
+
+function attachRuntimeWeaponModel(id, parent) {
+  const asset = weaponAssets[id];
+  if (!asset?.scene || !parent) return null;
+  const runtime = SkeletonUtils.clone(asset.scene);
+  cloneMaterialInstances(runtime);
+  const attach = asset.attach || {};
+  runtime.position.fromArray(attach.position || [0, 0, 0]);
+  runtime.rotation.set(...(attach.rotation || [0, 0, 0]));
+  runtime.scale.setScalar(attach.scale ?? 1);
+  runtime.name = `${id}-runtime-viewmodel`;
+  runtime.userData.runtimeWeapon = id;
+  runtime.traverse((child) => {
+    child.frustumCulled = false;
+    if (child.isMesh) {
+      child.castShadow = false;
+      child.receiveShadow = false;
+    }
+  });
+  setProceduralWeaponVisible(parent, false);
+  parent.add(runtime);
+  parent.userData.runtimeWeapon = runtime;
+  return runtime;
+}
+
 function createWeapons() {
   weaponRoot = new THREE.Group();
   weaponRoot.position.set(0.38, -0.37, -0.76);
@@ -2453,16 +2709,17 @@ function createWeapons() {
   heavyModel.visible = false;
   weaponRoot.add(heavyModel);
 
+  attachRuntimeWeaponModel('ssg', ssgModel);
+  attachRuntimeWeaponModel('heavy', heavyModel);
+
   for (const group of [ssgModel, heavyModel]) group.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
 
   muzzleFlash = new THREE.Group();
   const flashMat = new THREE.MeshBasicMaterial({ color: 0xffd47a, transparent: true, opacity: 0.0, depthWrite: false, blending: THREE.AdditiveBlending });
   const flashA = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.46, 7), flashMat);
   flashA.rotation.x = -Math.PI / 2;
-  flashA.position.set(0, 0.02, -1.08);
   muzzleFlash.add(flashA);
   const flashB = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), flashMat);
-  flashB.position.set(0, 0.02, -1.08);
   muzzleFlash.add(flashB);
   weaponRoot.add(muzzleFlash);
 
@@ -2516,7 +2773,7 @@ function createWeapons() {
 function setupInput() {
   dom.startButton.addEventListener('click', startGame);
   renderer.domElement.addEventListener('click', () => {
-    if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
+    if (document.pointerLockElement !== renderer.domElement) requestPointerLockSafe();
   });
   document.addEventListener('pointerlockchange', () => {
     pausedByLock = document.pointerLockElement !== renderer.domElement;
@@ -2596,6 +2853,15 @@ function setupInput() {
   });
 }
 
+function requestPointerLockSafe() {
+  try {
+    const result = renderer.domElement.requestPointerLock();
+    if (result?.catch) result.catch(() => {});
+  } catch {
+    // Automation and embedded browser contexts may reject pointer lock.
+  }
+}
+
 async function startGame() {
   if (!player.alive) restartArena();
   audio.ensure();
@@ -2605,7 +2871,7 @@ async function startGame() {
   running = true;
   pausedByLock = false;
   dom.overlay.classList.add('hidden');
-  renderer.domElement.requestPointerLock();
+  requestPointerLockSafe();
   if (!stageState.started) startStage(1);
 }
 
@@ -3107,13 +3373,13 @@ function updateWeapons(dt) {
   if (heavyModel) heavyModel.visible = !execution.active && player.weapon === 1;
 
   weaponState.spin += dt * (!execution.active && player.weapon === 1 && (input.fireHeld || input.altHeld) ? 28 : 8);
-  for (const child of heavyModel.children) if (child.userData.spinBarrel) {
+  heavyModel.traverse((child) => { if (child.userData.spinBarrel) {
     const r = Math.hypot(child.position.x, child.position.y - 0.02);
     const base = Math.atan2(child.position.y - 0.02, child.position.x);
     const a = base + dt * (!execution.active && (input.fireHeld || input.altHeld) ? 18 : 4);
     child.position.x = Math.cos(a) * r;
     child.position.y = Math.sin(a) * r + 0.02;
-  }
+  } });
 
   const bobY = Math.sin(player.bob) * 0.025 + Math.sin(player.bob * 0.5) * 0.014;
   const bobX = Math.sin(player.bob * 0.5) * 0.025;
@@ -3121,6 +3387,10 @@ function updateWeapons(dt) {
   const switchDrop = weaponState.switchT > 0 ? Math.sin((weaponState.switchT / 0.22) * Math.PI) * -0.28 : 0;
   weaponRoot.position.set(0.38 + bobX - input.lastMoveDX * 0.00025, -0.38 + bobY + switchDrop + input.lastMoveDY * 0.0002, -0.78 + recoilZ);
   weaponRoot.rotation.set(-player.recoil * 0.55 + input.lastMoveDY * 0.00022, input.lastMoveDX * 0.00028, Math.sin(player.bob * 0.5) * 0.025 - input.lastMoveDX * 0.0004);
+
+  const muzzleSocket = getWeaponMuzzleSocket(activeWeaponAssetId());
+  muzzleFlash.position.fromArray(muzzleSocket.position);
+  muzzleFlash.rotation.set(...muzzleSocket.rotation);
 
   for (const m of muzzleFlash.children) {
     m.material.opacity = clamp(weaponState.muzzleT / 0.07, 0, 1);
@@ -3557,11 +3827,15 @@ function hasLineOfSight(a, b) {
 }
 
 function rayAabb(origin, dir, maxDist, box) {
+  return rayAabbExpanded(origin, dir, maxDist, box, 0);
+}
+
+function rayAabbExpanded(origin, dir, maxDist, box, expand = 0) {
   let tmin = 0, tmax = maxDist;
   for (const axis of ['x', 'y', 'z']) {
     const o = origin[axis];
     const d = dir[axis];
-    const min = box.min[axis], max = box.max[axis];
+    const min = box.min[axis] - expand, max = box.max[axis] + expand;
     if (Math.abs(d) < 1e-6) {
       if (o < min || o > max) return null;
     } else {
@@ -3575,6 +3849,19 @@ function rayAabb(origin, dir, maxDist, box) {
     }
   }
   return tmin;
+}
+
+function raycastProjectileWorld(origin, dir, maxDist, radius = 0.05) {
+  let bestT = Infinity;
+  let bestBox = null;
+  for (const box of world.boxes) {
+    const hit = rayAabbExpanded(origin, dir, maxDist, box, radius);
+    if (hit !== null && hit > 0.001 && hit < bestT) {
+      bestT = hit;
+      bestBox = box;
+    }
+  }
+  return bestBox ? { distance: bestT, box: bestBox } : null;
 }
 
 function raycastEnemies(origin, dir, maxDist, extraRadius = 0, priorityEnemy = null) {
@@ -3630,7 +3917,21 @@ function updateProjectiles(dt) {
       p.vel.lerp(desired, clamp(dt * 5.2, 0, 0.5));
     }
 
+    const oldX = p.pos.x, oldY = p.pos.y, oldZ = p.pos.z;
     p.pos.addScaledVector(p.vel, dt);
+    tmpV1.set(oldX, oldY, oldZ);
+    tmpV2.copy(p.pos).sub(tmpV1);
+    const moveLen = tmpV2.length();
+    if (moveLen > 0.0001) {
+      tmpV2.multiplyScalar(1 / moveLen);
+      const worldHit = raycastProjectileWorld(tmpV1, tmpV2, moveLen, p.radius || 0.05);
+      if (worldHit) {
+        p.pos.copy(tmpV1).addScaledVector(tmpV2, Math.max(0, worldHit.distance - 0.02));
+        p.mesh.position.copy(p.pos);
+        explodeProjectile(p, i, p.owner === 'enemy');
+        continue;
+      }
+    }
     p.mesh.position.copy(p.pos);
     if (p.vel.lengthSq() > 0.1) p.mesh.quaternion.setFromUnitVectors(UP, p.vel.clone().normalize());
     if (Math.random() < dt * 25) spawnParticle(p.pos.clone(), new THREE.Vector3(rand(-1, 1), rand(-1, 1), rand(-1, 1)).multiplyScalar(0.5), p.trailColor || 0xff8a30, 0.22, 0.065, true);
@@ -4368,6 +4669,8 @@ function spawnDirector(dt) {
 }
 
 function updatePickups(dt) {
+  const attractRadius = 10.4;
+  const collectRadius = 1.8;
   const pcx = player.pos.x;
   const pcy = player.pos.y + 0.9;
   const pcz = player.pos.z;
@@ -4376,7 +4679,7 @@ function updatePickups(dt) {
     p.life -= dt;
     const tx = pcx - p.pos.x, ty = pcy - p.pos.y, tz = pcz - p.pos.z;
     const d = Math.max(0.0001, Math.hypot(tx, ty, tz));
-    if (d < 5.2) {
+    if (d < attractRadius) {
       const pull = dt * (20 / Math.max(1.2, d)) / d;
       p.vel.x += tx * pull; p.vel.y += ty * pull; p.vel.z += tz * pull;
     }
@@ -4386,7 +4689,7 @@ function updatePickups(dt) {
     p.mesh.position.copy(p.pos);
     p.mesh.rotation.x += dt * p.spin.x;
     p.mesh.rotation.y += dt * p.spin.y;
-    if (d < 0.9) {
+    if (d < collectRadius) {
       collectPickup(p);
       releasePickupMesh(p.mesh);
       pickups.splice(i, 1);

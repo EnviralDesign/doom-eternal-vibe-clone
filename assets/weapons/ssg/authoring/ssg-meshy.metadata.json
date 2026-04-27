@@ -1,0 +1,18 @@
+{
+  "id": "ssg",
+  "name": "Twin Anvil + Meat Hook",
+  "prompt": "first person game weapon asset, compact brutal double barrel super shotgun, two large parallel circular muzzle barrels clearly visible at the FRONT, short squared blackened steel receiver, ribbed heat shroud, orange glowing barrel interiors, small fixed meat hook launcher mounted under barrels, no loose chain, no dangling chain, no shoulder stock at the front, no buttstock silhouette, no hands, no character, no background, high quality PBR hard surface",
+  "previewTaskId": "019dd0aa-a483-7adf-b244-02fcb38bcfe1",
+  "refineTaskId": "019dd0ac-2583-7bfd-978f-aed0242f184b",
+  "meshyProject": "meshy_output/20260427_153859_ssg-double-barrel-no-chain_019dd0aa",
+  "createdAt": "2026-04-27T15:41:51.318865",
+  "notes": [
+    "Redo requested because v1 front barrel read as a buttstock and hanging chain cluttered first-person view."
+  ],
+  "authoringGlb": "assets/weapons/ssg/authoring/ssg-meshy-refined.glb",
+  "runtimeGlb": "assets/weapons/ssg/runtime/models/viewmodel.glb",
+  "runtimeBytes": 12798948,
+  "formats": [
+    "glb"
+  ]
+}

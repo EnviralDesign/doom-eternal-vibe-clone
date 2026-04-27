@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hellrush: Meathook Arena V6.2 — Lighting Pipeline</title>
+  <title>Hellrush: Meathook Arena V6.4 — Environment Runtime Pipeline</title>
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="style.css?v=lighting-lab1" />
   <script type="importmap">
@@ -55,8 +55,8 @@
 
   <div id="overlay">
     <div class="panel">
-      <h1>Hellrush: Meathook Arena V6.2</h1>
-      <p>V6.2 adds a cleaner PBR lighting pipeline with PMREM environment response, cinematic defaults, bloom, explicit shader warmup, pooled enemies and projectiles, the animated Ember Runt husk, and a denser vertical route network.</p>
+      <h1>Hellrush: Meathook Arena V6.4</h1>
+      <p>V6.4 keeps the PBR lighting and weapon runtime paths, then adds the first Meshy-generated environment prop: a remeshed floating hell platform mounted over a simple gameplay collision slab.</p>
       <div id="bootMeter" aria-hidden="true"><span id="bootFill"></span></div>
       <p id="bootStatus" class="tiny">Preparing renderer</p>
       <div class="controlGrid">
@@ -67,12 +67,12 @@
       </div>
       <p class="tiny">Tip: chain jump pad → hook node → double jump → dash. Green stagger = Glory Kill. Burning = armor fountain. Finishers briefly protect you.</p>
       <button id="startButton">Start / Lock Mouse</button>
-      <p class="tiny">Uses locally vendored Three.js modules. Run through a local server for best browser compatibility. The repo also includes asset_lab.html, character_lab.html, texture_lab.html, and ?lightingLab for isolated inspection.</p>
-      <code>npx --yes http-server . -p 8066 -a 127.0.0.1</code>
+      <p class="tiny">Uses locally vendored Three.js modules. Run through the local authoring server for best browser compatibility. The repo also includes asset_lab.html, runtime_asset_lab.html, character_lab.html, weapon_lab.html, texture_lab.html, and ?lightingLab for isolated inspection.</p>
+      <code>uv run dev</code>
       <p id="version" class="tiny"></p>
     </div>
   </div>
 
-  <script type="module" src="src/game.js?v=6-pbr-textures1"></script>
+  <script type="module" src="src/game.js?v=6-meshy-weapons1"></script>
 </body>
 </html>

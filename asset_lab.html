@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Hellrush Asset Lab</title>
+<link rel="icon" href="data:," />
 <script type="importmap">
 {
   "imports": {
@@ -151,13 +152,13 @@ function build(which){
   if(root) scene.remove(root);
   root = which==='ssg'?ssg():which==='heavy'?heavy():['husk','imp','bruiser'].includes(which)?demon(which):['health','armorPick','ammoPick'].includes(which)?pickup(which):finisher(which);
   scene.add(root);
-  root.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=true; }});
+  root.traverse(o=>{ if(o.isMesh){ o.castShadow=true; o.receiveShadow=false; }});
 }
 function init(){
   makeMat(); scene=new THREE.Scene(); scene.background=new THREE.Color(0x070607); scene.fog=new THREE.Fog(0x070607,8,16);
   camera=new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .02, 100);
-  renderer=new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.8)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95; document.body.appendChild(renderer.domElement);
-  const hemi=new THREE.HemisphereLight(0x9cb8ff,0x2a0905,.8); scene.add(hemi); const key=new THREE.DirectionalLight(0xffd1a0,1.1); key.position.set(-4,8,4); key.castShadow=true; scene.add(key); window.key=key; const rim=new THREE.PointLight(0x49cfff,1.6,8); rim.position.set(3,2,-3); scene.add(rim);
+  renderer=new THREE.WebGLRenderer({antialias:true, preserveDrawingBuffer:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,1.8)); renderer.setSize(innerWidth,innerHeight); renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95; document.body.appendChild(renderer.domElement);
+  const hemi=new THREE.HemisphereLight(0x9cb8ff,0x2a0905,.8); scene.add(hemi); const key=new THREE.DirectionalLight(0xffd1a0,1.1); key.position.set(-4,8,4); key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.camera.left=-5; key.shadow.camera.right=5; key.shadow.camera.top=5; key.shadow.camera.bottom=-5; key.shadow.camera.near=.5; key.shadow.camera.far=18; key.shadow.bias=-0.00003; key.shadow.normalBias=0.055; scene.add(key); window.key=key; const rim=new THREE.PointLight(0x49cfff,1.6,8); rim.position.set(3,2,-3); scene.add(rim);
   const floor=new THREE.Mesh(new THREE.CircleGeometry(4,64), new THREE.MeshStandardMaterial({color:0x17120f, roughness:.7, metalness:.2})); floor.rotation.x=-Math.PI/2; floor.position.y=-1.35; floor.receiveShadow=true; scene.add(floor);
   build(document.getElementById('asset').value);
   addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });

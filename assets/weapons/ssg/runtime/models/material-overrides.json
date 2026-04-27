@@ -1,0 +1,8 @@
+{
+  "materialName": "EmbeddedMeshyWeaponMaterials",
+  "source": "Embedded GLB PBR textures",
+  "maps": {},
+  "notes": [
+    "Placeholder sidecar so runtime/lab loaders do not probe missing files. This Meshy weapon GLB currently keeps embedded PBR maps."
+  ]
+}

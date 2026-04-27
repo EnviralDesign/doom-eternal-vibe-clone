@@ -1,0 +1,66 @@
+{
+  "version": "platform-50k-2",
+  "id": "floating-hell-platform",
+  "name": "Floating Hell Platform",
+  "model": "models/floating-hell-platform.glb",
+  "source": "../source/floating-hell-platform-meshy-remesh-50k.glb",
+  "authoringSource": "../source/floating-hell-platform-meshy.glb",
+  "reference": "../source/floating-hell-platform-concept.png",
+  "meshyTaskId": "019dd071-0d64-7a34-9dd8-c21b9f72a658",
+  "remeshTaskId": "019dd077-60d2-7b4a-b77d-6750e6f4e003",
+  "triangles": 49995,
+  "runtimeBytes": 24264572,
+  "prefab": {
+    "visual": {
+      "position": [
+        -0.003,
+        -1.8,
+        -0.006
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": 4.044
+    },
+    "collision": {
+      "type": "box",
+      "center": [
+        0,
+        -0.4,
+        0
+      ],
+      "size": [
+        7.4,
+        0.72,
+        7.4
+      ]
+    }
+  },
+  "levelPlacement": {
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "scale": 1,
+    "topY": 10.5
+  },
+  "materialOverrides": {
+    "Material_0.001": {
+      "roughness": 1,
+      "metalness": 0.28,
+      "envMapIntensity": 0.45
+    }
+  },
+  "notes": [
+    "Runtime candidate keeps embedded Meshy PBR maps for this first visual test.",
+    "Gameplay collision remains a simple invisible slab; the high-detail mesh is visual only."
+  ]
+}

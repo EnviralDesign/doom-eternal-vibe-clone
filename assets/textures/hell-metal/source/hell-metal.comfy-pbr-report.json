@@ -1,0 +1,88 @@
+{
+  "prompt_id": "5489bb1f-1281-4322-9593-f6a96ea3fa5f",
+  "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\hell-metal\\source\\hell-metal_base.png",
+  "uploaded_name": "hell-metal_base.png",
+  "load_node_id": "2",
+  "patched_save_nodes": {
+    "4": {
+      "map": "basecolor",
+      "mode": "preview"
+    },
+    "5": {
+      "map": "normal",
+      "mode": "preview"
+    },
+    "6": {
+      "map": "roughness",
+      "mode": "preview"
+    },
+    "7": {
+      "map": "metalness",
+      "mode": "preview"
+    },
+    "9": {
+      "map": "height",
+      "mode": "preview"
+    }
+  },
+  "outputs": [
+    {
+      "map": "roughness",
+      "path": "assets\\textures\\hell-metal\\source\\hell-metal_roughness.png",
+      "source": {
+        "filename": "ComfyUI_temp_updif_00004_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "normal",
+      "path": "assets\\textures\\hell-metal\\source\\hell-metal_normal.png",
+      "source": {
+        "filename": "ComfyUI_temp_iptqc_00004_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "metalness",
+      "path": "assets\\textures\\hell-metal\\source\\hell-metal_metalness.png",
+      "source": {
+        "filename": "ComfyUI_temp_lgtig_00004_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "basecolor",
+      "path": "assets\\textures\\hell-metal\\source\\hell-metal_basecolor.png",
+      "source": {
+        "filename": "ComfyUI_temp_jjerq_00004_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "height",
+      "path": "assets\\textures\\hell-metal\\source\\hell-metal_height.png",
+      "source": {
+        "filename": "ComfyUI_temp_xhcyr_00004_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    }
+  ],
+  "manifest_entry": {
+    "id": "hell-metal",
+    "name": "Hell Metal Chord PBR",
+    "tile": 3,
+    "roughness": 1.0,
+    "metalness": 1.0,
+    "baseColor": "hell-metal/source/hell-metal_basecolor.png",
+    "normal": "hell-metal/source/hell-metal_normal.png",
+    "roughnessMap": "hell-metal/source/hell-metal_roughness.png",
+    "metalnessMap": "hell-metal/source/hell-metal_metalness.png",
+    "heightMap": "hell-metal/source/hell-metal_height.png",
+    "displacementScale": 0.012
+  }
+}

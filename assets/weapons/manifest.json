@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "weapons": [
+    {
+      "id": "ssg",
+      "name": "Twin Anvil + Meat Hook",
+      "runtimeManifest": "ssg/runtime/runtime-manifest.json",
+      "fallback": "procedural",
+      "promptBrief": "double-barrel super shotgun with an integrated demonic meat-hook winch, brutal blackened steel, bone heat shields, glowing orange barrel throats, readable first-person silhouette"
+    },
+    {
+      "id": "heavy",
+      "name": "Heavy Autorifle",
+      "runtimeManifest": "heavy/runtime/runtime-manifest.json",
+      "fallback": "procedural",
+      "promptBrief": "compact heavy autorifle with rotating gatling barrels, side micro-missile pods, cyan argent coil lighting, black gunmetal frame, readable first-person sci-fi silhouette"
+    }
+  ]
+}

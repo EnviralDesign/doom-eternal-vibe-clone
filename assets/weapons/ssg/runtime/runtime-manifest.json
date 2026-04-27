@@ -1,0 +1,39 @@
+{
+  "version": "ssg-meshy-runtime-v2",
+  "id": "ssg",
+  "name": "Twin Anvil + Meat Hook",
+  "model": "models/viewmodel.glb",
+  "source": "../authoring/ssg-meshy-refined.glb",
+  "previewTaskId": "019dd0aa-a483-7adf-b244-02fcb38bcfe1",
+  "refineTaskId": "019dd0ac-2583-7bfd-978f-aed0242f184b",
+  "attach": {
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotation": [
+      0,
+      1.5708,
+      0
+    ],
+    "scale": 0.78
+  },
+  "muzzle": {
+    "position": [
+      0,
+      0.02,
+      -1.08
+    ],
+    "rotation": [
+      0,
+      0,
+      0
+    ]
+  },
+  "spinTargets": [],
+  "runtimeBytes": 12798948,
+  "notes": [
+    "Second Meshy weapon runtime pass: clearer twin front barrels, compact receiver, no dangling chain. GLB keeps embedded PBR maps for fallback-free loading."
+  ]
+}

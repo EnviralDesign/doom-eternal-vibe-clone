@@ -1,5 +1,5 @@
 {
-  "prompt_id": "1258d2e7-f383-4e9e-88d1-49967688e77d",
+  "prompt_id": "5fa11bee-1938-4096-a67d-e7a6913c5546",
   "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_base.png",
   "uploaded_name": "argent-catwalk_base.png",
   "load_node_id": "2",
@@ -28,45 +28,45 @@
   "outputs": [
     {
       "map": "roughness",
-      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_roughness.png",
+      "path": "assets\\textures\\argent-catwalk\\source\\argent-catwalk_roughness.png",
       "source": {
-        "filename": "ComfyUI_temp_updif_00001_.png",
+        "filename": "ComfyUI_temp_updif_00006_.png",
         "subfolder": "",
         "type": "temp"
       }
     },
     {
       "map": "normal",
-      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_normal.png",
+      "path": "assets\\textures\\argent-catwalk\\source\\argent-catwalk_normal.png",
       "source": {
-        "filename": "ComfyUI_temp_iptqc_00001_.png",
+        "filename": "ComfyUI_temp_iptqc_00006_.png",
         "subfolder": "",
         "type": "temp"
       }
     },
     {
       "map": "metalness",
-      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_metalness.png",
+      "path": "assets\\textures\\argent-catwalk\\source\\argent-catwalk_metalness.png",
       "source": {
-        "filename": "ComfyUI_temp_lgtig_00001_.png",
+        "filename": "ComfyUI_temp_lgtig_00006_.png",
         "subfolder": "",
         "type": "temp"
       }
     },
     {
       "map": "basecolor",
-      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_basecolor.png",
+      "path": "assets\\textures\\argent-catwalk\\source\\argent-catwalk_basecolor.png",
       "source": {
-        "filename": "ComfyUI_temp_jjerq_00001_.png",
+        "filename": "ComfyUI_temp_jjerq_00006_.png",
         "subfolder": "",
         "type": "temp"
       }
     },
     {
       "map": "height",
-      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_height.png",
+      "path": "assets\\textures\\argent-catwalk\\source\\argent-catwalk_height.png",
       "source": {
-        "filename": "ComfyUI_temp_xhcyr_00001_.png",
+        "filename": "ComfyUI_temp_xhcyr_00006_.png",
         "subfolder": "",
         "type": "temp"
       }

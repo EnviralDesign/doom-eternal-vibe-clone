@@ -1,0 +1,88 @@
+{
+  "prompt_id": "ec5982f9-b353-4aec-a248-81d2de04b8f0",
+  "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\hell-wall\\source\\hell-wall_base.png",
+  "uploaded_name": "hell-wall_base.png",
+  "load_node_id": "2",
+  "patched_save_nodes": {
+    "4": {
+      "map": "basecolor",
+      "mode": "preview"
+    },
+    "5": {
+      "map": "normal",
+      "mode": "preview"
+    },
+    "6": {
+      "map": "roughness",
+      "mode": "preview"
+    },
+    "7": {
+      "map": "metalness",
+      "mode": "preview"
+    },
+    "9": {
+      "map": "height",
+      "mode": "preview"
+    }
+  },
+  "outputs": [
+    {
+      "map": "roughness",
+      "path": "assets\\textures\\hell-wall\\source\\hell-wall_roughness.png",
+      "source": {
+        "filename": "ComfyUI_temp_updif_00003_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "normal",
+      "path": "assets\\textures\\hell-wall\\source\\hell-wall_normal.png",
+      "source": {
+        "filename": "ComfyUI_temp_iptqc_00003_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "metalness",
+      "path": "assets\\textures\\hell-wall\\source\\hell-wall_metalness.png",
+      "source": {
+        "filename": "ComfyUI_temp_lgtig_00003_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "basecolor",
+      "path": "assets\\textures\\hell-wall\\source\\hell-wall_basecolor.png",
+      "source": {
+        "filename": "ComfyUI_temp_jjerq_00003_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "height",
+      "path": "assets\\textures\\hell-wall\\source\\hell-wall_height.png",
+      "source": {
+        "filename": "ComfyUI_temp_xhcyr_00003_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    }
+  ],
+  "manifest_entry": {
+    "id": "hell-wall",
+    "name": "Hell Wall Chord PBR",
+    "tile": 3,
+    "roughness": 1.0,
+    "metalness": 1.0,
+    "baseColor": "hell-wall/source/hell-wall_basecolor.png",
+    "normal": "hell-wall/source/hell-wall_normal.png",
+    "roughnessMap": "hell-wall/source/hell-wall_roughness.png",
+    "metalnessMap": "hell-wall/source/hell-wall_metalness.png",
+    "heightMap": "hell-wall/source/hell-wall_height.png",
+    "displacementScale": 0.012
+  }
+}

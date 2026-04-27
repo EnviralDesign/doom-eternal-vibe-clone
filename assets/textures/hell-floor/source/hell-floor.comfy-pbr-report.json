@@ -1,0 +1,88 @@
+{
+  "prompt_id": "1e25261d-8c20-4728-8c63-f16dbc558518",
+  "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\hell-floor\\source\\hell-floor_base.png",
+  "uploaded_name": "hell-floor_base.png",
+  "load_node_id": "2",
+  "patched_save_nodes": {
+    "4": {
+      "map": "basecolor",
+      "mode": "preview"
+    },
+    "5": {
+      "map": "normal",
+      "mode": "preview"
+    },
+    "6": {
+      "map": "roughness",
+      "mode": "preview"
+    },
+    "7": {
+      "map": "metalness",
+      "mode": "preview"
+    },
+    "9": {
+      "map": "height",
+      "mode": "preview"
+    }
+  },
+  "outputs": [
+    {
+      "map": "roughness",
+      "path": "assets\\textures\\hell-floor\\source\\hell-floor_roughness.png",
+      "source": {
+        "filename": "ComfyUI_temp_updif_00002_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "normal",
+      "path": "assets\\textures\\hell-floor\\source\\hell-floor_normal.png",
+      "source": {
+        "filename": "ComfyUI_temp_iptqc_00002_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "metalness",
+      "path": "assets\\textures\\hell-floor\\source\\hell-floor_metalness.png",
+      "source": {
+        "filename": "ComfyUI_temp_lgtig_00002_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "basecolor",
+      "path": "assets\\textures\\hell-floor\\source\\hell-floor_basecolor.png",
+      "source": {
+        "filename": "ComfyUI_temp_jjerq_00002_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "height",
+      "path": "assets\\textures\\hell-floor\\source\\hell-floor_height.png",
+      "source": {
+        "filename": "ComfyUI_temp_xhcyr_00002_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    }
+  ],
+  "manifest_entry": {
+    "id": "hell-floor",
+    "name": "Hell Floor Chord PBR",
+    "tile": 3,
+    "roughness": 1.0,
+    "metalness": 1.0,
+    "baseColor": "hell-floor/source/hell-floor_basecolor.png",
+    "normal": "hell-floor/source/hell-floor_normal.png",
+    "roughnessMap": "hell-floor/source/hell-floor_roughness.png",
+    "metalnessMap": "hell-floor/source/hell-floor_metalness.png",
+    "heightMap": "hell-floor/source/hell-floor_height.png",
+    "displacementScale": 0.012
+  }
+}

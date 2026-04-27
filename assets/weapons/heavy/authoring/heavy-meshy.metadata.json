@@ -1,0 +1,19 @@
+{
+  "id": "heavy",
+  "name": "Heavy Autorifle",
+  "prompt": "first person game weapon asset, compact heavy autorifle with rotating gatling barrels, side micro missile pods, cyan argent energy coil, black gunmetal frame, readable sci fi viewmodel silhouette, high quality PBR hard surface, no hands, no character, no background, no text",
+  "previewTaskId": "019dd096-fece-713a-91fc-be27c8a46831",
+  "refineTaskId": "019dd099-4320-772e-a05a-db2cb22a4946",
+  "meshyProject": "meshy_output/20260427_151958_heavy-heavy-autorifle_019dd096",
+  "authoringGlb": "assets/weapons/heavy/authoring/heavy-meshy-refined.glb",
+  "runtimeGlb": "assets/weapons/heavy/runtime/models/viewmodel.glb",
+  "formats": [
+    "glb",
+    "fbx",
+    "usdz",
+    "obj",
+    "mtl",
+    "stl"
+  ],
+  "createdAt": "2026-04-27T15:21:20.595401"
+}

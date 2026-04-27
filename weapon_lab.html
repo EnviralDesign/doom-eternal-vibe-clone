@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hellrush Weapon Lab</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#080707; color:#f8efe2; }
+    * { box-sizing: border-box; }
+    body { margin:0; overflow:hidden; min-height:100vh; background: radial-gradient(circle at 74% 12%, rgba(60,165,255,.16), transparent 26%), radial-gradient(circle at 42% 82%, rgba(255,72,19,.24), transparent 34%), #080707; }
+    canvas { display:block; width:100vw; height:100vh; }
+    .panel {
+      position:fixed; left:16px; top:16px; z-index:2; width:min(420px, calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto;
+      padding:14px; background:rgba(13,9,7,.82); border:1px solid rgba(255,128,52,.28);
+      box-shadow:0 24px 90px rgba(0,0,0,.48); backdrop-filter:blur(16px);
+    }
+    h1 { margin:0 0 6px; font-size:22px; letter-spacing:0; }
+    p { margin:6px 0 10px; color:#d9c6b7; line-height:1.35; font-size:13px; }
+    label { display:grid; gap:5px; margin:10px 0; color:#cbb9a8; font-size:12px; text-transform:uppercase; font-weight:800; }
+    select, input, button {
+      width:100%; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.08);
+      color:#fff2e2; min-height:36px; padding:8px 10px; font:inherit; font-weight:760;
+    }
+    select option { color:#111; }
+    input[type="range"] { padding:0; accent-color:#ffae55; }
+    button { cursor:pointer; background:linear-gradient(180deg,#ffb35d,#e34a18); color:#160704; border-color:#ffc084; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .triple { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+    .tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0; }
+    .debugTabs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:8px 0; }
+    .tabs button { background:rgba(255,255,255,.08); color:#f7eade; border-color:rgba(255,255,255,.14); }
+    .tabs button.active { background:#9ce8ff; color:#071015; border-color:#d6f8ff; }
+    .debugTabs button { background:rgba(255,255,255,.08); color:#f7eade; border-color:rgba(255,255,255,.14); }
+    .debugTabs button.active { background:#ffd25f; color:#100905; border-color:#ffe7a0; }
+    pre { margin:10px 0 0; max-height:250px; overflow:auto; padding:10px; white-space:pre-wrap; line-height:1.42; font-size:12px; background:rgba(0,0,0,.48); border:1px solid rgba(255,255,255,.12); color:#ffdcb4; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.full.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="panel">
+    <h1>Hellrush Weapon Lab</h1>
+    <p>Runtime Meshy weapon observer with the same PBR/color assumptions as the game. Left-drag orbits, right-drag pans, wheel zooms.</p>
+    <label>Weapon <select id="weaponSelect"></select></label>
+    <label>Model URL <input id="modelUrl" /></label>
+    <div class="row">
+      <label>Lighting
+        <select id="lightingSelect">
+          <option value="hero">Hero PBR</option>
+          <option value="arena">Arena</option>
+          <option value="studio">Studio</option>
+          <option value="flat">Flat</option>
+        </select>
+      </label>
+      <label>Camera
+        <select id="cameraSelect">
+          <option value="inspect">Inspect</option>
+          <option value="viewmodel">Viewmodel</option>
+          <option value="side">Side</option>
+        </select>
+      </label>
+    </div>
+    <div class="tabs">
+      <button id="runtimeButton" class="active" type="button">Runtime</button>
+      <button id="proceduralButton" type="button">Procedural</button>
+      <button id="boundsButton" class="active" type="button">Bounds</button>
+    </div>
+    <div class="debugTabs">
+      <button id="anchorButton" class="active" type="button">Anchor</button>
+      <button id="axesButton" class="active" type="button">Axes</button>
+      <button id="muzzleButton" class="active" type="button">Muzzle</button>
+    </div>
+    <label>Emissive Boost <input id="emissiveBoost" type="range" min="0" max="5" step="0.1" value="1.4" /></label>
+    <label>Attach Position</label>
+    <div class="triple">
+      <input id="attachX" type="number" step="0.01" />
+      <input id="attachY" type="number" step="0.01" />
+      <input id="attachZ" type="number" step="0.01" />
+    </div>
+    <label>Attach Rotation</label>
+    <div class="triple">
+      <input id="rotX" type="number" step="0.01" />
+      <input id="rotY" type="number" step="0.01" />
+      <input id="rotZ" type="number" step="0.01" />
+    </div>
+    <label>Attach Scale</label>
+    <div class="triple">
+      <input id="attachScale" type="number" step="0.01" />
+      <button id="copyAttachButton" type="button">Copy Attach</button>
+      <button id="homeButton" type="button">Home</button>
+    </div>
+    <label>Muzzle Socket Position</label>
+    <div class="triple">
+      <input id="muzzleX" type="number" step="0.01" />
+      <input id="muzzleY" type="number" step="0.01" />
+      <input id="muzzleZ" type="number" step="0.01" />
+    </div>
+    <label>Muzzle Socket Rotation</label>
+    <div class="triple">
+      <input id="muzzleRotX" type="number" step="0.01" />
+      <input id="muzzleRotY" type="number" step="0.01" />
+      <input id="muzzleRotZ" type="number" step="0.01" />
+    </div>
+    <button id="copySocketButton" type="button">Copy Attach + Socket</button>
+    <button id="reloadButton">Load Weapon</button>
+    <pre id="stats">Loading manifest...</pre>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+    const TAU = Math.PI * 2;
+    const qs = new URLSearchParams(location.search);
+    const weaponSelect = document.querySelector('#weaponSelect');
+    const modelUrl = document.querySelector('#modelUrl');
+    const lightingSelect = document.querySelector('#lightingSelect');
+    const cameraSelect = document.querySelector('#cameraSelect');
+    const stats = document.querySelector('#stats');
+    const emissiveBoost = document.querySelector('#emissiveBoost');
+    const runtimeButton = document.querySelector('#runtimeButton');
+    const proceduralButton = document.querySelector('#proceduralButton');
+    const boundsButton = document.querySelector('#boundsButton');
+    const copyAttachButton = document.querySelector('#copyAttachButton');
+    const copySocketButton = document.querySelector('#copySocketButton');
+    const homeButton = document.querySelector('#homeButton');
+    const anchorButton = document.querySelector('#anchorButton');
+    const axesButton = document.querySelector('#axesButton');
+    const muzzleButton = document.querySelector('#muzzleButton');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x080707);
+    scene.fog = new THREE.Fog(0x080707, 10, 22);
+    const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.02, 100);
+    const renderer = new THREE.WebGLRenderer({ antialias:false, powerPreference:'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    document.body.appendChild(renderer.domElement);
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.28, 0.48, 0.86));
+    composer.addPass(new OutputPass());
+
+    const root = new THREE.Group();
+    scene.add(root);
+    const weaponRoot = new THREE.Group();
+    root.add(weaponRoot);
+    const box = new THREE.Box3();
+    const helper = new THREE.Box3Helper(box, 0xffcf70);
+    scene.add(helper);
+    const debugRoot = new THREE.Group();
+    scene.add(debugRoot);
+    const anchorGroup = new THREE.Group();
+    anchorGroup.name = 'weapon-anchor-marker';
+    debugRoot.add(anchorGroup);
+    const anchorMat = new THREE.MeshBasicMaterial({ color: 0xffd25f, depthTest: false });
+    const anchorCore = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 10), anchorMat);
+    anchorCore.renderOrder = 20;
+    anchorGroup.add(anchorCore);
+    const anchorRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.005, 8, 48), anchorMat);
+    anchorRing.rotation.x = Math.PI / 2;
+    anchorRing.renderOrder = 20;
+    anchorGroup.add(anchorRing);
+    const axesGroup = new THREE.Group();
+    axesGroup.name = 'weapon-axis-gizmo';
+    debugRoot.add(axesGroup);
+    const muzzleGroup = new THREE.Group();
+    muzzleGroup.name = 'weapon-muzzle-marker';
+    debugRoot.add(muzzleGroup);
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromEquirectangular(createEnvironmentTexture()).texture;
+
+    const hemi = new THREE.HemisphereLight(0xaec8ff, 0x2a1006, 0.45);
+    const key = new THREE.SpotLight(0xffd1a0, 640, 22, Math.PI * 0.24, 0.58, 1.2);
+    key.position.set(-4.2, 4.2, 4.1); key.target.position.set(0, 0, -0.25); key.castShadow = true; key.shadow.bias = -0.00008; key.shadow.normalBias = 0.025;
+    const rim = new THREE.SpotLight(0x43d8ff, 210, 18, Math.PI * 0.28, 0.55, 1.4);
+    rim.position.set(3.8, 2.4, -4.2); rim.target.position.set(0, 0, -0.25);
+    const hot = new THREE.PointLight(0xff4a18, 3.5, 7, 2);
+    hot.position.set(-0.35, -0.25, -1.3);
+    scene.add(hemi, key, key.target, rim, rim.target, hot);
+
+    let manifest = { weapons: [] };
+    let current = null;
+    let currentRuntimeManifest = null;
+    let runtimeMode = true;
+    let showBounds = true;
+    let yaw = 0.4, pitch = 0.14, dist = 3.6, homeDist = 3.6, dragging = false, dragButton = 0, lastX = 0, lastY = 0;
+    const lookTarget = new THREE.Vector3(0, 0.05, -0.25);
+    const homeTarget = new THREE.Vector3(0, 0.05, -0.25);
+    const mats = {};
+
+    function makeLine(points, color) {
+      const mat = new THREE.LineBasicMaterial({ color, depthTest: false, transparent: true, opacity: 0.95 });
+      const geo = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geo, mat);
+      line.renderOrder = 21;
+      return line;
+    }
+    function makeArrow(axis, color, labelOffset) {
+      const group = new THREE.Group();
+      const dir = axis.clone().normalize();
+      group.add(makeLine([new THREE.Vector3(), dir.clone().multiplyScalar(0.85)], color));
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.12, 12), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+      cone.position.copy(dir).multiplyScalar(0.9);
+      cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      cone.renderOrder = 21;
+      group.add(cone);
+      const tick = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+      tick.position.copy(labelOffset);
+      tick.renderOrder = 21;
+      group.add(tick);
+      return group;
+    }
+    axesGroup.add(makeArrow(new THREE.Vector3(1, 0, 0), 0xff3b30, new THREE.Vector3(1.04, 0, 0)));
+    axesGroup.add(makeArrow(new THREE.Vector3(0, 1, 0), 0x34c759, new THREE.Vector3(0, 1.04, 0)));
+    axesGroup.add(makeArrow(new THREE.Vector3(0, 0, -1), 0x3aa0ff, new THREE.Vector3(0, 0, -1.04)));
+    const muzzleMat = new THREE.MeshBasicMaterial({ color: 0xff4bff, depthTest: false });
+    const muzzleCore = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 10), muzzleMat);
+    muzzleCore.renderOrder = 22;
+    muzzleGroup.add(muzzleCore);
+    muzzleGroup.add(makeLine([new THREE.Vector3(-0.18, 0, 0), new THREE.Vector3(0.18, 0, 0)], 0xff4bff));
+    muzzleGroup.add(makeLine([new THREE.Vector3(0, -0.18, 0), new THREE.Vector3(0, 0.18, 0)], 0xff4bff));
+    muzzleGroup.add(makeLine([new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, -0.34)], 0xff4bff));
+
+    function createEnvironmentTexture() {
+      const c = document.createElement('canvas'); c.width = 768; c.height = 384;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 0, c.height);
+      g.addColorStop(0, '#ffdfb5'); g.addColorStop(0.38, '#314052'); g.addColorStop(0.7, '#1b0c08'); g.addColorStop(1, '#050303');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
+      for (const [x, y, color] of [[160, 90, 'rgba(255,190,95,.9)'], [560, 120, 'rgba(92,205,255,.65)'], [410, 310, 'rgba(255,70,20,.8)']]) {
+        const r = ctx.createRadialGradient(x, y, 0, x, y, 180);
+        r.addColorStop(0, color); r.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = r; ctx.fillRect(0, 0, c.width, c.height);
+      }
+      const tex = new THREE.CanvasTexture(c);
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    function makeMats() {
+      mats.gun = new THREE.MeshStandardMaterial({ color:0x242a31, roughness:.28, metalness:.9, envMapIntensity:0.75 });
+      mats.dark = new THREE.MeshStandardMaterial({ color:0x07090c, roughness:.42, metalness:.82, envMapIntensity:0.6 });
+      mats.bright = new THREE.MeshStandardMaterial({ color:0xbfc8d0, roughness:.19, metalness:.94, envMapIntensity:0.9 });
+      mats.grip = new THREE.MeshStandardMaterial({ color:0x3b1b10, roughness:.66, metalness:.1 });
+      mats.orange = new THREE.MeshStandardMaterial({ color:0xff7430, emissive:0xff4210, emissiveIntensity:1.2, roughness:.35, metalness:.3 });
+      mats.blue = new THREE.MeshStandardMaterial({ color:0x8ee7ff, emissive:0x23bdff, emissiveIntensity:1.45, roughness:.2, metalness:.2 });
+      mats.arm = new THREE.MeshStandardMaterial({ color:0x11151a, roughness:.58, metalness:.32 });
+    }
+
+    function boxMesh(parent, size, pos, mat, rot = [0,0,0]) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(...size), mat);
+      m.position.set(...pos); m.rotation.set(...rot); parent.add(m); return m;
+    }
+    function cyl(parent, r, h, pos, mat, rot = [Math.PI/2,0,0], seg = 24) {
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, seg), mat);
+      m.position.set(...pos); m.rotation.set(...rot); parent.add(m); return m;
+    }
+    function proceduralWeapon(id) {
+      const g = new THREE.Group();
+      if (id === 'heavy') {
+        boxMesh(g,[.52,.25,.66],[0,-.02,-.26],mats.gun); boxMesh(g,[.40,.10,.84],[0,.17,-.48],mats.dark);
+        for(let i=0;i<6;i++){ const a=i/6*TAU; const b=cyl(g,.04,.88,[Math.cos(a)*.117,Math.sin(a)*.117+.02,-.76],mats.bright,[Math.PI/2,0,0],14); b.userData.spinBarrel=true; }
+        cyl(g,.075,.95,[0,.02,-.76],mats.dark,[Math.PI/2,0,0],18);
+        const coil = new THREE.Mesh(new THREE.TorusGeometry(.205,.027,8,32),mats.blue); coil.position.set(0,.02,-.58); coil.rotation.x=Math.PI/2; g.add(coil);
+        for(const sx of [-1,1]){ boxMesh(g,[.13,.16,.48],[sx*.37,.025,-.48],mats.dark); for(let i=0;i<3;i++) cyl(g,.027,.27,[sx*.37,.12-i*.08,-.82],mats.blue,[Math.PI/2,0,0],10); }
+        boxMesh(g,[.20,.36,.25],[-.32,-.22,-.20],mats.dark,[0,0,.18]);
+      } else {
+        for(const x of [-.115,.115]){ cyl(g,.083,.96,[x,.045,-.55],mats.bright,[Math.PI/2,0,0],32); cyl(g,.054,.985,[x,.045,-.565],mats.dark,[Math.PI/2,0,0],20); cyl(g,.092,.105,[x,.045,-1.05],mats.orange,[Math.PI/2,0,0],24); }
+        boxMesh(g,[.53,.24,.44],[0,-.02,-.20],mats.gun); boxMesh(g,[.46,.08,.82],[0,.19,-.45],mats.dark);
+        boxMesh(g,[.36,.20,.42],[.06,-.10,.20],mats.grip,[.05,0,-.08]); boxMesh(g,[.19,.40,.16],[.13,-.33,.03],mats.grip,[-.36,0,.05]);
+        const spool=new THREE.Mesh(new THREE.TorusGeometry(.145,.024,10,28),mats.dark); spool.position.set(0,-.165,-.43); spool.rotation.x=Math.PI/2; g.add(spool);
+        boxMesh(g,[.27,.07,.30],[0,-.15,-.55],mats.dark);
+        for(const x of [-.055,.055]){ const prong=new THREE.Mesh(new THREE.ConeGeometry(.052,.34,4),mats.orange); prong.position.set(x,-.17,-.86); prong.rotation.x=-Math.PI/2; g.add(prong); }
+      }
+      g.scale.setScalar(2.15);
+      return g;
+    }
+
+    function materialList(object) {
+      const list = [];
+      object.traverse((child) => {
+        if (!child.isMesh || !child.material) return;
+        if (Array.isArray(child.material)) list.push(...child.material); else list.push(child.material);
+      });
+      return list;
+    }
+    function num(id) { return Number(document.querySelector(`#${id}`).value); }
+    function setNum(id, value) { document.querySelector(`#${id}`).value = Number(value).toFixed(3).replace(/\\.000$/, ''); }
+    function readAttachControls() {
+      return {
+        position: [num('attachX'), num('attachY'), num('attachZ')],
+        rotation: [num('rotX'), num('rotY'), num('rotZ')],
+        scale: num('attachScale')
+      };
+    }
+    function writeAttachControls(attach = {}) {
+      const pos = attach.position || [0, 0, 0];
+      const rot = attach.rotation || [0, 0, 0];
+      setNum('attachX', pos[0]); setNum('attachY', pos[1]); setNum('attachZ', pos[2]);
+      setNum('rotX', rot[0]); setNum('rotY', rot[1]); setNum('rotZ', rot[2]);
+      setNum('attachScale', attach.scale ?? 1);
+    }
+    function parseMuzzleSocket(manifest) {
+      const raw = manifest?.muzzle;
+      if (Array.isArray(raw)) return { position: raw, rotation: manifest?.muzzleRotation || [0, 0, 0] };
+      return {
+        position: raw?.position || [0, 0.02, -1.08],
+        rotation: raw?.rotation || raw?.euler || [0, 0, 0]
+      };
+    }
+    function readMuzzleControls() {
+      return {
+        position: [num('muzzleX'), num('muzzleY'), num('muzzleZ')],
+        rotation: [num('muzzleRotX'), num('muzzleRotY'), num('muzzleRotZ')]
+      };
+    }
+    function writeMuzzleControls(socket = {}) {
+      const pos = socket.position || [0, 0.02, -1.08];
+      const rot = socket.rotation || [0, 0, 0];
+      setNum('muzzleX', pos[0]); setNum('muzzleY', pos[1]); setNum('muzzleZ', pos[2]);
+      setNum('muzzleRotX', rot[0]); setNum('muzzleRotY', rot[1]); setNum('muzzleRotZ', rot[2]);
+    }
+    function applyAttachControls() {
+      if (!current) return;
+      const attach = readAttachControls();
+      current.position.fromArray(attach.position);
+      current.rotation.set(...attach.rotation);
+      current.scale.setScalar(attach.scale);
+      current.updateMatrixWorld(true);
+      box.setFromObject(current);
+      helper.visible = showBounds;
+    }
+    function updateDebugVisibility() {
+      anchorGroup.visible = anchorButton.classList.contains('active');
+      axesGroup.visible = axesButton.classList.contains('active');
+      muzzleGroup.visible = muzzleButton.classList.contains('active');
+    }
+    function updateMuzzleMarker() {
+      const socket = readMuzzleControls();
+      muzzleGroup.position.fromArray(socket.position);
+      muzzleGroup.rotation.set(...socket.rotation);
+    }
+    function homeCamera() {
+      yaw = 0.4;
+      pitch = 0.14;
+      dist = homeDist;
+      lookTarget.copy(homeTarget);
+    }
+    function attachJson() {
+      const attach = readAttachControls();
+      return JSON.stringify({
+        attach: {
+          position: attach.position.map(v => Number(v.toFixed(3))),
+          rotation: attach.rotation.map(v => Number(v.toFixed(3))),
+          scale: Number(attach.scale.toFixed(3))
+        }
+      }, null, 2);
+    }
+    function socketJson() {
+      const attach = readAttachControls();
+      const muzzle = readMuzzleControls();
+      return JSON.stringify({
+        attach: {
+          position: attach.position.map(v => Number(v.toFixed(3))),
+          rotation: attach.rotation.map(v => Number(v.toFixed(3))),
+          scale: Number(attach.scale.toFixed(3))
+        },
+        muzzle: {
+          position: muzzle.position.map(v => Number(v.toFixed(3))),
+          rotation: muzzle.rotation.map(v => Number(v.toFixed(3)))
+        }
+      }, null, 2);
+    }
+
+    function modelDirectory(url) {
+      const clean = url.split('?')[0].replace(/\\/g, '/');
+      return clean.includes('/') ? clean.slice(0, clean.lastIndexOf('/') + 1) : './';
+    }
+    function cacheSuffix(url) {
+      const i = url.indexOf('?'); return i === -1 ? '' : `?${url.slice(i + 1)}`;
+    }
+    async function fetchJson(url) {
+      const resp = await fetch(url, { cache:'no-store' });
+      if (!resp.ok) throw new Error(`${resp.status} ${url}`);
+      return resp.json();
+    }
+    async function loadSidecar(model, object) {
+      const dir = modelDirectory(model), bust = cacheSuffix(model);
+      for (const candidate of [`${dir}material-overrides.json${bust}`, `${dir}../material-overrides.json${bust}`]) {
+        try {
+          const data = await fetchJson(candidate);
+          const base = modelDirectory(candidate);
+          const loader = new THREE.TextureLoader();
+          const loaded = {};
+          for (const [key, spec] of Object.entries(data.maps || {})) {
+            loaded[key] = await loader.loadAsync(`${base}${spec.file}${bust}`);
+            loaded[key].flipY = false;
+            loaded[key].colorSpace = spec.colorSpace === 'srgb' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+          }
+          for (const mat of materialList(object)) {
+            if (loaded.baseColor) mat.map = loaded.baseColor;
+            if (loaded.normal) mat.normalMap = loaded.normal;
+            if (loaded.roughness) { mat.roughnessMap = loaded.roughness; mat.roughness = 1; }
+            if (loaded.metallic) { mat.metalnessMap = loaded.metallic; mat.metalness = 1; }
+            if (loaded.emissive) { mat.emissiveMap = loaded.emissive; mat.emissive?.set(0xffffff); mat.emissiveIntensity = data.maps.emissive?.intensity || mat.emissiveIntensity || 1; }
+            mat.needsUpdate = true;
+          }
+          return Object.keys(loaded).join(', ');
+        } catch {}
+      }
+      return 'none';
+    }
+
+    async function runtimeModelUrl(item) {
+      const manifestPath = item.runtimeManifest;
+      const runtimeManifest = await fetchJson(`assets/weapons/${manifestPath}?v=weapon-runtime-1`);
+      if (!runtimeManifest.model) throw new Error(`runtime pending: ${manifestPath}`);
+      return {
+        manifest: runtimeManifest,
+        url: `assets/weapons/${item.id}/runtime/${runtimeManifest.model}?v=${runtimeManifest.version || 'weapon-runtime-1'}`
+      };
+    }
+
+    function frameObject(object) {
+      object.updateMatrixWorld(true);
+      box.setFromObject(object);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      dist = THREE.MathUtils.clamp(Math.max(size.x, size.y, size.z) * 2.0, 2.4, 6);
+      homeDist = dist;
+      lookTarget.copy(center);
+      homeTarget.copy(center);
+      helper.visible = showBounds;
+      return size;
+    }
+
+    function applyEmissiveBoost() {
+      if (!current) return;
+      const boost = Number(emissiveBoost.value);
+      for (const mat of materialList(current)) {
+        if (!('emissiveIntensity' in mat)) continue;
+        if (mat.userData.baseEmissiveIntensity === undefined) mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+        if (mat.emissiveMap && mat.emissive?.getHex() === 0) mat.emissive.set(0xffffff);
+        mat.emissiveIntensity = mat.userData.baseEmissiveIntensity * boost;
+      }
+    }
+
+    async function loadWeapon() {
+      const item = manifest.weapons.find(w => w.id === weaponSelect.value) || manifest.weapons[0];
+      if (!item) return;
+      if (current) weaponRoot.remove(current);
+      current = null;
+      let status = 'procedural fallback';
+      let sidecar = 'none';
+      if (runtimeMode) {
+        try {
+          const runtime = await runtimeModelUrl(item);
+          currentRuntimeManifest = runtime.manifest;
+          modelUrl.value = runtime.url;
+          const gltf = await new GLTFLoader().loadAsync(runtime.url);
+          current = SkeletonUtils.clone(gltf.scene);
+          const attach = runtime.manifest.attach || {};
+          writeAttachControls(attach);
+          writeMuzzleControls(parseMuzzleSocket(runtime.manifest));
+          applyAttachControls();
+          sidecar = await loadSidecar(runtime.url, current);
+          status = 'runtime GLB';
+        } catch (err) {
+          currentRuntimeManifest = null;
+          current = proceduralWeapon(item.id);
+          writeAttachControls({ position:[0,0,0], rotation:[0,0,0], scale:current.scale.x || 1 });
+          writeMuzzleControls({ position:[0, 0.02, item.id === 'heavy' ? -1.02 : -1.08], rotation:[0,0,0] });
+          modelUrl.value = `missing ${item.runtimeManifest}`;
+          status = `procedural fallback (${err.message || err})`;
+        }
+      } else {
+        currentRuntimeManifest = null;
+        current = proceduralWeapon(item.id);
+        writeAttachControls({ position:[0,0,0], rotation:[0,0,0], scale:current.scale.x || 1 });
+        writeMuzzleControls({ position:[0, 0.02, item.id === 'heavy' ? -1.02 : -1.08], rotation:[0,0,0] });
+        modelUrl.value = 'procedural';
+      }
+      current.traverse((child) => { if (child.isMesh) { child.castShadow = true; child.receiveShadow = true; } });
+      weaponRoot.add(current);
+      updateMuzzleMarker();
+      const size = frameObject(current);
+      applyEmissiveBoost();
+      const meshes = current.children.length;
+      let tris = 0, textures = new Set();
+      current.traverse((child) => {
+        if (child.isMesh) {
+          const geo = child.geometry;
+          tris += geo.index ? geo.index.count / 3 : (geo.attributes.position?.count || 0) / 3;
+        }
+      });
+      for (const mat of materialList(current)) ['map','normalMap','roughnessMap','metalnessMap','emissiveMap'].forEach(k => { if (mat[k]) textures.add(mat[k].uuid); });
+      stats.textContent = [
+        `Weapon: ${item.name}`,
+        `Mode: ${status}`,
+        `Sidecar maps: ${sidecar}`,
+        `Top-level nodes: ${meshes}`,
+        `Triangles: ${Math.round(tris).toLocaleString()}`,
+        `Textures: ${textures.size}`,
+        `Bounds: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
+        `Brief: ${item.promptBrief}`
+      ].join('\n');
+    }
+
+    function setLighting(mode) {
+      if (mode === 'flat') { hemi.intensity = 2.1; key.intensity = 0; rim.intensity = 0; hot.intensity = 0; scene.environmentIntensity = 0.25; }
+      else if (mode === 'studio') { hemi.intensity = 0.95; key.intensity = 280; rim.intensity = 95; hot.intensity = 0.8; scene.environmentIntensity = 0.8; }
+      else if (mode === 'arena') { hemi.intensity = 0.34; key.intensity = 360; rim.intensity = 230; hot.intensity = 3.8; scene.environmentIntensity = 0.55; }
+      else { hemi.intensity = 0.45; key.intensity = 640; rim.intensity = 210; hot.intensity = 3.5; scene.environmentIntensity = 0.9; }
+    }
+
+    async function init() {
+      makeMats();
+      try { manifest = await fetchJson('assets/weapons/manifest.json?v=weapon-lab-1'); }
+      catch (err) { stats.textContent = `Could not load weapon manifest:\n${err.message || err}`; return; }
+      for (const item of manifest.weapons) {
+        const option = document.createElement('option');
+        option.value = item.id; option.textContent = item.name;
+        weaponSelect.appendChild(option);
+      }
+      const requestedWeapon = (qs.get('weapon') || '').toLowerCase();
+      const requested = manifest.weapons.find(item => item.id.toLowerCase() === requestedWeapon || item.name.toLowerCase() === requestedWeapon);
+      if (requested) weaponSelect.value = requested.id;
+      setLighting('hero');
+      await loadWeapon();
+    }
+
+    document.querySelector('#reloadButton').addEventListener('click', () => loadWeapon());
+    weaponSelect.addEventListener('change', () => loadWeapon());
+    lightingSelect.addEventListener('change', () => setLighting(lightingSelect.value));
+    cameraSelect.addEventListener('change', () => {});
+    emissiveBoost.addEventListener('input', applyEmissiveBoost);
+    for (const id of ['attachX','attachY','attachZ','rotX','rotY','rotZ','attachScale']) document.querySelector(`#${id}`).addEventListener('input', applyAttachControls);
+    for (const id of ['muzzleX','muzzleY','muzzleZ','muzzleRotX','muzzleRotY','muzzleRotZ']) document.querySelector(`#${id}`).addEventListener('input', updateMuzzleMarker);
+    copyAttachButton.addEventListener('click', async () => navigator.clipboard?.writeText(attachJson()));
+    copySocketButton.addEventListener('click', async () => navigator.clipboard?.writeText(socketJson()));
+    homeButton.addEventListener('click', homeCamera);
+    runtimeButton.addEventListener('click', () => { runtimeMode = true; runtimeButton.classList.add('active'); proceduralButton.classList.remove('active'); loadWeapon(); });
+    proceduralButton.addEventListener('click', () => { runtimeMode = false; proceduralButton.classList.add('active'); runtimeButton.classList.remove('active'); loadWeapon(); });
+    boundsButton.addEventListener('click', () => { showBounds = !showBounds; helper.visible = showBounds; boundsButton.classList.toggle('active', showBounds); });
+    for (const button of [anchorButton, axesButton, muzzleButton]) {
+      button.addEventListener('click', () => {
+        button.classList.toggle('active');
+        updateDebugVisibility();
+      });
+    }
+
+    renderer.domElement.addEventListener('contextmenu', ev => ev.preventDefault());
+    renderer.domElement.addEventListener('pointerdown', (ev) => { dragging = true; dragButton = ev.button; lastX = ev.clientX; lastY = ev.clientY; renderer.domElement.setPointerCapture(ev.pointerId); });
+    renderer.domElement.addEventListener('pointerup', (ev) => { dragging = false; renderer.domElement.releasePointerCapture(ev.pointerId); });
+    renderer.domElement.addEventListener('pointermove', (ev) => {
+      if (!dragging) return;
+      const dx = ev.clientX - lastX;
+      const dy = ev.clientY - lastY;
+      if (dragButton === 2 && cameraSelect.value === 'inspect') {
+        const viewDir = new THREE.Vector3();
+        camera.getWorldDirection(viewDir);
+        const right = new THREE.Vector3().crossVectors(viewDir, camera.up).normalize();
+        const up = new THREE.Vector3().crossVectors(right, viewDir).normalize();
+        const panScale = Math.max(0.003, dist * 0.0014);
+        lookTarget.addScaledVector(right, -dx * panScale);
+        lookTarget.addScaledVector(up, dy * panScale);
+      } else if (cameraSelect.value === 'inspect') {
+        yaw -= dx * 0.006; pitch = THREE.MathUtils.clamp(pitch + dy * 0.004, -0.8, 0.75);
+      }
+      lastX = ev.clientX; lastY = ev.clientY;
+    });
+    renderer.domElement.addEventListener('wheel', (ev) => { dist = THREE.MathUtils.clamp(dist + ev.deltaY * 0.004, 1.4, 8); }, { passive:true });
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+    });
+
+    let last = performance.now();
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+      const dt = Math.min((now - last) / 1000, 0.05); last = now;
+      if (current) {
+        current.traverse((child) => {
+          if (child.userData.spinBarrel) child.rotation.z += dt * 9;
+        });
+      }
+      if (cameraSelect.value === 'viewmodel') {
+        camera.position.set(0.42, -0.18, 1.25); camera.lookAt(0.18, -0.10, -0.72);
+      } else if (cameraSelect.value === 'side') {
+        camera.position.set(3.3, 0.45, -0.25); camera.lookAt(0, 0.0, -0.38);
+      } else {
+        const x = Math.sin(yaw) * Math.cos(pitch) * dist;
+        const y = 0.2 + Math.sin(pitch) * dist;
+        const z = Math.cos(yaw) * Math.cos(pitch) * dist;
+        camera.position.set(lookTarget.x + x, lookTarget.y + y, lookTarget.z + z); camera.lookAt(lookTarget);
+      }
+      updateDebugVisibility();
+      composer.render();
+    }
+    init();
+    animate();
+  </script>
+</body>
+</html>
