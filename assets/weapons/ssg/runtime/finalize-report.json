@@ -1,0 +1,55 @@
+{
+  "weapon": "ssg",
+  "runtime_dir": "assets/weapons/ssg/runtime",
+  "model": {
+    "source": "assets/weapons/ssg/authoring/ssg-meshy-authoring.glb",
+    "runtime": "assets/weapons/ssg/runtime/models/viewmodel.glb",
+    "source_bytes": 46857268,
+    "runtime_bytes": 1373296,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/weapons/ssg/authoring/textures/base_color.png",
+      "runtime": "assets/weapons/ssg/runtime/textures/base_color.webp",
+      "original_size": "4096x4096",
+      "runtime_size": "2048x2048",
+      "source_bytes": 27743907,
+      "runtime_bytes": 571246
+    },
+    "normal": {
+      "source": "assets/weapons/ssg/authoring/textures/normal.png",
+      "runtime": "assets/weapons/ssg/runtime/textures/normal.png",
+      "original_size": "4096x4096",
+      "runtime_size": "2048x2048",
+      "source_bytes": 30760095,
+      "runtime_bytes": 7951244
+    },
+    "roughness": {
+      "source": "assets/weapons/ssg/authoring/textures/roughness.png",
+      "runtime": "assets/weapons/ssg/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1247891,
+      "runtime_bytes": 150962
+    },
+    "metallic": {
+      "source": "assets/weapons/ssg/authoring/textures/metallic.png",
+      "runtime": "assets/weapons/ssg/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1120873,
+      "runtime_bytes": 138978
+    },
+    "emissive": {
+      "source": "assets/weapons/ssg/authoring/textures/emission.png",
+      "runtime": "assets/weapons/ssg/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 170657,
+      "runtime_bytes": 11518
+    }
+  },
+  "manifest": "assets/weapons/ssg/runtime/runtime-manifest.json"
+}

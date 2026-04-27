@@ -109,6 +109,7 @@
       <input id="muzzleRotZ" type="number" step="0.01" />
     </div>
     <button id="copySocketButton" type="button">Copy Attach + Socket</button>
+    <button id="saveWeaponButton" type="button">Save Weapon Manifest</button>
     <button id="reloadButton">Load Weapon</button>
     <pre id="stats">Loading manifest...</pre>
   </div>
@@ -135,6 +136,7 @@
     const boundsButton = document.querySelector('#boundsButton');
     const copyAttachButton = document.querySelector('#copyAttachButton');
     const copySocketButton = document.querySelector('#copySocketButton');
+    const saveWeaponButton = document.querySelector('#saveWeaponButton');
     const homeButton = document.querySelector('#homeButton');
     const anchorButton = document.querySelector('#anchorButton');
     const axesButton = document.querySelector('#axesButton');
@@ -201,6 +203,7 @@
     let manifest = { weapons: [] };
     let current = null;
     let currentRuntimeManifest = null;
+    let currentRuntimeManifestPath = null;
     let runtimeMode = true;
     let showBounds = true;
     let yaw = 0.4, pitch = 0.14, dist = 3.6, homeDist = 3.6, dragging = false, dragButton = 0, lastX = 0, lastY = 0;
@@ -378,9 +381,12 @@
       }, null, 2);
     }
     function socketJson() {
+      return JSON.stringify(currentWeaponDraft(), null, 2);
+    }
+    function currentWeaponDraft() {
       const attach = readAttachControls();
       const muzzle = readMuzzleControls();
-      return JSON.stringify({
+      return {
         attach: {
           position: attach.position.map(v => Number(v.toFixed(3))),
           rotation: attach.rotation.map(v => Number(v.toFixed(3))),
@@ -390,7 +396,28 @@
           position: muzzle.position.map(v => Number(v.toFixed(3))),
           rotation: muzzle.rotation.map(v => Number(v.toFixed(3)))
         }
-      }, null, 2);
+      };
+    }
+    async function saveWeaponManifest() {
+      if (!runtimeMode || !currentRuntimeManifest || !currentRuntimeManifestPath) {
+        throw new Error('Load a runtime weapon before saving.');
+      }
+      const nextManifest = {
+        ...currentRuntimeManifest,
+        ...currentWeaponDraft()
+      };
+      const resp = await fetch('/api/save-json', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          path: currentRuntimeManifestPath,
+          json: nextManifest
+        })
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(result.detail || result.error || `Save failed (${resp.status}).`);
+      currentRuntimeManifest = result.json || nextManifest;
+      stats.textContent = `${stats.textContent}\nSaved: ${result.path || currentRuntimeManifestPath}`;
     }
 
     function modelDirectory(url) {
@@ -433,11 +460,12 @@
     }
 
     async function runtimeModelUrl(item) {
-      const manifestPath = item.runtimeManifest;
-      const runtimeManifest = await fetchJson(`assets/weapons/${manifestPath}?v=weapon-runtime-1`);
+      const manifestPath = `assets/weapons/${item.runtimeManifest}`;
+      const runtimeManifest = await fetchJson(`${manifestPath}?v=weapon-runtime-1`);
       if (!runtimeManifest.model) throw new Error(`runtime pending: ${manifestPath}`);
       return {
         manifest: runtimeManifest,
+        manifestPath,
         url: `assets/weapons/${item.id}/runtime/${runtimeManifest.model}?v=${runtimeManifest.version || 'weapon-runtime-1'}`
       };
     }
@@ -477,6 +505,7 @@
         try {
           const runtime = await runtimeModelUrl(item);
           currentRuntimeManifest = runtime.manifest;
+          currentRuntimeManifestPath = runtime.manifestPath;
           modelUrl.value = runtime.url;
           const gltf = await new GLTFLoader().loadAsync(runtime.url);
           current = SkeletonUtils.clone(gltf.scene);
@@ -488,6 +517,7 @@
           status = 'runtime GLB';
         } catch (err) {
           currentRuntimeManifest = null;
+          currentRuntimeManifestPath = null;
           current = proceduralWeapon(item.id);
           writeAttachControls({ position:[0,0,0], rotation:[0,0,0], scale:current.scale.x || 1 });
           writeMuzzleControls({ position:[0, 0.02, item.id === 'heavy' ? -1.02 : -1.08], rotation:[0,0,0] });
@@ -496,6 +526,7 @@
         }
       } else {
         currentRuntimeManifest = null;
+        currentRuntimeManifestPath = null;
         current = proceduralWeapon(item.id);
         writeAttachControls({ position:[0,0,0], rotation:[0,0,0], scale:current.scale.x || 1 });
         writeMuzzleControls({ position:[0, 0.02, item.id === 'heavy' ? -1.02 : -1.08], rotation:[0,0,0] });
@@ -559,6 +590,7 @@
     for (const id of ['muzzleX','muzzleY','muzzleZ','muzzleRotX','muzzleRotY','muzzleRotZ']) document.querySelector(`#${id}`).addEventListener('input', updateMuzzleMarker);
     copyAttachButton.addEventListener('click', async () => navigator.clipboard?.writeText(attachJson()));
     copySocketButton.addEventListener('click', async () => navigator.clipboard?.writeText(socketJson()));
+    saveWeaponButton.addEventListener('click', () => saveWeaponManifest().catch(err => { stats.textContent = String(err.message || err); }));
     homeButton.addEventListener('click', homeCamera);
     runtimeButton.addEventListener('click', () => { runtimeMode = true; runtimeButton.classList.add('active'); proceduralButton.classList.remove('active'); loadWeapon(); });
     proceduralButton.addEventListener('click', () => { runtimeMode = false; proceduralButton.classList.add('active'); runtimeButton.classList.remove('active'); loadWeapon(); });

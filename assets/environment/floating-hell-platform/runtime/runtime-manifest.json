@@ -55,8 +55,8 @@
   "materialOverrides": {
     "Material_0.001": {
       "roughness": 1,
-      "metalness": 0.28,
-      "envMapIntensity": 0.45
+      "metalness": 0,
+      "envMapIntensity": 1
     }
   },
   "notes": [

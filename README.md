@@ -56,7 +56,6 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 - Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
 - A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background with PMREM-processed environment lighting for PBR materials.
 - A Meshy-generated floating hell platform in `assets/environment/floating-hell-platform`, with concept art, authoring GLB, remeshed runtime GLB, and a simple gameplay collision proxy.
-- A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
 - A local `runtime_asset_lab.html` for environment prefab calibration only: finalized runtime GLBs, local mesh transform, yellow editable collision proxy, explicit manifest save, and query-param preloading for assets such as `?asset=floating-hell-platform`.
 - A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
 - A local `weapon_lab.html` for inspecting procedural or finalized Meshy weapon viewmodels with game-style PBR lighting, bloom, bounds, and first-person camera presets.

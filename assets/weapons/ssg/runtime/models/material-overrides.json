@@ -1,8 +1,31 @@
 {
-  "materialName": "EmbeddedMeshyWeaponMaterials",
-  "source": "Embedded GLB PBR textures",
-  "maps": {},
+  "materialName": "WeaponRuntimeMaterial",
+  "source": "Finalized Meshy weapon runtime texture set.",
+  "maps": {
+    "baseColor": {
+      "file": "../textures/base_color.webp",
+      "colorSpace": "srgb"
+    },
+    "normal": {
+      "file": "../textures/normal.png",
+      "colorSpace": "linear"
+    },
+    "roughness": {
+      "file": "../textures/roughness.webp",
+      "colorSpace": "linear"
+    },
+    "metallic": {
+      "file": "../textures/metallic.webp",
+      "colorSpace": "linear"
+    },
+    "emissive": {
+      "file": "../textures/emission.webp",
+      "colorSpace": "srgb",
+      "intensity": 1.6
+    }
+  },
   "notes": [
-    "Placeholder sidecar so runtime/lab loaders do not probe missing files. This Meshy weapon GLB currently keeps embedded PBR maps."
+    "Placed beside runtime model so weapon_lab.html and src/game.js can restore external PBR/emissive maps.",
+    "Roughness and metalness scalar multipliers should remain 1.0 when maps are present."
   ]
 }

@@ -1,18 +1,76 @@
 {
   "id": "ssg",
-  "name": "Twin Anvil + Meat Hook",
-  "prompt": "first person game weapon asset, compact brutal double barrel super shotgun, two large parallel circular muzzle barrels clearly visible at the FRONT, short squared blackened steel receiver, ribbed heat shroud, orange glowing barrel interiors, small fixed meat hook launcher mounted under barrels, no loose chain, no dangling chain, no shoulder stock at the front, no buttstock silhouette, no hands, no character, no background, high quality PBR hard surface",
-  "previewTaskId": "019dd0aa-a483-7adf-b244-02fcb38bcfe1",
-  "refineTaskId": "019dd0ac-2583-7bfd-978f-aed0242f184b",
-  "meshyProject": "meshy_output/20260427_153859_ssg-double-barrel-no-chain_019dd0aa",
-  "createdAt": "2026-04-27T15:41:51.318865",
+  "name": "Twin Anvil Oldschool Double Barrel",
+  "prompt": "chunky old-school double-barrel shotgun first-person game weapon, two unmistakable side-by-side barrels, short heavy sawed-off silhouette, blackened gunmetal receiver, worn wood pistol grip, no dangling chain, no scope, no suppressor, no rifle barrel, compact brutal hell arena shotgun",
+  "concept": "assets/weapons/ssg/references/ssg-oldschool-doublebarrel-concept-v3.png",
+  "imageTo3dTaskId": "019dd0ff-6363-7884-9b83-cc63c1529d34",
+  "meshyProject": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff",
+  "createdAt": "2026-04-27T17:13:57.156247",
+  "generationPayload": {
+    "image_url": "<reference image embedded as data URI>",
+    "model_type": "standard",
+    "ai_model": "latest",
+    "topology": "triangle",
+    "target_polycount": 50000,
+    "should_remesh": true,
+    "save_pre_remeshed_model": true,
+    "should_texture": true,
+    "enable_pbr": true,
+    "hd_texture": true,
+    "image_enhancement": false,
+    "remove_lighting": true,
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "authoringGlb": "assets/weapons/ssg/authoring/ssg-meshy-authoring.glb",
+  "preRemeshedGlb": "assets/weapons/ssg/authoring/ssg-meshy-pre-remeshed.glb",
+  "textures": {
+    "base_color": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff/textures/base_color.png",
+    "normal": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff/textures/normal.png",
+    "roughness": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff/textures/roughness.png",
+    "metallic": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff/textures/metallic.png",
+    "emission": "meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff/textures/emission.png"
+  },
+  "rawTask": {
+    "id": "019dd0ff-6363-7884-9b83-cc63c1529d34",
+    "type": "image-to-3d",
+    "name": "",
+    "art_style": "",
+    "object_prompt": "",
+    "style_prompt": "",
+    "negative_prompt": "",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "text_style_prompt": "",
+    "image_style_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777327897947,
+    "progress": 100,
+    "started_at": 1777327898424,
+    "finished_at": 1777328028126,
+    "expires_at": 1777587228126,
+    "task_error": null,
+    "model_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/model.glb?Expires=1777587228&Signature=nZ-9paiN4Y~OssUYu~5OdfZsPlzhae~h-RGNntbIbZVvv5xUK9WxwGSq8bjc961NqxNqbINoFmD83iHuaB9IKYqzqcyRyD-5ntamNU4HJ8Mb-ZBftq-HCn9-F8VUtcX~BQNfXTf5KiYf88WBzFiwUPJt3zOJXpMx6VfJgw8r3d8-jzJLEY5dBlB~O0nKgzjE4~hUmkYKB737I9xUusxk~PSeTQL8KgsKmA4esOSmwskempRFSjU1k4cW9q6cr9PKhL7LbKGaAmu18WhS8Prws7wIo6RhdUyhJy2JZPsGeTcxRAa~KqLxCTiEkoMdH1B6Fh49svX68rD-tNox0BQaxw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/model.glb?Expires=1777587228&Signature=nZ-9paiN4Y~OssUYu~5OdfZsPlzhae~h-RGNntbIbZVvv5xUK9WxwGSq8bjc961NqxNqbINoFmD83iHuaB9IKYqzqcyRyD-5ntamNU4HJ8Mb-ZBftq-HCn9-F8VUtcX~BQNfXTf5KiYf88WBzFiwUPJt3zOJXpMx6VfJgw8r3d8-jzJLEY5dBlB~O0nKgzjE4~hUmkYKB737I9xUusxk~PSeTQL8KgsKmA4esOSmwskempRFSjU1k4cW9q6cr9PKhL7LbKGaAmu18WhS8Prws7wIo6RhdUyhJy2JZPsGeTcxRAa~KqLxCTiEkoMdH1B6Fh49svX68rD-tNox0BQaxw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+      "pre_remeshed_glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/pre_remeshed_model.glb?Expires=1777587228&Signature=KAMg6KO1BbY9r2HPR0e57hXKb36nXWoJY4k-sWP0KCJ6a7miUpzTs2DwFAaKc4-6DLedZmy1-c8~fCf1RszD7KQi-TffjOLrNeD5eWZXmJT61ajLU-G6kJ7CNCFCejRRf4tDBheba8mwQXo0SodYzzGCY5d7HgC7CTmpP0fbq9HpV5jj4VpyWfTjGDQTYsOTTe495rjynj~1oeTHN0o9ezezwJZupdzEhvXlNYEUYzQlquFktmVI~h8Epbqk84~whTdKgEjChibm3LMFXdF4ZUIt1DVqh0ADESXPNZLPRqnRfM1a7Tu5V2t4ZgUgD6Ycre~YTHzR~EDvE9iVrVQC6g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/preview.png?Expires=1777587228&Signature=FgGjhrSHCfzHLwIf4N8YFEnGxxRk4tCRgebspL~7yYRcr4zZU3YIv5yDN0-jvdJTPtMb9JjLqcHx~iYy2YwV-dDRPEEKYaitN8deGVows4De0XJjP~sFqnti8m-2h2~J9YoXlUJgb47lgOm4SyVS0H-hbHBIE2bubDWnJAhFM7JiPNikCXCZ6lm9T93RyJqM~0fg0LeYn7eIzg2Mzpi4mj7GP8eSzBipCfCDEV636Mbe1kCuaxZ7G0G3E8EcJrVEDE2RZN83rIDhrUHGjr5~JyOcJ6H0MnM~t5bmvMjNjC5LeULEu4H9TGSYI3qP~KVNcSi~p8LjHXes52YbB4jC3w__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/texture_0.png?Expires=1777587228&Signature=NOtIBlgAM3nOok9xdjKNuVDiN2KUjOGNoYb5dpofAh6O2NHkLhxaDiIyRabbHCkG~wEENfUUjGhZqlHlXWunUGGpcZg8xk1U5Zh4tafF7bvC5attwa7vXmAZMzGxn-5X6Igf3UhUcGMvSTietQeprVZAF02Z7t8z9D3oSMSHrU45rHIyWCeNJBEdV8gOCZIp72gpx05QRdX9iS79TnUxsLvD9cUCY54Yr3aQvIAr9nP7qWYHEVli-8eVcysSaKfv2KoiScH9orWYJyFhW1EpkLRYf1nQRCdaHAoO2Vb9E5yrC8-1o84VVL-wxG4qnsqb2cT2Tfr1xK7N7gky6oHBZQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/texture_0_metallic.png?Expires=1777587228&Signature=AY6a78HSwt1ayOYFvKKadKy6LI~xhsEhwrCLXy1TIXYeb1Ynnhdmt5dVDHsE51UV8ZimMYFEqLUzRRNUAQiqVK9eZUAu1X3s1VWnkYtqjTO07Inl9YeuIUtYRp6M5-uhRG591IAXKbzgkCVO~b0n5zMjbWn~iCn2H58cPRrHtwWJcSrTuMTUD2~YuniPkpC0P5G1XgBUDLtP4mB42KR3Avb6djtWrr98ONYm9k09D11blU3rQy274W3kbt2zn6k9XBuaRaZJpuujWEQ8Y5VQC6KPKDn~x-IP3pJScDiwJJnsur40XaOzs71-UNbJsVmhtd31F4T0~MXTo5UxE2VPmg__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/texture_0_roughness.png?Expires=1777587228&Signature=Un8fsmSJq2IsTVWu~hh-Q0r5ZuOxNI29GKfIASfgSwpd4FDF7Wgx5Wvc9Mfxq1vihF1fvtqOeXzMBjEGH3ZnZwqRc4q3zmC2RrW494YA4Edqckc2KzF2h2OjUbrCIdHo9mWAZfR6Fl9GyRmgLHe8uedeJsFmFFp6LZUfkpqgOTqL2uSP06~m6NFFxfAQXMlGKaPC92lDCmi9SHycNYj6Zh1pVjySmXe91Qd8qdaouthYZDsj~sW196oLHC3C5b0AplYnvR7gOKLsrSxWYCaZDL6wkbRLVYiQ-0erKqjE4qNdU-LuihXVUso6YsiXZ7M~iazhYo2cBuC7TD6Qa9qDog__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/texture_0_normal.png?Expires=1777587228&Signature=Clx9oVpmvptDnEgxHX9kWkTuD8lOUW1ub2oonuwVU2LyiL3vAxWP49xqlxIcbWUo4WPVXhZwCataT8Mixjygy5xmdOqYMpTpHnAd0PwgeeZltRfXPAyK7amqPgaq1LZUxrbwKaH8bLuHrL-HbJSGx5xC8OBlboKneR6Fgd3JS9eYRG1zH1dpxwubT6r35C2wwYzxrPwff2JlCl~QD85sNT0ewS3TLRV8jbsYlIxgsKZ~9KEOFCEoJzVa2FTCqHbc-qzAfcFWdkcfv1NTyYB485i8-Rxu2~PJszDWwqjKfUKGKmaLX3s2e7dgkkXtXf7j5rtl584vJoL8L9Nql4NQ1w__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd0ff-6363-7884-9b83-cc63c1529d34/output/texture_0_emission.png?Expires=1777587228&Signature=kMuEDG2gNxr1YHIjKaMTGZUf7s9coKQRFaTjPc9s3OQK6Ky7W1bEpR65KzQ9JJWLbaXTccUrQ5WJolJKVtnVnAfPmRGBy8cMtNJfLK60svRPMUP6tjYSEh-os2Jne-MIEVHk9UMrBVwoYA5Y5~yZEb9bbOdqs42cQidYC087eDzKXnR5jZ9TTzn-ZtrkMWCNoO513ZFnb7gtEruupTedwF90VGZFdLxh8cQ9Vbjt2Aw2h1HL1EX1hvZXG4rwc69PO0ZqQm7IwissIS5OrGu7NGST0egiU2Mms0o3H1zS-qgTAmSB2apu9dTa3hI8PpgYpCwfCgtOnuBSSg9Po7stHA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "hd_texture": true,
+    "consumed_credits": 30
+  },
   "notes": [
-    "Redo requested because v1 front barrel read as a buttstock and hanging chain cluttered first-person view."
-  ],
-  "authoringGlb": "assets/weapons/ssg/authoring/ssg-meshy-refined.glb",
-  "runtimeGlb": "assets/weapons/ssg/runtime/models/viewmodel.glb",
-  "runtimeBytes": 12798948,
-  "formats": [
-    "glb"
+    "Weapon generated from a square concept image. Finalize into runtime with tools/finalize_weapon_asset.py."
   ]
 }

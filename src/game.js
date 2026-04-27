@@ -333,6 +333,8 @@ class AudioBus {
     this.master = null;
     this.musicGain = null;
     this.noiseBuffer = null;
+    this.buffers = new Map();
+    this.activeLoops = new Map();
     this.started = false;
     this.nextBeat = 0;
     this.silentWarmup = false;
@@ -427,6 +429,72 @@ class AudioBus {
   ensure() {
     if (!this.started) this.start();
     if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  }
+
+  async preloadBuffer(key, url) {
+    if (!key || !url || this.buffers.has(key)) return this.buffers.has(key);
+    try {
+      const resp = await fetch(url, { cache: 'no-store' });
+      if (!resp.ok) return false;
+      if (!this.started) this.start();
+      if (!this.ctx) return false;
+      const data = await resp.arrayBuffer();
+      const buffer = await this.decodeAudioData(data);
+      this.buffers.set(key, buffer);
+      return true;
+    } catch (err) {
+      console.warn(`SFX preload failed for ${key}`, err);
+      return false;
+    }
+  }
+
+  decodeAudioData(data) {
+    return new Promise((resolve, reject) => {
+      const maybePromise = this.ctx.decodeAudioData(data.slice(0), resolve, reject);
+      if (maybePromise?.then) maybePromise.then(resolve, reject);
+    });
+  }
+
+  playBuffer(key, { volume = 1, loop = false, playbackRate = 1, pos = null, delay = 0 } = {}) {
+    this.ensure();
+    const buffer = this.buffers.get(key);
+    if (!this.started || !buffer) return false;
+    if (loop && this.activeLoops.has(key)) return true;
+    const ctx = this.ctx;
+    const t0 = ctx.currentTime + delay;
+    const src = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    src.buffer = buffer;
+    src.loop = loop === true;
+    src.playbackRate.value = playbackRate;
+    gain.gain.value = this.silentWarmup ? 0.00001 : volume;
+    src.connect(gain);
+    gain.connect(pos ? this.makePanner(pos) : this.master);
+    src.start(t0);
+    if (loop) {
+      this.activeLoops.set(key, { source: src, gain });
+      src.onended = () => {
+        const active = this.activeLoops.get(key);
+        if (active?.source === src) this.activeLoops.delete(key);
+      };
+    }
+    return true;
+  }
+
+  stopBuffer(key, fade = 0.045) {
+    const active = this.activeLoops.get(key);
+    if (!active || !this.ctx) return false;
+    const t0 = this.ctx.currentTime;
+    try {
+      active.gain.gain.cancelScheduledValues(t0);
+      active.gain.gain.setValueAtTime(Math.max(0.0001, active.gain.gain.value || 0.0001), t0);
+      active.gain.gain.exponentialRampToValueAtTime(0.0001, t0 + fade);
+      active.source.stop(t0 + fade + 0.01);
+    } catch {
+      // Already stopped by the browser.
+    }
+    this.activeLoops.delete(key);
+    return true;
   }
 
   startDrone() {
@@ -1116,6 +1184,7 @@ async function loadWeaponRuntimeAsset(id) {
   const gltf = await loadGltf(modelUrl);
   await applySidecarMaterialOverrides(modelUrl, gltf.scene);
   applyWeaponRuntimeDefaults(gltf.scene, manifest);
+  const sfx = await loadWeaponRuntimeSfx(id, base, manifest);
   return {
     id,
     name: manifest.name || id,
@@ -1123,9 +1192,58 @@ async function loadWeaponRuntimeAsset(id) {
     animations: gltf.animations || [],
     attach: manifest.attach || {},
     muzzle: manifest.muzzle || null,
+    sfx,
     stats: manifest.stats || null,
     source: modelUrl
   };
+}
+
+async function loadWeaponRuntimeSfx(id, base, manifest) {
+  const out = {};
+  const sfx = manifest?.sfx || {};
+  await Promise.all(Object.entries(sfx).map(async ([eventName, raw]) => {
+    if (!raw?.file || raw.enabled === false) return;
+    const key = `weapon:${id}:${eventName}`;
+    const version = manifest.version || 'weapon-sfx-1';
+    const loaded = await audio.preloadBuffer(key, `${base}${raw.file}?v=${version}`);
+    out[eventName] = {
+      ...raw,
+      key,
+      loaded,
+      lastPlayedAt: -Infinity
+    };
+  }));
+  return out;
+}
+
+function pickPlaybackRate(spec) {
+  if (Array.isArray(spec?.playbackRate) && spec.playbackRate.length >= 2) {
+    return rand(Number(spec.playbackRate[0]) || 1, Number(spec.playbackRate[1]) || 1);
+  }
+  const base = Number(spec?.playbackRate) || 1;
+  const jitter = Number(spec?.playbackRateJitter) || 0;
+  return jitter > 0 ? base * rand(1 - jitter, 1 + jitter) : base;
+}
+
+function playWeaponSfx(id, eventName, pos = null) {
+  const spec = weaponAssets[id]?.sfx?.[eventName];
+  if (!spec?.loaded) return false;
+  const now = audio.ctx?.currentTime ?? clockTime;
+  const cooldown = Number(spec.cooldown) || 0;
+  if (now - spec.lastPlayedAt < cooldown) return true;
+  spec.lastPlayedAt = now;
+  return audio.playBuffer(spec.key, {
+    volume: spec.volume ?? 1,
+    loop: spec.loop === true,
+    playbackRate: pickPlaybackRate(spec),
+    pos
+  });
+}
+
+function stopWeaponSfx(id, eventName) {
+  const spec = weaponAssets[id]?.sfx?.[eventName];
+  if (!spec?.key) return false;
+  return audio.stopBuffer(spec.key);
 }
 
 function normalizeMuzzleSocket(raw, fallback = [0, 0.02, -1.08]) {
@@ -2311,6 +2429,59 @@ function addFloatingHellPlatformVisual(name, cx, y, cz, sx, sz, opts = {}) {
   return visual;
 }
 
+function floatingHellPlatformConfig() {
+  const manifest = environmentAssets.floatingHellPlatform?.manifest || {};
+  const prefab = manifest.prefab || null;
+  const collision = prefab?.collision || manifest.collision || {};
+  const visual = prefab?.visual || manifest.placement || {};
+  const size = collision.size || [7.4, 0.72, 7.4];
+  const center = collision.center || [0, -size[1] * 0.5, 0];
+  return {
+    prefab,
+    collision,
+    visual,
+    size,
+    center,
+    localTop: center[1] + size[1] * 0.5
+  };
+}
+
+function addFloatingHellPlatformInstance(name, x, topY, z, opts = {}) {
+  const config = floatingHellPlatformConfig();
+  const instanceScale = opts.scale ?? 1;
+  const sx = (opts.width ?? config.size[0]) * instanceScale;
+  const sz = (opts.depth ?? config.size[2]) * instanceScale;
+  const h = config.size[1] * instanceScale;
+  const collisionX = x + config.center[0] * instanceScale;
+  const collisionZ = z + config.center[2] * instanceScale;
+  const slab = addSlab(name, collisionX, topY, collisionZ, sx, sz, materials.obsidian, {
+    edgeColor: opts.edgeColor ?? 0xa65cff,
+    edgeOpacity: opts.edgeOpacity ?? 0.18,
+    thickness: h
+  });
+  if (!environmentAssets.floatingHellPlatform || !config.prefab) return slab;
+
+  slab.visible = false;
+  const visualPos = config.visual.position || [config.visual.x ?? 0, config.visual.y ?? 0, config.visual.z ?? 0];
+  const visualRot = config.visual.rotation || [config.visual.rotationX ?? 0, config.visual.rotationY ?? 0, config.visual.rotationZ ?? 0];
+  const baseY = topY - config.localTop * instanceScale;
+  addFloatingHellPlatformVisual(`${name}-floating-hell-platform`,
+    x + visualPos[0] * instanceScale,
+    baseY + visualPos[1] * instanceScale,
+    z + visualPos[2] * instanceScale,
+    sx,
+    sz, {
+      rotationArray: [
+        visualRot[0] || 0,
+        (visualRot[1] || 0) + (opts.rotationY || 0),
+        visualRot[2] || 0
+      ],
+      scale: (config.visual.scale ?? 1) * instanceScale,
+      scaleBoost: config.visual.scaleBoost ?? 1
+    });
+  return slab;
+}
+
 function addMovingPlatform(name, cx, topY, cz, sx, sz, mat, opts = {}) {
   const mesh = addSlab(name, cx, topY, cz, sx, sz, mat, { ...opts, edgeColor: opts.edgeColor || 0x76f4ff, edgeOpacity: opts.edgeOpacity ?? 0.28 });
   const box = mesh.userData.box;
@@ -2409,66 +2580,21 @@ function createLevel() {
   addSlab('south-high-balk', 0, 6.15, 30, 24, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.26 });
   addSlab('west-high-balk', -30, 6.15, 0, 7.0, 24, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.26 });
   addSlab('east-high-balk', 30, 6.15, 0, 7.0, 24, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.26 });
-  addSlab('crown-north', 0, 9.15, -12, 8, 5, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.3 });
-  addSlab('crown-south', 0, 9.15, 12, 8, 5, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.3 });
-  addSlab('crown-west', -12, 9.15, 0, 5, 8, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.3 });
-  addSlab('crown-east', 12, 9.15, 0, 5, 8, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.3 });
+  addFloatingHellPlatformInstance('crown-north', 0, 9.15, -12, { rotationY: Math.PI * 0.5 });
+  addFloatingHellPlatformInstance('crown-south', 0, 9.15, 12, { rotationY: -Math.PI * 0.5 });
+  addFloatingHellPlatformInstance('crown-west', -12, 9.15, 0, { rotationY: Math.PI });
+  addFloatingHellPlatformInstance('crown-east', 12, 9.15, 0, { rotationY: 0 });
 
   // New outer ring + sky islands: more room to dodge, and a fourth level of vertical routing.
   addSlab('outer-north-runway', 0, 7.65, -39.0, 32, 5.2, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
   addSlab('outer-south-runway', 0, 7.65, 39.0, 32, 5.2, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
   addSlab('outer-west-runway', -39.0, 7.65, 0, 5.2, 32, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
   addSlab('outer-east-runway', 39.0, 7.65, 0, 5.2, 32, materials.metal, { edgeColor: 0x79d6ff, edgeOpacity: 0.22 });
-  const platformManifest = environmentAssets.floatingHellPlatform?.manifest || {};
-  const platformPrefab = platformManifest.prefab || null;
-  const platformCollision = platformPrefab?.collision || platformManifest.collision || {};
-  const platformPlacement = platformPrefab?.visual || platformManifest.placement || {};
-  const platformInstance = platformManifest.levelPlacement || { position: [0, 0, 0], topY: platformManifest.collision?.topY ?? 10.5, rotation: [0, 0, 0], scale: 1 };
-  const platformInstancePos = platformInstance.position || [0, 0, 0];
-  const platformInstanceScale = platformInstance.scale ?? 1;
-  const platformCollisionSize = platformCollision.size || [7.4, 0.72, 7.4];
-  const platformCollisionCenter = platformCollision.center || [0, -platformCollisionSize[1] * 0.5, 0];
-  const platformLocalTop = platformCollisionCenter[1] + platformCollisionSize[1] * 0.5;
-  const skyCenterAltarTop = platformPrefab
-    ? (platformInstance.topY ?? (platformInstancePos[1] + platformLocalTop * platformInstanceScale))
-    : (platformCollision.topY ?? 10.5);
-  const skyCenterAltarX = platformPrefab ? platformInstancePos[0] + platformCollisionCenter[0] * platformInstanceScale : 0;
-  const skyCenterAltarZ = platformPrefab ? platformInstancePos[2] + platformCollisionCenter[2] * platformInstanceScale : 0;
-  const skyCenterAltar = addSlab('sky-center-altar', skyCenterAltarX, skyCenterAltarTop, skyCenterAltarZ, platformCollisionSize[0] * platformInstanceScale, platformCollisionSize[2] * platformInstanceScale, materials.obsidian, {
-    edgeColor: 0xa65cff,
-    edgeOpacity: 0.34,
-    thickness: platformCollisionSize[1] * platformInstanceScale || 0.72
-  });
-  if (environmentAssets.floatingHellPlatform) {
-    skyCenterAltar.visible = false;
-    if (platformPrefab) {
-      const platformRotation = platformPlacement.rotation || [platformPlacement.rotationX ?? 0, platformPlacement.rotationY ?? 0, platformPlacement.rotationZ ?? 0];
-      const instanceY = skyCenterAltarTop - platformLocalTop * platformInstanceScale;
-      const visualPos = platformPlacement.position || [platformPlacement.x ?? 0, platformPlacement.y ?? 0, platformPlacement.z ?? 0];
-      addFloatingHellPlatformVisual('sky-center-altar-floating-hell-platform',
-        platformInstancePos[0] + visualPos[0] * platformInstanceScale,
-        instanceY + visualPos[1] * platformInstanceScale,
-        platformInstancePos[2] + visualPos[2] * platformInstanceScale,
-        platformCollisionSize[0] * platformInstanceScale,
-        platformCollisionSize[2] * platformInstanceScale, {
-        rotationArray: platformRotation,
-        scale: (platformPlacement.scale ?? 1) * platformInstanceScale,
-        scaleBoost: platformPlacement.scaleBoost ?? 1
-      });
-    } else {
-      const platformRotation = platformPlacement.rotation || null;
-      addFloatingHellPlatformVisual('sky-center-altar-floating-hell-platform', platformPlacement.x ?? 0, platformPlacement.y ?? 8.15, platformPlacement.z ?? 0, platformPlacement.width ?? 7.4, platformPlacement.depth ?? 7.4, {
-        rotation: platformPlacement.rotationY ?? Math.PI * 0.12,
-        rotationArray: platformRotation,
-        scale: platformPlacement.scale,
-        scaleBoost: platformPlacement.scaleBoost ?? 1.04
-      });
-    }
-  }
-  addSlab('sky-nw-island', -22, 11.45, -22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
-  addSlab('sky-ne-island', 22, 11.45, -22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
-  addSlab('sky-sw-island', -22, 11.45, 22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
-  addSlab('sky-se-island', 22, 11.45, 22, 7.0, 7.0, materials.redMetal, { edgeColor: 0xff7a32, edgeOpacity: 0.28 });
+  addSlab('sky-center-altar', 0, 10.5, 0, 7.4, 7.4, materials.obsidian, { edgeColor: 0xa65cff, edgeOpacity: 0.34, thickness: 0.72 });
+  addFloatingHellPlatformInstance('sky-nw-island', -22, 11.45, -22, { rotationY: -0.18 });
+  addFloatingHellPlatformInstance('sky-ne-island', 22, 11.45, -22, { rotationY: 0.22 });
+  addFloatingHellPlatformInstance('sky-sw-island', -22, 11.45, 22, { rotationY: 0.16 });
+  addFloatingHellPlatformInstance('sky-se-island', 22, 11.45, 22, { rotationY: -0.24 });
 
   // Dynamic pieces: two vertical lifts and two sliding rune bridges create changing routes but never block the main loop.
   addMovingPlatform('blood-lift-west', -27.5, 3.1, -7.0, 5.5, 5.5, materials.runeMetal, { axis: 'y', amp: 2.75, speed: 0.52, phase: 0.0 });
@@ -3595,7 +3721,9 @@ function tryFireSSG() {
   player.recoil += 0.095;
   player.recoilYaw += rand(-0.045, 0.045);
   player.shake = Math.max(player.shake, 0.42);
-  perfSpan('audio.shotgun', () => audio.shotgun(), 1);
+  perfSpan('audio.ssg.fire', () => {
+    if (!playWeaponSfx('ssg', 'primary') && !playWeaponSfx('ssg', 'fire')) audio.shotgun();
+  }, 1);
   perfSpan('spawnMuzzleSparks', () => spawnMuzzleSparks(0xffc76a, 16), 1);
 
   const origin = getCameraPos(tmpV1).clone();
@@ -3650,7 +3778,7 @@ function tryFireHeavy(missileMode) {
     spawnPlayerMissile(lock && lock.kind === 'enemy' ? lock.target : null);
     player.recoil += 0.018;
     player.shake = Math.max(player.shake, 0.12);
-    audio.missile();
+    if (!playWeaponSfx('heavy', 'secondary')) audio.missile();
     weaponState.muzzleT = 0.045;
     return;
   }
@@ -3663,7 +3791,7 @@ function tryFireHeavy(missileMode) {
   player.recoilYaw += rand(-0.012, 0.012);
   player.shake = Math.max(player.shake, 0.08);
   weaponState.muzzleT = 0.04;
-  audio.cannon();
+  if (!playWeaponSfx('heavy', 'primary')) audio.cannon();
   spawnMuzzleSparks(0x9fe7ff, 4);
 
   const origin = getCameraPos(tmpV1).clone();
@@ -3746,8 +3874,11 @@ function updateHook(dt) {
   hook.chainT += dt;
 
   if (hook.targetKind === 'enemy') {
+    playWeaponSfx('ssg', 'secondary');
     hook.target.burning = Math.max(hook.target.burning, 4.0);
     if (Math.random() < dt * 6) spawnArmorShard(getHookTargetPosition(hook.target, hook.targetKind, tmpV3), 1, true);
+  } else {
+    stopWeaponSfx('ssg', 'secondary');
   }
 
   const start = camPos.clone().add(getRight().multiplyScalar(0.25)).add(new THREE.Vector3(0, -0.22, 0));
@@ -3764,6 +3895,7 @@ function updateHook(dt) {
 }
 
 function cancelHook(cd = 0.6) {
+  stopWeaponSfx('ssg', 'secondary');
   hook.active = false;
   hook.target = null;
   hook.cooldown = Math.max(hook.cooldown, cd);

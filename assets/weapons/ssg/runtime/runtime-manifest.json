@@ -1,29 +1,32 @@
 {
-  "version": "ssg-meshy-runtime-v2",
+  "version": "ssg-meshy-runtime-v3",
   "id": "ssg",
-  "name": "Twin Anvil + Meat Hook",
+  "name": "Twin Anvil Oldschool Double Barrel",
   "model": "models/viewmodel.glb",
-  "source": "../authoring/ssg-meshy-refined.glb",
-  "previewTaskId": "019dd0aa-a483-7adf-b244-02fcb38bcfe1",
-  "refineTaskId": "019dd0ac-2583-7bfd-978f-aed0242f184b",
+  "source": "../authoring/ssg-meshy-authoring.glb",
+  "preRemeshedSource": "../authoring/ssg-meshy-pre-remeshed.glb",
+  "reference": "../references/ssg-oldschool-doublebarrel-concept-v3.png",
+  "imageTo3dTaskId": "019dd0ff-6363-7884-9b83-cc63c1529d34",
+  "meshyProject": "../../../meshy_output/20260427_171138_twin-anvil-oldschool-double-barrel_019dd0ff",
+  "materialOverride": "models/material-overrides.json",
   "attach": {
     "position": [
       0,
-      0,
-      0
+      -0.13,
+      -0.04
     ],
     "rotation": [
       0,
-      1.5708,
+      -1.58,
       0
     ],
     "scale": 0.78
   },
   "muzzle": {
     "position": [
-      0,
-      0.02,
-      -1.08
+      0.01,
+      0.07,
+      -0.82
     ],
     "rotation": [
       0,
@@ -32,8 +35,49 @@
     ]
   },
   "spinTargets": [],
-  "runtimeBytes": 12798948,
+  "modelSize": {
+    "sourceBytes": 46857268,
+    "runtimeBytes": 1373296,
+    "removedImages": 4
+  },
+  "textures": {
+    "baseColor": "textures/base_color.webp",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.webp",
+    "metallic": "textures/metallic.webp",
+    "emissive": "textures/emission.webp"
+  },
+  "sfx": {
+    "primary": {
+      "enabled": true,
+      "file": "audio/ssg-fire.mp3",
+      "volume": 0.95,
+      "loop": false,
+      "cooldown": 0.02,
+      "playbackRate": [
+        0.985,
+        1.015
+      ],
+      "optional": true,
+      "fallback": "procedural-shotgun"
+    },
+    "secondary": {
+      "enabled": true,
+      "file": "audio/ssg-secondary-loop.mp3",
+      "volume": 0.72,
+      "loop": true,
+      "cooldown": 0,
+      "playbackRate": [
+        0.99,
+        1.01
+      ],
+      "optional": true,
+      "fallback": "procedural-hook"
+    }
+  },
+  "maxTexture": 2048,
   "notes": [
-    "Second Meshy weapon runtime pass: clearer twin front barrels, compact receiver, no dangling chain. GLB keeps embedded PBR maps for fallback-free loading."
+    "Third Meshy SSG pass: chunky old-school double-barrel silhouette with clear twin front barrels, short heavy receiver, no dangling chain, no rifle/scope/suppressor read.",
+    "Runtime GLB has embedded Meshy images stripped; external PBR/emissive maps are restored through models/material-overrides.json."
   ]
 }

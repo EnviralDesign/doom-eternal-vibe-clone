@@ -9,12 +9,12 @@
   "attach": {
     "position": [
       0,
-      0,
+      -0.14,
       0
     ],
     "rotation": [
       0,
-      1.5708,
+      -1.57,
       0
     ],
     "scale": 0.78
@@ -22,8 +22,8 @@
   "muzzle": {
     "position": [
       0,
-      0.02,
-      -1.02
+      0.01,
+      -0.77
     ],
     "rotation": [
       0,
@@ -38,6 +38,34 @@
     "cylinder"
   ],
   "runtimeBytes": 12587972,
+  "sfx": {
+    "primary": {
+      "enabled": true,
+      "file": "audio/heavy-primary-fire.mp3",
+      "volume": 0.68,
+      "loop": false,
+      "cooldown": 0.025,
+      "playbackRate": [
+        0.985,
+        1.015
+      ],
+      "optional": true,
+      "fallback": "procedural-cannon"
+    },
+    "secondary": {
+      "enabled": true,
+      "file": "audio/heavy-secondary-fire.mp3",
+      "volume": 0.86,
+      "loop": false,
+      "cooldown": 0.06,
+      "playbackRate": [
+        0.985,
+        1.015
+      ],
+      "optional": true,
+      "fallback": "procedural-missile"
+    }
+  },
   "notes": [
     "First Meshy weapon runtime pass. GLB keeps embedded PBR maps for inspection and in-game fallback-free loading."
   ]
