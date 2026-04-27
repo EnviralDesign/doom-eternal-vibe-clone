@@ -1,0 +1,14 @@
+node_modules/
+.playwright-cli/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini

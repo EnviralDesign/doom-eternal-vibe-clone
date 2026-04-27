@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hellrush: Meathook Arena V6 — Lighting + Prewarm</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.module.min.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="vignette"></div>
+  <div id="damage"></div>
+
+  <div id="crosshair"><span></span></div>
+  <div id="lockHint"></div>
+
+  <canvas id="minimap" width="190" height="190"></canvas>
+
+  <section id="hud">
+    <div class="stack big"><b id="health">100</b><small>HEALTH</small></div>
+    <div class="stack"><b id="armor">40</b><small>ARMOR</small></div>
+    <div class="stack"><b id="ammo">18 shells</b><small>AMMO</small></div>
+    <div class="stack wide"><b id="weapon">Twin Anvil + Meat Hook</b><small>WEAPON</small></div>
+    <div class="stack"><b id="dash">◆◆</b><small>DASH</small></div>
+    <div class="stack"><b id="jump">2/2</b><small>JUMP</small></div>
+    <div class="stack"><b id="fuel">▰▱▱</b><small>SAW</small></div>
+    <div class="stack"><b id="glory">✚✚✚</b><small>GLORY</small></div>
+    <div class="stack"><b id="flame">READY</b><small>FLAME</small></div>
+    <div class="stack"><b id="stage">1/10</b><small>STAGE</small></div>
+    <div class="stack"><b id="score">0 / 0</b><small>SCORE/KILLS</small></div>
+  </section>
+
+  <div id="ammoStrip"><span>Shells <b id="shells">18</b></span><span>Bullets <b id="bullets">110</b></span></div>
+  <div id="status">Click Start. Then WASD + mouse, Space double-jump, Shift dash. Minimap is on by default.</div>
+  <pre id="perfLog" class="hidden"></pre>
+
+  <aside id="help" class="hidden">
+    <h2>Controls / Combat Loop</h2>
+    <p><b>WASD</b> move · <b>Mouse</b> look · <b>Space</b> jump / double jump · <b>Shift</b> dash. You have two dash charges; both recharge quickly.</p>
+    <p><b>1</b> Super Shotgun + Meat Hook · <b>2</b> Heavy Autorifle · <b>Q</b> quick swap.</p>
+    <p><b>LMB</b> fires. SSG hits hardest up close. Heavy Autorifle is accurate full-auto pressure.</p>
+    <p><b>RMB with SSG</b> hooks demons or purple traversal nodes. Hold to pull, strafe during pull, release to slingshot. Hooked demons burn and drop armor when damaged.</p>
+    <p><b>RMB with Autorifle</b> fires micro missiles. Use them on imp/bruiser clusters.</p>
+    <p><b>F</b> Flame Belch: burning enemies shed armor. <b>E</b> Glory Kill green staggered demons for health; you can store up to 3 charges and are invulnerable during the finisher. <b>C</b> Chainsaw close demons for ammo; fuel recharges over time and you are invulnerable while ripping.</p>
+    <p><b>M</b> minimap toggle · <b>H</b> hide help · <b>R</b> restart after death. Jump pads launch much higher now; lava burns once per second instead of bouncing you. Clear stages 1-10; then survive Endless Horde.</p>
+  </aside>
+
+  <div id="overlay">
+    <div class="panel">
+      <h1>Hellrush: Meathook Arena V6</h1>
+      <p>V6 adds an explicit loading/prewarm phase, pooled enemies and projectiles, richer arena lighting, revenant jump troops, and a denser vertical route network while keeping the lean renderer path.</p>
+      <div id="bootMeter" aria-hidden="true"><span id="bootFill"></span></div>
+      <p id="bootStatus" class="tiny">Preparing renderer</p>
+      <div class="controlGrid">
+        <span><b>WASD</b> Move</span><span><b>Mouse</b> Aim</span><span><b>Space</b> Jump / Double Jump</span><span><b>Shift</b> Dash</span>
+        <span><b>1</b> SSG + Meat Hook</span><span><b>2</b> Heavy Autorifle</span><span><b>Q</b> Quick Swap</span><span><b>M</b> Minimap</span>
+        <span><b>LMB</b> Fire</span><span><b>RMB</b> Hook / Micro Missiles</span><span><b>F</b> Flame Belch</span><span><b>E</b> Glory Kill</span>
+        <span><b>C</b> Chainsaw Finisher</span><span><b>H</b> Help</span><span><b>R</b> Restart on death</span><span><b>Goal</b> Clear 10 stages → Horde</span>
+      </div>
+      <p class="tiny">Tip: chain jump pad → hook node → double jump → dash. Green stagger = Glory Kill. Burning = armor fountain. Finishers briefly protect you.</p>
+      <button id="startButton">Start / Lock Mouse</button>
+      <p class="tiny">Uses locally vendored Three.js modules in the ZIP. Run through a local server for best browser compatibility. The ZIP also includes asset_lab.html for isolated gun/enemy/pickup turntables.</p>
+      <code>npx --yes http-server . -p 8066 -a 127.0.0.1</code>
+      <p id="version" class="tiny"></p>
+    </div>
+  </div>
+
+  <script type="module" src="src/game.js?v=6-finisherwarm1"></script>
+</body>
+</html>
