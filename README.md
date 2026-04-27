@@ -1,67 +1,61 @@
-# Hellrush: Meathook Arena V6
+# Hellrush: Meathook Arena
 
-A browser-delivered Three.js FPS prototype inspired by modern push-forward arena-shooter combat loops: Super Shotgun + Meat Hook, Heavy Autorifle + micro missiles, double jump, two-charge dash, high jump pads, hook nodes, Flame Belch armor drops, glory-kill health, chainsaw ammo, finite stages, and an endless horde finale.
+![Hellrush loading screen](assets/screenshots/loading-screen.png)
 
-The ZIP vendors a local lean Three.js module under `vendor/three`, so the main game can run without internet once unzipped. V6 adds generated bitmap material textures under `assets/textures` plus procedural fallback textures if image loading fails.
+A browser FPS prototype built as a passion-code experiment around the kind of fast, push-forward arena combat I love: double jumps, dash chains, meat-hook movement, resource finishers, chunky weapons, and an arena that keeps asking you to move.
 
-## Run
+This is not trying to be a commercial clone. It is a small, original Three.js playground for studying that combat rhythm and seeing how far a lightweight browser game can be pushed with generated assets, pooled effects, and aggressive startup prewarming.
+
+## Play
+
+On Windows, double-click:
+
+```text
+run_server.bat
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8066/index.html
+```
+
+Or run it manually:
 
 ```bash
 npx --yes http-server . -p 8066 -a 127.0.0.1
 ```
 
-Open `http://127.0.0.1:8066`.
+The project vendors its local Three.js build under `vendor/three`, so it can run without pulling a CDN at startup.
 
-On Windows, double-click `run_server.bat` from the repo root to start the same local server. Close that command window or press `Ctrl+C` in it to stop the server.
+## Controls And Mechanics
 
-You can also open `index.html` directly in some browsers, but a local server is more reliable for ES modules and pointer lock. The included vendor files mean the ZIP does not need a CDN connection.
+- `WASD`: ground movement, air control, strafe routing, and arena circle-strafing.
+- Mouse: free-look aiming with pointer lock.
+- `Space`: jump and double jump. Jump pads launch higher routes and can be chained into hooks/dashes.
+- `Shift`: dash with two charges and quick recharge. Use it for dodges, aerial correction, and hook exits.
+- `1`: Super Shotgun loadout. High close-range damage, pellet spread, pump timing, recoil, and the Meat Hook on RMB.
+- `2`: Heavy Autorifle loadout. Full-auto pressure on LMB, accurate sustained fire, spinning barrels, and micro missiles on RMB.
+- `Q`: quick swap between the two weapons.
+- LMB: primary fire. SSG rewards close range; Autorifle rewards tracking and pressure.
+- RMB with SSG: Meat Hook demons or purple hook nodes. Hold to pull, strafe during travel, release into momentum. Hooked demons ignite and become armor opportunities.
+- RMB with Autorifle: micro missiles with homing and splash damage for clustered enemies.
+- `F`: Flame Belch. Burns demons in a cone; burning enemies shed armor when damaged.
+- `E`: Glory Kill. Executes green staggered enemies at close range, grants health, consumes/recharges glory charges, and gives brief invulnerability.
+- `C`: Chainsaw. Executes close enemies for ammo, uses rechargeable fuel, grants brief invulnerability, and triggers a first-person saw finisher.
+- `M`: minimap toggle with player, enemy, and traversal-node visibility.
+- `H`: in-game help panel.
+- `R`: restart after death.
 
-## Controls
+Other mechanics bundled into the arena: finite staged waves, endless horde after stage 10, husks, imps, revenant jump troops, bruisers, fireballs, melee pressure, stagger windows, burn armor drops, health/armor/ammo pickups, lava damage ticks, moving platforms, vertical launch pads, hook nodes, resource meters, hit flashes, screen shake, synthesized weapon/enemy/UI audio, pooled particles, tracers, decals, explosions, and chainsaw/glory finisher animations.
 
-- `WASD`: move
-- Mouse: look
-- `Space`: jump / double jump
-- `Shift`: dash; two charges, quick recharge
-- `1`: Super Shotgun + Meat Hook
-- `2`: Heavy Autorifle
-- `Q`: quick swap
-- LMB: fire
-- RMB with SSG: Meat Hook demons or purple traversal nodes
-- RMB with Autorifle: micro missiles
-- `F`: Flame Belch; burning enemies shed armor when damaged
-- `E`: Glory Kill green staggered demons for health; up to 3 charges; invulnerable during the finisher
-- `C`: Chainsaw close demons for ammo; fuel recharges; invulnerable during the rip
-- `M`: minimap toggle; it starts open by default
-- `H`: help panel
-- `R`: restart after death
+## What Is In Here
 
-## V6 changes
+- A single-page Three.js arena FPS in `index.html`, `style.css`, and `src/game.js`.
+- Generated hell-material textures in `assets/textures`.
+- A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
+- A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
 
-- Added an explicit loading/prewarm phase. The Start button stays disabled while materials, generated textures, pooled meshes, GPU shaders, and combat effects are created and rendered behind the overlay.
-- Added generated texture assets for floor, wall, metal, and rune-metal level surfaces under `assets/textures`.
-- Added enemy mesh pools and projectile pools so wave spawns, revenant volleys, fireballs, and micro missiles avoid first-use mesh allocation during play.
-- Added revenant jump troops: skeletal midweight enemies with shoulder rockets, lateral pressure, and jump-jet movement.
-- Reworked the arena lighting composition with cheap emissive light shafts, translucent argent-glass panels, richer generated floor materials, and perimeter landmarks while keeping runtime shadows and postprocessing off.
-- Expanded stage compositions to introduce revenants from stage 5 onward and into endless horde.
+## Current Focus
 
-## V5 carryover
-
-- Added animated chainsaw and glory-kill execution windows instead of instant effects. Finishers briefly magnet the player into position, show a first-person blade/saw prop, trigger an impact frame, and prevent player damage during the animation.
-- Chainsaw fuel now recharges over time up to three fuel, and glory kills now use a visible three-charge meter.
-- Jump height is stronger, jump pads launch much higher, and lava now burns periodically instead of bouncing the player.
-- Added a more noticeable red edge/fringe damage pulse.
-- Minimap is open by default, and HUD now shows dash, jump, chainsaw fuel, glory charges, flame cooldown, stage, ammo, score, and kills.
-- Reworked pickup objects with higher-fidelity procedural geometry and clearer color language: teal health, deep army-green armor, and fiery orange ammo.
-- Took a sound-design pass: heavier SSG, cannon, missile/explosion, demon, chainsaw, glory, hurt, lava, pickup, stage-start, and stage-clear synthesis.
-- Reduced likely hitch sources: shared particle/projectile/pickup geometries, tracer material reuse, particle hard cap, and throttled HUD/minimap DOM/canvas updates.
-
-## Asset Lab
-
-Open `asset_lab.html` from the same local server to inspect isolated gun, enemy, pickup, and finisher-prop models. It includes a turntable, drag-to-orbit, light control, and `Save PNG screenshot` button. This is the workflow page used to iterate on silhouettes and pickup readability without loading the full arena.
-
-
-## Performance notes
-
-This build keeps the V5 hotfix path and pushes startup work into the loading phase: pickups, enemies, projectiles, particles, tracers, decals, flash lights, image textures, shader programs, and audio noise data are precreated before gameplay starts. Runtime shadows and default bloom/postprocessing remain disabled to reduce frame cost and shader work.
-
-The current Firefox-focused baseline also pre-draws rare visible states during loading: finisher props, chainsaw/glory spark lighting, hook chain line, all pooled enemy instances, both weapon models, and common first-use audio paths. New gameplay effects should follow the same rule: create and draw during loading, then only animate transforms, scale, opacity/uniforms, and light intensity during play.
+The project is in a vibe-code prototype phase: feel first, then architecture. The current baseline is tuned around keeping Firefox smooth by avoiding first-use GPU stalls during combat. New effects should be created and drawn during loading, then animated at runtime with transforms, scale, opacity/uniforms, and light intensity.
