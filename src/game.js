@@ -17,6 +17,8 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const randInt = (a, b) => Math.floor(rand(a, b + 1));
 const now = () => performance.now() * 0.001;
 const TAU = Math.PI * 2;
+const qs = new URLSearchParams(location.search);
+const lightingLabMode = qs.has('lightingLab');
 
 const tmpV1 = new THREE.Vector3();
 const tmpV2 = new THREE.Vector3();
@@ -236,6 +238,7 @@ let sawSpin = 0;
 let damageOverlay, vignetteOverlay;
 let lavaMaterial;
 let cameraBaseFov = 82;
+let lightingLabState = null;
 
 // V5 hotfix: cut in-game allocation churn. The biggest stalls came from
 // creating/removing hundreds of Meshes, geometries, lights, pickups, tracers,
@@ -267,8 +270,8 @@ const browserInfo = {
   firefox: typeof navigator !== 'undefined' && /Firefox\//.test(navigator.userAgent)
 };
 const perfLog = {
-  enabled: new URLSearchParams(location.search).has('debugPerf'),
-  overlayEnabled: new URLSearchParams(location.search).has('debugPerf'),
+  enabled: qs.has('debugPerf'),
+  overlayEnabled: qs.has('debugPerf'),
   ttl: 30,
   max: 220,
   entries: [],
@@ -701,18 +704,20 @@ async function main() {
   updateHUD();
   setBootProgress(0.84, 'Compiling shaders');
   await prewarmGpu();
-  setupInput();
+  if (lightingLabMode) setupLightingLab();
+  else setupInput();
   setBootProgress(1, 'Ready');
   if (dom.startButton) dom.startButton.disabled = false;
   requestAnimationFrame(loop);
 }
 
 function bindDom() {
-  for (const id of ['overlay','startButton','hud','health','armor','ammo','shells','bullets','weapon','dash','jump','fuel','glory','flame','stage','score','status','crosshair','lockHint','help','damage','vignette','minimap','version','bootFill','bootStatus','perfLog']) {
+  for (const id of ['overlay','startButton','hud','health','armor','ammo','ammoStrip','shells','bullets','weapon','dash','jump','fuel','glory','flame','stage','score','status','crosshair','lockHint','help','damage','vignette','minimap','version','bootFill','bootStatus','perfLog']) {
     dom[id] = document.getElementById(id);
   }
   if (dom.version) dom.version.textContent = `${VERSION} · ${CDN_VERSION}`;
   if (dom.startButton) dom.startButton.disabled = true;
+  if (lightingLabMode) document.body.classList.add('lighting-lab');
   perfLog.dom = dom.perfLog;
   window.__hellrushPerfDump = () => {
     const text = perfLog.entries.map(e => e.text).join('\n');
@@ -743,19 +748,20 @@ function setBootProgress(value, label) {
 }
 
 function initRenderer() {
-  renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, PERF.maxDpr));
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lightingLabMode ? 1.5 : PERF.maxDpr));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x070504, 1);
-  renderer.shadowMap.enabled = false;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.88;
+  renderer.toneMappingExposure = 1.08;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   document.body.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x080607);
-  scene.fog = new THREE.FogExp2(0x09070b, 0.021);
+  scene.background = new THREE.Color(0x0d0a0b);
+  scene.fog = new THREE.FogExp2(0x120b0c, 0.014);
 
   camera = new THREE.PerspectiveCamera(cameraBaseFov, window.innerWidth / window.innerHeight, 0.025, 180);
   camera.rotation.order = 'YXZ';
@@ -772,7 +778,7 @@ function initRenderer() {
   window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, PERF.maxDpr));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lightingLabMode ? 1.5 : PERF.maxDpr));
     renderer.setSize(window.innerWidth, window.innerHeight);
     if (composer) composer.setSize(window.innerWidth, window.innerHeight);
   });
@@ -794,6 +800,36 @@ function makeCanvasTexture(draw, size = 256, repeatX = 1, repeatY = 1, color = t
   return tex;
 }
 
+function createFallbackEnvironmentTexture() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  sky.addColorStop(0, '#5d7288');
+  sky.addColorStop(0.38, '#2d3440');
+  sky.addColorStop(0.68, '#1b1010');
+  sky.addColorStop(1, '#090504');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const hot = ctx.createRadialGradient(120, 86, 0, 120, 86, 150);
+  hot.addColorStop(0, 'rgba(255,196,112,.95)');
+  hot.addColorStop(0.35, 'rgba(255,84,32,.35)');
+  hot.addColorStop(1, 'rgba(255,84,32,0)');
+  ctx.fillStyle = hot;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const cool = ctx.createRadialGradient(410, 86, 0, 410, 86, 170);
+  cool.addColorStop(0, 'rgba(88,210,255,.65)');
+  cool.addColorStop(1, 'rgba(88,210,255,0)');
+  ctx.fillStyle = cool;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 async function loadGameTexture(path, repeatX, repeatY, color = true) {
   const image = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -810,6 +846,17 @@ async function loadGameTexture(path, repeatX, repeatY, color = true) {
   tex.repeat.set(repeatX, repeatY);
   tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   if (color) tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+async function loadEquirectSky(path) {
+  const tex = await new Promise((resolve, reject) => {
+    new THREE.TextureLoader().load(path, resolve, undefined, reject);
+  });
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+  tex.needsUpdate = true;
   return tex;
 }
 
@@ -1010,36 +1057,38 @@ async function initMaterials() {
   }, 256, 5, 5, false);
 
   try {
-    const [floorTex, wallTex, metalTex, runeTex] = await Promise.all([
+    const [floorTex, wallTex, metalTex, runeTex, skyTex] = await Promise.all([
       loadGameTexture('./assets/textures/hell-floor.png', 8, 8),
       loadGameTexture('./assets/textures/hell-wall.png', 3, 2),
       loadGameTexture('./assets/textures/hell-metal.png', 4, 4),
-      loadGameTexture('./assets/textures/hell-rune.png', 4, 4)
+      loadGameTexture('./assets/textures/hell-rune.png', 4, 4),
+      loadEquirectSky('./assets/skies/deep-hell-panorama-2k.webp?v=2')
     ]);
     textures.floor = floorTex;
     textures.wall = wallTex;
     textures.metal = metalTex;
     textures.rune = runeTex;
+    textures.sky = skyTex;
   } catch (err) {
     console.warn('V6 image textures unavailable; using procedural fallback.', err);
   }
 
   materials.floor = new THREE.MeshStandardMaterial({
     map: textures.floor, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.32, 0.32),
-    roughness: 0.68, metalness: 0.26, envMapIntensity: 0.55
+    roughness: 0.86, metalness: 0.02, envMapIntensity: 0.35, color: 0xfff1dc
   });
   materials.wall = new THREE.MeshStandardMaterial({
     map: textures.wall, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.18, 0.18),
-    roughness: 0.78, metalness: 0.12, color: 0xffe1cf
+    roughness: 0.88, metalness: 0.015, color: 0xffe7d2, envMapIntensity: 0.25
   });
   materials.metal = new THREE.MeshStandardMaterial({
     map: textures.metal, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.26, 0.26),
-    roughness: 0.36, metalness: 0.8, color: 0xb9c2c9
+    roughness: 0.58, metalness: 0.28, color: 0xd2d5ce, envMapIntensity: 0.55
   });
-  materials.darkMetal = new THREE.MeshStandardMaterial({ color: 0x1b1d20, roughness: 0.42, metalness: 0.86 });
-  materials.redMetal = new THREE.MeshStandardMaterial({ color: 0x5b1d1a, emissive: 0x280500, roughness: 0.48, metalness: 0.65 });
-  materials.obsidian = new THREE.MeshStandardMaterial({ color: 0x0d0d12, emissive: 0x12040a, emissiveIntensity: 0.25, roughness: 0.62, metalness: 0.38, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.22, 0.22) });
-  materials.runeMetal = new THREE.MeshStandardMaterial({ map: textures.rune || textures.metal, color: 0x91dcff, emissive: 0x06324b, emissiveIntensity: 0.24, roughness: 0.34, metalness: 0.78, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.18, 0.18) });
+  materials.darkMetal = new THREE.MeshStandardMaterial({ color: 0x333338, roughness: 0.72, metalness: 0.18, envMapIntensity: 0.45 });
+  materials.redMetal = new THREE.MeshStandardMaterial({ color: 0x7a2d25, emissive: 0x180300, emissiveIntensity: 0.08, roughness: 0.74, metalness: 0.12, envMapIntensity: 0.35 });
+  materials.obsidian = new THREE.MeshStandardMaterial({ color: 0x17131a, emissive: 0x0c0206, emissiveIntensity: 0.06, roughness: 0.82, metalness: 0.04, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.22, 0.22), envMapIntensity: 0.28 });
+  materials.runeMetal = new THREE.MeshStandardMaterial({ map: textures.rune || textures.metal, color: 0xd1f2ff, emissive: 0x042236, emissiveIntensity: 0.16, roughness: 0.62, metalness: 0.18, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.18, 0.18), envMapIntensity: 0.48 });
   materials.bone = new THREE.MeshStandardMaterial({ color: 0xd1b287, roughness: 0.64, metalness: 0.03, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.1, 0.1) });
   materials.enemyArmor = new THREE.MeshStandardMaterial({ color: 0x1a1b20, emissive: 0x210407, emissiveIntensity: 0.2, roughness: 0.36, metalness: 0.75 });
   materials.orangeGlow = new THREE.MeshStandardMaterial({ color: 0xff7430, emissive: 0xff4a10, emissiveIntensity: 1.15, roughness: 0.35 });
@@ -1054,8 +1103,6 @@ async function initMaterials() {
   materials.ammo = new THREE.MeshStandardMaterial({ color: 0xff8b24, emissive: 0xff5e00, emissiveIntensity: 1.0, roughness: 0.28, metalness: 0.42 });
   materials.ammoDark = new THREE.MeshStandardMaterial({ color: 0x3b1a09, emissive: 0x522000, emissiveIntensity: 0.25, roughness: 0.52, metalness: 0.35 });
   materials.pickupWhite = new THREE.MeshStandardMaterial({ color: 0xfaffd6, emissive: 0xb6ffca, emissiveIntensity: 0.45, roughness: 0.24, metalness: 0.14 });
-  materials.lightBeamOrange = new THREE.MeshBasicMaterial({ color: 0xff6b24, transparent: true, opacity: 0.18, depthWrite: false, blending: THREE.AdditiveBlending, side: 2 });
-  materials.lightBeamBlue = new THREE.MeshBasicMaterial({ color: 0x47d8ff, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending, side: 2 });
   materials.runeGlass = new THREE.MeshStandardMaterial({ color: 0x13232b, emissive: 0x0b8fc8, emissiveIntensity: 0.85, roughness: 0.22, metalness: 0.38, transparent: true, opacity: 0.72, depthWrite: false });
 
   // Shared geometry cuts allocation churn during firefights and helps avoid periodic GC hitches.
@@ -1084,45 +1131,69 @@ async function initMaterials() {
 }
 
 function initScene() {
-  const hemi = new THREE.HemisphereLight(0x738aa8, 0x120709, 0.82);
+  scene.background = textures.sky || new THREE.Color(0x0d0a0b);
+  scene.environment = textures.sky || createFallbackEnvironmentTexture();
+  if ('backgroundIntensity' in scene) scene.backgroundIntensity = 0.82;
+  if ('environmentIntensity' in scene) scene.environmentIntensity = 0.65;
+
+  const hemi = new THREE.HemisphereLight(0x9fbad4, 0x2b120a, 0.36);
   scene.add(hemi);
 
-  const sun = new THREE.DirectionalLight(0xffc99a, 1.18);
-  sun.position.set(-11, 22, 8);
-  sun.castShadow = false;
+  const sun = new THREE.DirectionalLight(0xffd0a0, 3.4);
+  sun.position.set(-26, 38, 18);
+  sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.camera.near = 1;
-  sun.shadow.camera.far = 70;
-  sun.shadow.camera.left = -38;
-  sun.shadow.camera.right = 38;
-  sun.shadow.camera.top = 38;
-  sun.shadow.camera.bottom = -38;
+  sun.shadow.camera.far = 100;
+  sun.shadow.camera.left = -54;
+  sun.shadow.camera.right = 54;
+  sun.shadow.camera.top = 54;
+  sun.shadow.camera.bottom = -54;
+  sun.shadow.bias = -0.00008;
+  sun.shadow.normalBias = 0.035;
   scene.add(sun);
+  world.lights.push(sun);
+
+  const coolFill = new THREE.DirectionalLight(0x5acbff, 0.92);
+  coolFill.position.set(24, 20, -28);
+  coolFill.castShadow = false;
+  scene.add(coolFill);
+  world.lights.push(coolFill);
+
+  const rim = new THREE.DirectionalLight(0xff4e24, 1.55);
+  rim.position.set(0, 18, 42);
+  rim.castShadow = false;
+  scene.add(rim);
+  world.lights.push(rim);
+
+  addArenaSpotlight('north-key', 0, 23, -31, 0, 2, -6, 0xffc08a, 980, 48, 0.56, 0.82, true);
+  addArenaSpotlight('south-rim', 0, 18, 34, 0, 2, 7, 0xff5624, 420, 42, 0.62, 0.78, true);
+  addArenaSpotlight('west-cool-fill', -33, 15, 2, -5, 2, 0, 0x62d7ff, 260, 38, 0.62, 0.9, false);
+  addArenaSpotlight('east-cool-fill', 33, 15, -2, 5, 2, 0, 0x62d7ff, 260, 38, 0.62, 0.9, false);
 
   const weaponLight = new THREE.PointLight(0xffa66b, 0.55, 6, 2);
   weaponLight.position.set(0.3, -0.15, -0.8);
   camera.add(weaponLight);
 
-  const skyGeo = new THREE.SphereGeometry(120, 32, 18);
-  const skyMat = new THREE.ShaderMaterial({
-    side: THREE.BackSide,
-    depthWrite: false,
-    uniforms: { time: { value: 0 } },
-    vertexShader: `varying vec3 vPos; void main(){ vPos=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
-    fragmentShader: `varying vec3 vPos; uniform float time;
-      float hash(vec2 p){ return fract(sin(dot(p,vec2(41.7,289.3)))*49152.63); }
-      float noise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); float a=hash(i), b=hash(i+vec2(1.,0.)), c=hash(i+vec2(0.,1.)), d=hash(i+vec2(1.,1.)); vec2 u=f*f*(3.-2.*f); return mix(a,b,u.x)+(c-a)*u.y*(1.-u.x)+(d-b)*u.x*u.y; }
-      void main(){ vec3 n=normalize(vPos); float h=n.y; float az=atan(n.z,n.x); vec3 top=vec3(.018,.018,.04); vec3 low=vec3(.28,.035,.018); vec3 c=mix(low,top,smoothstep(-.18,.78,h));
-      float cloud=noise(vec2(az*2.4+time*.015,h*5.5-time*.025))*0.8 + noise(vec2(az*5.0-time*.01,h*12.0))*0.22; c += vec3(.42,.04,.08)*smoothstep(.48,.86,cloud)*(1.0-smoothstep(.5,1.0,h));
-      float aur=pow(abs(sin(az*3.0 + h*7.0 + time*.08)), 18.0)*(1.0-smoothstep(.65,1.0,h)); c += vec3(.03,.34,.52)*aur*.75;
-      float star=step(.9975, hash(floor(vec2(az*90.0,h*80.0))))*smoothstep(.25,1.0,h); c += vec3(.8,.75,.65)*star*.55;
-      float eclipse=smoothstep(.055,.0,length(n.xz-vec2(.18,-.42))) * smoothstep(.05,.35,h+.05); c += vec3(.9,.18,.06)*eclipse*1.2;
-      gl_FragColor=vec4(c,1.0); }`
-  });
-  const sky = new THREE.Mesh(skyGeo, skyMat);
-  sky.userData.sky = true;
-  scene.add(sky);
-  world.decorations.push({ mesh: sky, shader: skyMat });
+}
+
+function addArenaSpotlight(name, x, y, z, tx, ty, tz, color, intensity, distance, angle, penumbra, castShadow = false) {
+  const light = new THREE.SpotLight(color, intensity, distance, angle, penumbra, 1.25);
+  light.name = name;
+  light.position.set(x, y, z);
+  light.target.position.set(tx, ty, tz);
+  light.castShadow = castShadow;
+  if (castShadow) {
+    light.shadow.mapSize.set(1024, 1024);
+    light.shadow.camera.near = 2;
+    light.shadow.camera.far = distance + 8;
+    light.shadow.bias = -0.00012;
+    light.shadow.normalBias = 0.04;
+  }
+  scene.add(light);
+  scene.add(light.target);
+  world.lights.push(light);
+  return light;
 }
 
 
@@ -1829,13 +1900,36 @@ function addEdges(mesh, color = 0xff6a24, opacity = 0.18) {
   return edges;
 }
 
+function tileBoxGeometryUv(geo, sx, h, sz, tile = 16.0) {
+  const uv = geo.attributes.uv;
+  if (!uv || !geo.index || !geo.groups?.length) return;
+  const dims = [
+    [sz, h], [sz, h],
+    [sx, sz], [sx, sz],
+    [sx, h], [sx, h]
+  ];
+  for (let g = 0; g < geo.groups.length; g++) {
+    const [uScale, vScale] = dims[g] || [sx, sz];
+    const group = geo.groups[g];
+    const touched = new Set();
+    for (let i = group.start; i < group.start + group.count; i++) {
+      const idx = geo.index.getX(i);
+      if (touched.has(idx)) continue;
+      touched.add(idx);
+      uv.setXY(idx, uv.getX(idx) * Math.max(1, uScale / tile), uv.getY(idx) * Math.max(1, vScale / tile));
+    }
+  }
+  uv.needsUpdate = true;
+}
+
 function addBlock(name, cx, topY, cz, sx, h, sz, mat, opts = {}) {
   const geo = new THREE.BoxGeometry(sx, h, sz, Math.max(1, Math.floor(sx / 8)), 1, Math.max(1, Math.floor(sz / 8)));
+  tileBoxGeometryUv(geo, sx, h, sz, opts.tileSize || 16.0);
   geo.computeVertexNormals();
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
   mesh.position.set(cx, topY - h / 2, cz);
-  mesh.castShadow = !!opts.cast;
+  mesh.castShadow = opts.cast !== false;
   mesh.receiveShadow = opts.receive !== false;
   scene.add(mesh);
   if (opts.edges !== false) addEdges(mesh, opts.edgeColor || 0xff6a24, opts.edgeOpacity ?? 0.12);
@@ -1871,6 +1965,14 @@ function addCylinder(name, pos, radius, height, mat, radial = 24, opts = {}) {
 function addTorch(x, y, z, color = 0xff5a18, intensity = 2.2, dist = 13) {
   const light = new THREE.PointLight(color, intensity, dist, 2.0);
   light.position.set(x, y, z);
+  light.castShadow = intensity > 1.7;
+  if (light.castShadow) {
+    light.shadow.mapSize.set(512, 512);
+    light.shadow.camera.near = 0.5;
+    light.shadow.camera.far = dist + 2;
+    light.shadow.bias = -0.00018;
+    light.shadow.normalBias = 0.035;
+  }
   scene.add(light);
   world.lights.push(light);
   const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 2), materials.orangeGlow);
@@ -1879,17 +1981,6 @@ function addTorch(x, y, z, color = 0xff5a18, intensity = 2.2, dist = 13) {
   scene.add(core);
   world.decorations.push({ mesh: core, spin: rand(-1.5, 1.5), bob: rand(0, 10) });
   return light;
-}
-
-function addLightBeam(x, z, height = 11, radius = 2.8, mat = materials.lightBeamOrange, y = 0.08) {
-  const geo = new THREE.CylinderGeometry(radius * 0.28, radius, height, 20, 1, true);
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.set(x, y + height * 0.5, z);
-  mesh.renderOrder = 1;
-  mesh.frustumCulled = true;
-  scene.add(mesh);
-  world.decorations.push({ mesh, spin: rand(-0.045, 0.045) });
-  return mesh;
 }
 
 function addRuneGlassPanel(name, cx, topY, cz, sx, sz, rot = 0) {
@@ -1973,12 +2064,6 @@ function createLevel() {
     scene.add(mesh);
     world.lavaPlanes.push({ mesh, minX: l.cx - l.sx / 2, maxX: l.cx + l.sx / 2, minZ: l.cz - l.sz / 2, maxZ: l.cz + l.sz / 2 });
   }
-  for (const [x, z, h, r, mat] of [
-    [-37, -37, 10.5, 2.8, materials.lightBeamOrange], [37, 37, 10.5, 2.8, materials.lightBeamOrange],
-    [-37, 37, 10.5, 2.8, materials.lightBeamOrange], [37, -37, 10.5, 2.8, materials.lightBeamOrange],
-    [-22, -22, 9.0, 2.2, materials.lightBeamBlue], [22, 22, 9.0, 2.2, materials.lightBeamBlue]
-  ]) addLightBeam(x, z, h, r, mat);
-
   // Ground landmarks and soft cover: deliberately chunky, leaving long sightlines and dash lanes.
   addSlab('central-combat-dais', 0, 1.05, 0, 12, 12, materials.obsidian, { edgeColor: 0xff7a32, edgeOpacity: 0.18, thickness: 1.05 });
   addRuneGlassPanel('north-argent-glass', 0, 4.6, -34.5, 20, 4.2, 0);
@@ -2387,6 +2472,91 @@ async function startGame() {
   if (!stageState.started) startStage(1);
 }
 
+const lightingLabPresets = [
+  { name: '01 Spawn Floor', pos: [0, 4.4, 24], look: [0, 2.0, 0], fov: 54 },
+  { name: '02 Central Dais', pos: [-15, 9.5, 15], look: [0, 2.4, 0], fov: 46 },
+  { name: '03 North Balcony', pos: [0, 10.5, -37], look: [0, 4.0, -6], fov: 50 },
+  { name: '04 Lava Lanes', pos: [24, 6.8, 14], look: [0, 1.2, 0], fov: 58 },
+  { name: '05 Sky Islands', pos: [-30, 16.5, -30], look: [0, 8.0, 0], fov: 52 },
+  { name: '06 Enemy Read', pos: [7, 2.6, 10], look: [0, 1.4, 0], fov: 42 }
+];
+
+function setupLightingLab() {
+  running = false;
+  pausedByLock = false;
+  dom.overlay.classList.add('hidden');
+  dom.help.classList.add('hidden');
+  dom.crosshair.classList.add('hidden');
+  dom.lockHint.classList.add('hidden');
+  dom.hud.classList.add('hidden');
+  dom.ammoStrip?.classList?.add('hidden');
+  dom.minimap.classList.add('hidden');
+  dom.status.textContent = 'Lighting Lab: use shot buttons to inspect arena lighting and material read.';
+  if (weaponRoot) weaponRoot.visible = false;
+  if (chainLine) chainLine.visible = false;
+
+  const panel = document.createElement('aside');
+  panel.id = 'lightingLabPanel';
+  panel.innerHTML = `<h2>Lighting Lab</h2><p>Repeatable arena cameras for lighting, shadows, and material critique.</p><div id="lightingLabButtons"></div><output id="lightingLabShot"></output>`;
+  document.body.appendChild(panel);
+  const buttons = panel.querySelector('#lightingLabButtons');
+  lightingLabPresets.forEach((preset, index) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = preset.name;
+    btn.addEventListener('click', () => setLightingLabCamera(index));
+    buttons.appendChild(btn);
+  });
+
+  const labEnemies = [
+    ['husk', new THREE.Vector3(-2.2, 1.1, 1.2)],
+    ['imp', new THREE.Vector3(1.7, 0.05, -1.6)],
+    ['revenant', new THREE.Vector3(5.0, 3.2, 1.2)]
+  ];
+  for (const [type, pos] of labEnemies) {
+    const data = enemyTypes[type];
+    const mesh = acquireEnemyMesh(type, data);
+    if (!mesh) continue;
+    mesh.position.copy(pos);
+    mesh.rotation.y = Math.PI;
+    const e = {
+      type, data, mesh, pos: pos.clone(), vel: new THREE.Vector3(), hp: data.hp, maxHp: data.hp,
+      alive: true, dead: false, staggered: false, staggerT: 0, burning: type === 'husk' ? 4 : 0, burnTick: 0,
+      pain: 0, alert: 0, attackCd: 99, leapCd: 99, strafe: 1, grounded: true,
+      spawnT: 0, lastGrowl: 99, armorDropCd: 0, lastHitSound: -99, emissiveMeshes: [], labActor: true
+    };
+    mesh.traverse(o => { if (o.isMesh && o.material && o.material.emissive) e.emissiveMeshes.push(o); });
+    enemies.push(e);
+  }
+  lightingLabState = { preset: 0, panel };
+  setLightingLabCamera(Math.max(0, Math.min(lightingLabPresets.length - 1, Number(qs.get('shot') || 0))));
+  window.__hellrushLightingShot = setLightingLabCamera;
+}
+
+function setLightingLabCamera(index = 0) {
+  const preset = lightingLabPresets[index] || lightingLabPresets[0];
+  lightingLabState = lightingLabState || {};
+  lightingLabState.preset = index;
+  camera.fov = preset.fov;
+  camera.updateProjectionMatrix();
+  camera.position.set(...preset.pos);
+  camera.lookAt(new THREE.Vector3(...preset.look));
+  const out = document.querySelector('#lightingLabShot');
+  if (out) out.textContent = `${preset.name} · pos ${preset.pos.join(', ')} · look ${preset.look.join(', ')}`;
+  document.querySelectorAll('#lightingLabButtons button').forEach((button, i) => button.classList.toggle('active', i === index));
+}
+
+function updateLightingLab(dt, realDt) {
+  clockTime += 0;
+  updateWorld(dt, realDt);
+  for (const e of enemies) {
+    if (e.labActor) {
+      e.mesh.rotation.y += dt * 0.18;
+      animateEnemyMesh(e, dt);
+    }
+  }
+}
+
 function resetPlayer(soft = false) {
   player.pos.set(0, 0.05, 11);
   player.vel.set(0, 0, 0);
@@ -2464,6 +2634,7 @@ function loop(tMs) {
   if (slowMo > 0) slowMo -= dtRaw;
 
   if (running && !pausedByLock) update(dt, dtRaw);
+  else if (lightingLabMode) updateLightingLab(dt, dtRaw);
   render(dtRaw);
   updatePerfOverlay();
 }
@@ -4390,7 +4561,7 @@ function updateMiniMap(dt = 0.016) {
 
 function render(dt) {
   const renderT0 = perfNowMs();
-  updateCameraTransform();
+  if (!lightingLabMode) updateCameraTransform();
   if (composer && PERF.postprocess) composer.render();
   else renderer.render(scene, camera);
   const renderDt = perfNowMs() - renderT0;

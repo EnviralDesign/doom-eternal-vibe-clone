@@ -54,8 +54,10 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 - A single-page Three.js arena FPS in `index.html`, `style.css`, and `src/game.js`.
 - Generated hell-material textures in `assets/textures`.
 - Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
+- A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background and environment reflection source.
 - A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
 - A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
+- A lighting lab mode at `index.html?lightingLab` with fixed camera presets for iterating on arena lighting, shadows, and material readability without playing the real-time game.
 - A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, the Ember Runt husk asset, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
 
 ## Character Asset Flow
@@ -75,3 +77,5 @@ The runtime GLB has embedded texture images stripped out; `material-overrides.js
 ## Current Focus
 
 The project is in a vibe-code prototype phase: feel first, then architecture. The current baseline is tuned around keeping Firefox smooth by avoiding first-use GPU stalls during combat. New effects should be created and drawn during loading, then animated at runtime with transforms, scale, opacity/uniforms, and light intensity.
+
+The current level pass is moving away from fake transparent light geometry toward real shadow-casting lights, rough non-metallic blockout materials, correctly tiled UVs on stretched slabs, and repeatable visual inspection through the lighting lab.
