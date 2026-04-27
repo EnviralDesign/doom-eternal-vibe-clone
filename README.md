@@ -54,10 +54,11 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 - A single-page Three.js arena FPS in `index.html`, `style.css`, and `src/game.js`.
 - Generated hell-material textures in `assets/textures`.
 - Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
-- A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background and environment reflection source.
+- A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background with PMREM-processed environment lighting for PBR materials.
 - A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
 - A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
-- A lighting lab mode at `index.html?lightingLab` with fixed camera presets for iterating on arena lighting, shadows, and material readability without playing the real-time game.
+- A local `texture_lab.html` for previewing manifest-backed PBR materials on sphere, box, plane, and kit primitives under the game's sky, PMREM environment, bloom, and shadowed lighting.
+- A lighting lab mode at `index.html?lightingLab` with fixed camera presets, cinematic lighting defaults, soft shadows, and bloom for iterating on arena lighting, shadows, and material readability without playing the real-time game.
 - A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, the Ember Runt husk asset, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
 
 ## Character Asset Flow
@@ -74,8 +75,28 @@ assets/characters/ember-runt/runtime/textures/*
 
 The runtime GLB has embedded texture images stripped out; `material-overrides.json` reattaches the base color, normal, roughness, metallic, and emissive maps. Use `character_lab.html?model=assets/characters/ember-runt/runtime/models/ember-runt-walking.glb%3Fv=ember-runt-v2` to inspect the exact runtime path with cache-busted sidecar textures.
 
+## PBR Texture Flow
+
+Base texture art can be generated first, saved under `assets/textures/<material>/source`, then expanded into PBR maps through a local ComfyUI workflow exported in API format. The current Chord workflow lives at `.tmp/chord_image_to_material.json`; run ComfyUI on `127.0.0.1:8188`, then use:
+
+```bash
+python tools/build_pbr_texture.py --slug my-material --name "My Material" --base-image C:\path\to\generated-base.png --keep-workflow-copy
+```
+
+The wrapper copies the base image into `assets/textures/my-material/source/my-material_base.png`, uploads it to Comfy, patches the workflow's `LoadImage` node, converts save nodes to temporary previews by default, queues the prompt, downloads basecolor/normal/roughness/metalness/height maps into that same source folder, and writes a report beside the outputs.
+
+The tool updates `assets/textures/manifest.json` by default so the result appears in `texture_lab.html`.
+
 ## Current Focus
 
 The project is in a vibe-code prototype phase: feel first, then architecture. The current baseline is tuned around keeping Firefox smooth by avoiding first-use GPU stalls during combat. New effects should be created and drawn during loading, then animated at runtime with transforms, scale, opacity/uniforms, and light intensity.
 
 The current level pass is moving away from fake transparent light geometry toward real shadow-casting lights, rough non-metallic blockout materials, correctly tiled UVs on stretched slabs, and repeatable visual inspection through the lighting lab.
+
+Useful render flags:
+
+```text
+index.html?lightingLab
+index.html?quality=gameplay
+index.html?performance
+```

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hellrush Texture Lab</title>
+<link rel="icon" href="data:," />
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/build/three.full.module.js",
+    "three/addons/": "./vendor/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; background:#050506; color:#f7efe4; }
+* { box-sizing: border-box; }
+html, body { margin:0; width:100%; height:100%; overflow:hidden; background:#070607; }
+canvas { display:block; width:100vw; height:100vh; }
+#panel {
+  position:fixed; left:16px; top:16px; z-index:4; width:min(390px, calc(100vw - 32px));
+  padding:14px; border:1px solid rgba(255,134,66,.32); background:rgba(7,7,8,.80);
+  box-shadow:0 24px 90px rgba(0,0,0,.52); backdrop-filter:blur(16px);
+}
+h1 { margin:0 0 8px; font-size:20px; line-height:1.1; letter-spacing:0; }
+p { margin:7px 0 10px; color:rgba(249,230,210,.78); font-size:13px; line-height:1.35; }
+label { display:grid; gap:5px; margin:10px 0; color:#cfbeb0; font-size:12px; text-transform:uppercase; font-weight:800; }
+select, button, input {
+  width:100%; min-height:36px; border:1px solid rgba(255,255,255,.16); color:#fff4e8;
+  background:rgba(255,255,255,.075); padding:8px 9px; font:inherit;
+}
+select option { color:#111; }
+button { cursor:pointer; font-weight:900; color:#170703; background:linear-gradient(180deg,#ffb35d,#e4511d); border-color:#ffba78; }
+button.secondary { color:#f7efe4; background:rgba(255,255,255,.08); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.seg { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin:10px 0; }
+.seg button { min-height:34px; padding:6px; color:#f7efe4; background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); }
+.seg button.active { color:#160702; background:linear-gradient(180deg,#8fe9ff,#ffb45d); border-color:#ffffff88; }
+.range { display:grid; grid-template-columns:1fr 62px; gap:8px; align-items:center; }
+input[type="range"] { padding:0; accent-color:#ffb45d; }
+output {
+  display:grid; place-items:center; min-height:34px; color:#8fe9ff; font-weight:900;
+  border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.06);
+}
+#maps {
+  display:grid; grid-template-columns:repeat(5, 1fr); gap:5px; margin-top:10px;
+  color:#b7c6cc; font-size:11px; text-align:center;
+}
+#maps span { padding:5px 2px; border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.045); }
+#maps span.on { color:#160702; background:#8fe9ff; border-color:#dff8ff; font-weight:900; }
+#status {
+  position:fixed; right:16px; bottom:16px; z-index:4; max-width:min(520px, calc(100vw - 32px));
+  padding:10px 12px; border:1px solid rgba(143,233,255,.28); background:rgba(0,0,0,.48);
+  color:#dff8ff; font-size:13px; font-weight:800;
+}
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>Hellrush Texture Lab</h1>
+  <p>Game-lit PBR material inspection with the live hell sky, PMREM environment, bloom, and shadowed test primitives.</p>
+  <label>Material <select id="material"></select></label>
+  <div class="seg" id="primitive">
+    <button data-shape="sphere">Sphere</button>
+    <button data-shape="box">Box</button>
+    <button data-shape="plane">Plane</button>
+    <button data-shape="kit">Kit</button>
+  </div>
+  <div class="grid">
+    <label>Lighting
+      <select id="lighting">
+        <option value="arena">Arena</option>
+        <option value="studio">Studio</option>
+        <option value="raking">Raking</option>
+      </select>
+    </label>
+    <label>Map Repeat
+      <div class="range"><input id="tile" type="range" min="1" max="10" step="0.25" value="3" /><output id="tileOut">3.0</output></div>
+    </label>
+  </div>
+  <div class="grid">
+    <label>Roughness
+      <div class="range"><input id="roughness" type="range" min="0" max="1" step="0.01" value="0.7" /><output id="roughOut">0.70</output></div>
+    </label>
+    <label>Metalness
+      <div class="range"><input id="metalness" type="range" min="0" max="1" step="0.01" value="0.0" /><output id="metalOut">0.00</output></div>
+    </label>
+  </div>
+  <label>Height Scale
+    <div class="range"><input id="heightScale" type="range" min="0" max="0.08" step="0.001" value="0.012" /><output id="heightOut">0.012</output></div>
+  </label>
+  <div id="maps"></div>
+  <button id="shot">Save Screenshot</button>
+</div>
+<div id="status">Loading material manifest...</div>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const qs = new URLSearchParams(location.search);
+const manifestUrl = qs.get('manifest') || './assets/textures/manifest.json';
+const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance', preserveDrawingBuffer:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x11090a, 0.018);
+const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.05, 140);
+camera.position.set(0, 2.2, 6.2);
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.11, 0.17, 1.24));
+composer.addPass(new OutputPass());
+
+const pmrem = new THREE.PMREMGenerator(renderer);
+pmrem.compileEquirectangularShader();
+const loader = new THREE.TextureLoader();
+const root = new THREE.Group();
+scene.add(root);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(18, 18), new THREE.MeshStandardMaterial({ color:0x231512, roughness:.82, metalness:.02 }));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -1.16;
+floor.receiveShadow = true;
+scene.add(floor);
+
+const lights = {
+  hemi: new THREE.HemisphereLight(0x99cfff, 0x2a1108, 0.3),
+  key: new THREE.DirectionalLight(0xffc18a, 4.2),
+  rim: new THREE.DirectionalLight(0x61d7ff, 1.6),
+  warm: new THREE.SpotLight(0xff5b22, 620, 24, 0.62, 0.75, 1.15)
+};
+lights.key.position.set(-5, 8, 5); lights.key.castShadow = true; lights.key.shadow.mapSize.set(2048, 2048);
+lights.key.shadow.camera.left = -8; lights.key.shadow.camera.right = 8; lights.key.shadow.camera.top = 8; lights.key.shadow.camera.bottom = -8;
+lights.key.shadow.camera.near = 1;
+lights.key.shadow.camera.far = 24;
+lights.key.shadow.bias = -0.00008;
+lights.key.shadow.normalBias = 0.04;
+lights.rim.position.set(5, 4, -5);
+lights.warm.position.set(2.4, 4.2, 4.5); lights.warm.target.position.set(0, 0, 0); lights.warm.castShadow = false;
+scene.add(lights.hemi, lights.key, lights.rim, lights.warm, lights.warm.target);
+
+const ui = {
+  material: document.querySelector('#material'),
+  primitive: document.querySelector('#primitive'),
+  lighting: document.querySelector('#lighting'),
+  tile: document.querySelector('#tile'),
+  tileOut: document.querySelector('#tileOut'),
+  roughness: document.querySelector('#roughness'),
+  roughOut: document.querySelector('#roughOut'),
+  metalness: document.querySelector('#metalness'),
+  metalOut: document.querySelector('#metalOut'),
+  heightScale: document.querySelector('#heightScale'),
+  heightOut: document.querySelector('#heightOut'),
+  maps: document.querySelector('#maps'),
+  status: document.querySelector('#status'),
+  shot: document.querySelector('#shot')
+};
+
+let manifest = { materials: [] };
+let activeMaterial = null;
+let activeSpec = null;
+let shape = qs.get('shape') || 'sphere';
+let yaw = 0.35;
+let pitch = 0.22;
+let dist = 6.2;
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+
+function resolveAsset(path) {
+  return new URL(path, new URL(manifestUrl, location.href)).href;
+}
+
+function loadTex(path, color = false) {
+  return new Promise((resolve, reject) => {
+    loader.load(resolveAsset(path), tex => {
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      if (color) tex.colorSpace = THREE.SRGBColorSpace;
+      resolve(tex);
+    }, undefined, reject);
+  });
+}
+
+async function loadSky() {
+  const tex = await new Promise((resolve, reject) => loader.load('./assets/skies/deep-hell-panorama-2k.webp?v=2', resolve, undefined, reject));
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  scene.background = tex;
+  scene.environment = pmrem.fromEquirectangular(tex).texture;
+  if ('backgroundIntensity' in scene) scene.backgroundIntensity = 0.88;
+  if ('environmentIntensity' in scene) scene.environmentIntensity = 0.82;
+}
+
+async function buildMaterial(spec) {
+  const maps = {};
+  if (spec.baseColor) maps.map = await loadTex(spec.baseColor, true);
+  if (spec.normal) maps.normalMap = await loadTex(spec.normal, false);
+  if (spec.roughnessMap) maps.roughnessMap = await loadTex(spec.roughnessMap, false);
+  if (spec.metalnessMap) maps.metalnessMap = await loadTex(spec.metalnessMap, false);
+  if (spec.aoMap) maps.aoMap = await loadTex(spec.aoMap, false);
+  if (spec.heightMap) {
+    maps.displacementMap = await loadTex(spec.heightMap, false);
+    maps.displacementScale = Number(spec.displacementScale ?? 0.06);
+  }
+  if (spec.emissive) {
+    maps.emissiveMap = await loadTex(spec.emissive, true);
+    maps.emissive = new THREE.Color(0xffffff);
+    maps.emissiveIntensity = Number(spec.emissiveIntensity ?? 1);
+  }
+  const mat = new THREE.MeshStandardMaterial({
+    color: spec.color ?? 0xffffff,
+    roughness: Number(spec.roughness ?? (spec.roughnessMap ? 1.0 : 0.72)),
+    metalness: Number(spec.metalness ?? (spec.metalnessMap ? 1.0 : 0.0)),
+    envMapIntensity: Number(spec.envMapIntensity ?? 0.75),
+    ...maps
+  });
+  return mat;
+}
+
+function applyRepeat(mat, repeat) {
+  for (const key of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'displacementMap', 'emissiveMap']) {
+    if (mat[key]) mat[key].repeat.set(repeat, repeat);
+  }
+}
+
+function clearRoot() {
+  while (root.children.length) {
+    const child = root.children.pop();
+    child.traverse?.(o => { if (o.geometry) o.geometry.dispose(); });
+  }
+}
+
+function addMesh(mesh, x = 0, y = 0, z = 0) {
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = shape === 'plane';
+  root.add(mesh);
+  return mesh;
+}
+
+function makePrimitive() {
+  clearRoot();
+  const mat = activeMaterial;
+  const detail = 96;
+  if (shape === 'box') {
+    addMesh(new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.4, 2.4, 24, 24, 24), mat), 0, 0.25, 0);
+  } else if (shape === 'plane') {
+    const plane = addMesh(new THREE.Mesh(new THREE.PlaneGeometry(5.2, 5.2, 160, 160), mat), 0, 0.05, 0);
+    plane.rotation.x = -Math.PI / 2;
+  } else if (shape === 'kit') {
+    addMesh(new THREE.Mesh(new THREE.SphereGeometry(1.05, detail, 48), mat), -2.2, 0.1, 0);
+    addMesh(new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.75, 1.75, 28, 28, 28), mat), 0, 0.1, 0);
+    const cyl = addMesh(new THREE.Mesh(new THREE.CylinderGeometry(0.9, 0.9, 1.9, 64, 16), mat), 2.2, 0.05, 0);
+    cyl.rotation.z = Math.PI / 2;
+  } else {
+    addMesh(new THREE.Mesh(new THREE.SphereGeometry(1.45, detail, 64), mat), 0, 0.15, 0);
+  }
+}
+
+function setLighting(mode) {
+  lights.hemi.intensity = mode === 'studio' ? 0.55 : 0.3;
+  lights.key.intensity = mode === 'raking' ? 2.1 : mode === 'studio' ? 3.0 : 4.2;
+  lights.rim.intensity = mode === 'studio' ? 2.4 : 1.6;
+  lights.warm.intensity = mode === 'raking' ? 980 : mode === 'studio' ? 240 : 620;
+  lights.key.position.set(mode === 'raking' ? -7 : -5, mode === 'raking' ? 2.4 : 8, mode === 'raking' ? 2.8 : 5);
+}
+
+function updateMapBadges(spec) {
+  const items = [
+    ['base', spec.baseColor],
+    ['normal', spec.normal],
+    ['rough', spec.roughnessMap],
+    ['metal', spec.metalnessMap],
+    ['height', spec.heightMap]
+  ];
+  ui.maps.innerHTML = items.map(([label, present]) => `<span class="${present ? 'on' : ''}">${label}</span>`).join('');
+}
+
+async function selectMaterial(id) {
+  activeSpec = manifest.materials.find(m => m.id === id) || manifest.materials[0];
+  ui.material.value = activeSpec.id;
+  ui.status.textContent = `Loading ${activeSpec.name || activeSpec.id}...`;
+  activeMaterial?.dispose();
+  activeMaterial = await buildMaterial(activeSpec);
+  const repeat = Number(activeSpec.tile ?? 3);
+  ui.tile.value = repeat;
+  ui.tileOut.textContent = repeat.toFixed(1);
+  ui.roughness.value = activeMaterial.roughness;
+  ui.roughOut.textContent = activeMaterial.roughness.toFixed(2);
+  ui.metalness.value = activeMaterial.metalness;
+  ui.metalOut.textContent = activeMaterial.metalness.toFixed(2);
+  ui.heightScale.value = activeMaterial.displacementMap ? Number(activeMaterial.displacementScale || 0) : 0;
+  ui.heightOut.textContent = Number(ui.heightScale.value).toFixed(3);
+  applyRepeat(activeMaterial, repeat);
+  updateMapBadges(activeSpec);
+  makePrimitive();
+  ui.status.textContent = `${activeSpec.name || activeSpec.id} - ${shape} - drag to orbit, wheel to zoom.`;
+}
+
+function frame() {
+  requestAnimationFrame(frame);
+  const t = performance.now() * 0.001;
+  root.rotation.y += 0.002;
+  lights.warm.position.x = Math.sin(t * 0.38) * 2.5;
+  lights.warm.target.position.set(0, 0, 0);
+  const cp = Math.cos(pitch), sp = Math.sin(pitch), cy = Math.cos(yaw), sy = Math.sin(yaw);
+  camera.position.set(sy * cp * dist, 1.0 + sp * dist, cy * cp * dist);
+  camera.lookAt(0, 0.25, 0);
+  composer.render();
+}
+
+async function init() {
+  await loadSky();
+  const resp = await fetch(manifestUrl, { cache:'no-store' });
+  manifest = await resp.json();
+  ui.material.innerHTML = manifest.materials.map(m => `<option value="${m.id}">${m.name || m.id}</option>`).join('');
+  ui.primitive.querySelectorAll('button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.shape === shape);
+    btn.addEventListener('click', () => {
+      shape = btn.dataset.shape;
+      ui.primitive.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      makePrimitive();
+    });
+  });
+  ui.material.addEventListener('change', () => selectMaterial(ui.material.value));
+  ui.lighting.addEventListener('change', () => setLighting(ui.lighting.value));
+  ui.tile.addEventListener('input', () => { const v = Number(ui.tile.value); ui.tileOut.textContent = v.toFixed(1); if (activeMaterial) applyRepeat(activeMaterial, v); });
+  ui.roughness.addEventListener('input', () => { activeMaterial.roughness = Number(ui.roughness.value); ui.roughOut.textContent = activeMaterial.roughness.toFixed(2); });
+  ui.metalness.addEventListener('input', () => { activeMaterial.metalness = Number(ui.metalness.value); ui.metalOut.textContent = activeMaterial.metalness.toFixed(2); });
+  ui.heightScale.addEventListener('input', () => {
+    if (!activeMaterial) return;
+    activeMaterial.displacementScale = Number(ui.heightScale.value);
+    ui.heightOut.textContent = activeMaterial.displacementScale.toFixed(3);
+  });
+  ui.shot.addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.download = `texture-lab-${activeSpec?.id || 'material'}-${shape}.png`;
+    a.href = renderer.domElement.toDataURL('image/png');
+    a.click();
+  });
+  window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
+  });
+  renderer.domElement.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+  window.addEventListener('pointerup', () => dragging = false);
+  window.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    yaw -= (e.clientX - lastX) * 0.006;
+    pitch = Math.max(-0.45, Math.min(0.9, pitch - (e.clientY - lastY) * 0.004));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  window.addEventListener('wheel', e => { dist = Math.max(2.5, Math.min(11, dist + e.deltaY * 0.004)); }, { passive:true });
+  setLighting('arena');
+  await selectMaterial(qs.get('material') || manifest.materials[0]?.id);
+  frame();
+}
+
+init().catch(err => {
+  console.error(err);
+  ui.status.textContent = `Texture lab failed: ${err.message}`;
+});
+</script>
+</body>
+</html>

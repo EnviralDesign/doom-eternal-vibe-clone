@@ -1,6 +1,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /*
   Hellrush: Meathook Arena — original browser FPS prototype.
@@ -8,7 +12,7 @@ import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
   Three.js is loaded from the local import map in index.html.
 */
 
-const VERSION = 'threejs-eternalish-6.1-ember-runt';
+const VERSION = 'threejs-eternalish-6.2-lighting-pipeline';
 const CDN_VERSION = 'three-local-r184-full';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -19,6 +23,8 @@ const now = () => performance.now() * 0.001;
 const TAU = Math.PI * 2;
 const qs = new URLSearchParams(location.search);
 const lightingLabMode = qs.has('lightingLab');
+const qualityMode = qs.get('quality') || 'cinematic';
+const cinematicMode = qualityMode !== 'gameplay' && !qs.has('performance');
 
 const tmpV1 = new THREE.Vector3();
 const tmpV2 = new THREE.Vector3();
@@ -28,7 +34,8 @@ const tmpQ = new THREE.Quaternion();
 const UP = new THREE.Vector3(0, 1, 0);
 const ZERO = new THREE.Vector3(0, 0, 0);
 
-let renderer, scene, camera, composer, bloomPass;
+let renderer, scene, camera, composer, bloomPass, pmremGenerator;
+let environmentRenderTarget = null;
 let clockTime = 0;
 let lastFrame = 0;
 let running = false;
@@ -245,8 +252,9 @@ let lightingLabState = null;
 // and audio nodes in a single shotgun/hook/gib event. These pools keep the
 // presentation punchy while making those events mostly allocation-free.
 const PERF = {
-  postprocess: false,
-  maxDpr: 1.15,
+  postprocess: qs.has('postfx') || cinematicMode,
+  maxDpr: cinematicMode ? 1.5 : 1.15,
+  shadowType: cinematicMode ? THREE.VSMShadowMap : THREE.PCFShadowMap,
   glowParticles: 720,
   debrisParticles: 420,
   tracers: 72,
@@ -753,11 +761,13 @@ function initRenderer() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x070504, 1);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.shadowMap.type = PERF.shadowType;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.08;
+  renderer.toneMappingExposure = cinematicMode ? 1.16 : 1.08;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   document.body.appendChild(renderer.domElement);
+  pmremGenerator = new THREE.PMREMGenerator(renderer);
+  pmremGenerator.compileEquirectangularShader();
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0d0a0b);
@@ -770,7 +780,12 @@ function initRenderer() {
   if (PERF.postprocess) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.08, 0.10, 1.48);
+    bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      lightingLabMode ? 0.16 : 0.10,
+      0.18,
+      1.34
+    );
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
   }
@@ -780,7 +795,10 @@ function initRenderer() {
     camera.updateProjectionMatrix();
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lightingLabMode ? 1.5 : PERF.maxDpr));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) {
+      composer.setSize(window.innerWidth, window.innerHeight);
+      if (bloomPass?.setSize) bloomPass.setSize(window.innerWidth, window.innerHeight);
+    }
   });
 
   damageOverlay = dom.damage;
@@ -830,6 +848,20 @@ function createFallbackEnvironmentTexture() {
   return tex;
 }
 
+function createPmremEnvironment(texture) {
+  if (!texture || !pmremGenerator) return texture || null;
+  try {
+    if (environmentRenderTarget) environmentRenderTarget.dispose();
+    environmentRenderTarget = pmremGenerator.fromEquirectangular(texture);
+    const env = environmentRenderTarget.texture;
+    env.name = 'pmrem-hell-environment';
+    return env;
+  } catch (err) {
+    console.warn('PMREM environment generation failed; using direct environment texture.', err);
+    return texture;
+  }
+}
+
 async function loadGameTexture(path, repeatX, repeatY, color = true) {
   const image = await new Promise((resolve, reject) => {
     const img = new Image();
@@ -858,6 +890,28 @@ async function loadEquirectSky(path) {
   tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
   tex.needsUpdate = true;
   return tex;
+}
+
+async function loadPbrTextureSet(basePath, slug, repeatX = 1, repeatY = 1, options = {}) {
+  const prefix = `${basePath}/${slug}`;
+  const result = {};
+  const loadOptional = async (key, suffix, color = false) => {
+    try {
+      result[key] = await loadGameTexture(`${prefix}_${suffix}.png`, repeatX, repeatY, color);
+    } catch (err) {
+      console.warn(`PBR texture missing: ${prefix}_${suffix}.png`, err);
+    }
+  };
+  await Promise.all([
+    loadOptional('map', 'basecolor', true),
+    loadOptional('normalMap', 'normal', false),
+    loadOptional('roughnessMap', 'roughness', false),
+    loadOptional('metalnessMap', 'metalness', false)
+  ]);
+  result.roughness = result.roughnessMap ? 1 : options.roughness ?? 0.72;
+  result.metalness = result.metalnessMap ? 1 : options.metalness ?? 0.0;
+  result.envMapIntensity = options.envMapIntensity;
+  return result;
 }
 
 function urlDirectory(url) {
@@ -937,8 +991,14 @@ async function applySidecarMaterialOverrides(modelUrl, object) {
   for (const mat of collectMaterials(object)) {
     if (loaded.baseColor) mat.map = loaded.baseColor;
     if (loaded.normal) mat.normalMap = loaded.normal;
-    if (loaded.roughness) mat.roughnessMap = loaded.roughness;
-    if (loaded.metallic) mat.metalnessMap = loaded.metallic;
+    if (loaded.roughness) {
+      mat.roughnessMap = loaded.roughness;
+      mat.roughness = 1;
+    }
+    if (loaded.metallic) {
+      mat.metalnessMap = loaded.metallic;
+      mat.metalness = 1;
+    }
     if (loaded.emissive) {
       mat.emissiveMap = loaded.emissive;
       mat.emissive?.set(0xffffff);
@@ -1057,38 +1117,85 @@ async function initMaterials() {
   }, 256, 5, 5, false);
 
   try {
-    const [floorTex, wallTex, metalTex, runeTex, skyTex] = await Promise.all([
-      loadGameTexture('./assets/textures/hell-floor.png', 8, 8),
-      loadGameTexture('./assets/textures/hell-wall.png', 3, 2),
-      loadGameTexture('./assets/textures/hell-metal.png', 4, 4),
-      loadGameTexture('./assets/textures/hell-rune.png', 4, 4),
+    const [floorSet, wallSet, metalSet, runeSet, catwalkSet, skyTex] = await Promise.all([
+      loadPbrTextureSet('./assets/textures/hell-floor/source', 'hell-floor', 8, 8, { roughness: 0.86, metalness: 0.02, envMapIntensity: 0.35 }),
+      loadPbrTextureSet('./assets/textures/hell-wall/source', 'hell-wall', 3, 2, { roughness: 0.88, metalness: 0.015, envMapIntensity: 0.25 }),
+      loadPbrTextureSet('./assets/textures/hell-metal/source', 'hell-metal', 4, 4, { roughness: 0.58, metalness: 0.28, envMapIntensity: 0.55 }),
+      loadPbrTextureSet('./assets/textures/hell-rune/source', 'hell-rune', 4, 4, { roughness: 0.62, metalness: 0.18, envMapIntensity: 0.48 }),
+      loadPbrTextureSet('./assets/textures/argent-catwalk/source', 'argent-catwalk', 3, 3, { roughness: 0.62, metalness: 0.65, envMapIntensity: 0.68 }),
       loadEquirectSky('./assets/skies/deep-hell-panorama-2k.webp?v=2')
     ]);
-    textures.floor = floorTex;
-    textures.wall = wallTex;
-    textures.metal = metalTex;
-    textures.rune = runeTex;
+    textures.floorSet = floorSet;
+    textures.wallSet = wallSet;
+    textures.metalSet = metalSet;
+    textures.runeSet = runeSet;
+    textures.catwalkSet = catwalkSet;
+    textures.floor = floorSet.map;
+    textures.wall = wallSet.map;
+    textures.metal = metalSet.map;
+    textures.rune = runeSet.map;
     textures.sky = skyTex;
+    textures.environment = createPmremEnvironment(skyTex);
   } catch (err) {
     console.warn('V6 image textures unavailable; using procedural fallback.', err);
   }
 
   materials.floor = new THREE.MeshStandardMaterial({
-    map: textures.floor, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.32, 0.32),
-    roughness: 0.86, metalness: 0.02, envMapIntensity: 0.35, color: 0xfff1dc
+    map: textures.floorSet?.map || textures.floor,
+    normalMap: textures.floorSet?.normalMap || textures.normalRough,
+    roughnessMap: textures.floorSet?.roughnessMap,
+    metalnessMap: textures.floorSet?.metalnessMap,
+    normalScale: new THREE.Vector2(0.32, 0.32),
+    roughness: textures.floorSet?.roughness ?? 0.86,
+    metalness: textures.floorSet?.metalness ?? 0.02,
+    envMapIntensity: 0.35, color: 0xfff1dc
   });
   materials.wall = new THREE.MeshStandardMaterial({
-    map: textures.wall, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.18, 0.18),
-    roughness: 0.88, metalness: 0.015, color: 0xffe7d2, envMapIntensity: 0.25
+    map: textures.wallSet?.map || textures.wall,
+    normalMap: textures.wallSet?.normalMap || textures.normalRough,
+    roughnessMap: textures.wallSet?.roughnessMap,
+    metalnessMap: textures.wallSet?.metalnessMap,
+    normalScale: new THREE.Vector2(0.18, 0.18),
+    roughness: textures.wallSet?.roughness ?? 0.88,
+    metalness: textures.wallSet?.metalness ?? 0.015,
+    color: 0xffe7d2, envMapIntensity: 0.25
   });
   materials.metal = new THREE.MeshStandardMaterial({
-    map: textures.metal, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.26, 0.26),
-    roughness: 0.58, metalness: 0.28, color: 0xd2d5ce, envMapIntensity: 0.55
+    map: textures.metalSet?.map || textures.metal,
+    normalMap: textures.metalSet?.normalMap || textures.normalRough,
+    roughnessMap: textures.metalSet?.roughnessMap,
+    metalnessMap: textures.metalSet?.metalnessMap,
+    normalScale: new THREE.Vector2(0.26, 0.26),
+    roughness: textures.metalSet?.roughness ?? 0.58,
+    metalness: textures.metalSet?.metalness ?? 0.28,
+    color: 0xd2d5ce, envMapIntensity: 0.55
   });
   materials.darkMetal = new THREE.MeshStandardMaterial({ color: 0x333338, roughness: 0.72, metalness: 0.18, envMapIntensity: 0.45 });
   materials.redMetal = new THREE.MeshStandardMaterial({ color: 0x7a2d25, emissive: 0x180300, emissiveIntensity: 0.08, roughness: 0.74, metalness: 0.12, envMapIntensity: 0.35 });
   materials.obsidian = new THREE.MeshStandardMaterial({ color: 0x17131a, emissive: 0x0c0206, emissiveIntensity: 0.06, roughness: 0.82, metalness: 0.04, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.22, 0.22), envMapIntensity: 0.28 });
-  materials.runeMetal = new THREE.MeshStandardMaterial({ map: textures.rune || textures.metal, color: 0xd1f2ff, emissive: 0x042236, emissiveIntensity: 0.16, roughness: 0.62, metalness: 0.18, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.18, 0.18), envMapIntensity: 0.48 });
+  materials.runeMetal = new THREE.MeshStandardMaterial({
+    map: textures.runeSet?.map || textures.rune || textures.metal,
+    normalMap: textures.runeSet?.normalMap || textures.normalRough,
+    roughnessMap: textures.runeSet?.roughnessMap,
+    metalnessMap: textures.runeSet?.metalnessMap,
+    color: 0xd1f2ff, emissive: 0x042236, emissiveIntensity: 0.16,
+    roughness: textures.runeSet?.roughness ?? 0.62,
+    metalness: textures.runeSet?.metalness ?? 0.18,
+    normalScale: new THREE.Vector2(0.18, 0.18), envMapIntensity: 0.48
+  });
+  materials.catwalk = new THREE.MeshStandardMaterial({
+    map: textures.catwalkSet?.map || textures.runeSet?.map || textures.rune || textures.metal,
+    normalMap: textures.catwalkSet?.normalMap || textures.runeSet?.normalMap || textures.normalRough,
+    roughnessMap: textures.catwalkSet?.roughnessMap,
+    metalnessMap: textures.catwalkSet?.metalnessMap,
+    color: 0xe7f7ff,
+    emissive: 0x021b24,
+    emissiveIntensity: 0.08,
+    roughness: textures.catwalkSet?.roughness ?? 0.62,
+    metalness: textures.catwalkSet?.metalness ?? 0.65,
+    normalScale: new THREE.Vector2(0.16, 0.16),
+    envMapIntensity: 0.68
+  });
   materials.bone = new THREE.MeshStandardMaterial({ color: 0xd1b287, roughness: 0.64, metalness: 0.03, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.1, 0.1) });
   materials.enemyArmor = new THREE.MeshStandardMaterial({ color: 0x1a1b20, emissive: 0x210407, emissiveIntensity: 0.2, roughness: 0.36, metalness: 0.75 });
   materials.orangeGlow = new THREE.MeshStandardMaterial({ color: 0xff7430, emissive: 0xff4a10, emissiveIntensity: 1.15, roughness: 0.35 });
@@ -1132,9 +1239,14 @@ async function initMaterials() {
 
 function initScene() {
   scene.background = textures.sky || new THREE.Color(0x0d0a0b);
-  scene.environment = textures.sky || createFallbackEnvironmentTexture();
-  if ('backgroundIntensity' in scene) scene.backgroundIntensity = 0.82;
-  if ('environmentIntensity' in scene) scene.environmentIntensity = 0.65;
+  if (!textures.environment) {
+    const fallbackEnvironment = createFallbackEnvironmentTexture();
+    textures.fallbackEnvironment = fallbackEnvironment;
+    textures.environment = createPmremEnvironment(fallbackEnvironment);
+  }
+  scene.environment = textures.environment || textures.sky || textures.fallbackEnvironment || null;
+  if ('backgroundIntensity' in scene) scene.backgroundIntensity = cinematicMode ? 0.92 : 0.82;
+  if ('environmentIntensity' in scene) scene.environmentIntensity = cinematicMode ? 0.86 : 0.65;
 
   const hemi = new THREE.HemisphereLight(0x9fbad4, 0x2b120a, 0.36);
   scene.add(hemi);
@@ -1142,13 +1254,13 @@ function initScene() {
   const sun = new THREE.DirectionalLight(0xffd0a0, 3.4);
   sun.position.set(-26, 38, 18);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(cinematicMode ? 3072 : 2048, cinematicMode ? 3072 : 2048);
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 100;
-  sun.shadow.camera.left = -54;
-  sun.shadow.camera.right = 54;
-  sun.shadow.camera.top = 54;
-  sun.shadow.camera.bottom = -54;
+  sun.shadow.camera.left = -46;
+  sun.shadow.camera.right = 46;
+  sun.shadow.camera.top = 46;
+  sun.shadow.camera.bottom = -46;
   sun.shadow.bias = -0.00008;
   sun.shadow.normalBias = 0.035;
   scene.add(sun);
@@ -1167,7 +1279,7 @@ function initScene() {
   world.lights.push(rim);
 
   addArenaSpotlight('north-key', 0, 23, -31, 0, 2, -6, 0xffc08a, 980, 48, 0.56, 0.82, true);
-  addArenaSpotlight('south-rim', 0, 18, 34, 0, 2, 7, 0xff5624, 420, 42, 0.62, 0.78, true);
+  addArenaSpotlight('south-rim', 0, 18, 34, 0, 2, 7, 0xff5624, 420, 42, 0.62, 0.78, cinematicMode);
   addArenaSpotlight('west-cool-fill', -33, 15, 2, -5, 2, 0, 0x62d7ff, 260, 38, 0.62, 0.9, false);
   addArenaSpotlight('east-cool-fill', 33, 15, -2, 5, 2, 0, 0x62d7ff, 260, 38, 0.62, 0.9, false);
 
@@ -1184,7 +1296,8 @@ function addArenaSpotlight(name, x, y, z, tx, ty, tz, color, intensity, distance
   light.target.position.set(tx, ty, tz);
   light.castShadow = castShadow;
   if (castShadow) {
-    light.shadow.mapSize.set(1024, 1024);
+    const mapSize = cinematicMode ? 1536 : 1024;
+    light.shadow.mapSize.set(mapSize, mapSize);
     light.shadow.camera.near = 2;
     light.shadow.camera.far = distance + 8;
     light.shadow.bias = -0.00012;
@@ -1302,6 +1415,14 @@ async function prewarmGpu() {
   warmRareVisiblePaths();
 
   renderer.compile(scene, camera);
+  if (typeof renderer.compileAsync === 'function') {
+    try {
+      setBootProgress(0.79, 'Compiling material variants');
+      await renderer.compileAsync(scene, camera);
+    } catch (err) {
+      console.warn('Async shader compile unavailable; continuing with staged render warmup.', err);
+    }
+  }
   for (let i = 0; i < 18; i++) {
     setBootProgress(0.80 + i * 0.011, i < 5 ? 'Warming pooled pickups' : i < 10 ? 'Warming enemies/projectiles' : i < 14 ? 'Priming finishers/hooks' : 'Priming combat effects');
     updateWorld(0.016, 0.016);
@@ -1329,11 +1450,17 @@ async function prewarmGpu() {
 
 function initGpuTextures() {
   if (!renderer || typeof renderer.initTexture !== 'function') return;
-  for (const tex of Object.values(textures)) {
-    if (tex && tex.isTexture) {
-      try { renderer.initTexture(tex); } catch (err) { console.warn('Texture init failed', err); }
+  const seen = new Set();
+  const visit = (value) => {
+    if (!value || seen.has(value)) return;
+    seen.add(value);
+    if (value.isTexture) {
+      try { renderer.initTexture(value); } catch (err) { console.warn('Texture init failed', err); }
+    } else if (typeof value === 'object') {
+      for (const child of Object.values(value)) visit(child);
     }
-  }
+  };
+  visit(textures);
 }
 
 function warmCombatEffectBuffers() {
@@ -1861,6 +1988,12 @@ function releaseEnemyMesh(e) {
   e.mesh = null;
 }
 
+function syncEnemyMeshToPosition(e) {
+  if (!e?.mesh) return;
+  e.mesh.position.copy(e.pos);
+  e.mesh.updateMatrixWorld(true);
+}
+
 function createProjectileMesh(type) {
   const geo = type === 'playerMissile' ? sharedGeometries.missile : sharedGeometries.fireball;
   const mat = type === 'playerMissile' ? materials.blueGlow : materials.orangeGlow;
@@ -2078,9 +2211,13 @@ function createLevel() {
     world.boxes.push({ name: 'pillar-collider', min: { x: x - 0.95, y: 0, z: z - 0.95 }, max: { x: x + 0.95, y: 4.7, z: z + 0.95 }, mesh: cyl });
   }
 
-  // Mid tier: broad runways with gaps for hook/double-jump/dash routes.
-  addSlab('mid-east-west-spine', 0, 3.2, 0, 44, 5.4, materials.runeMetal, { edgeColor: 0x79d6ff, edgeOpacity: 0.24 });
-  addSlab('mid-north-south-spine', 0, 3.2, 0, 5.4, 44, materials.runeMetal, { edgeColor: 0x79d6ff, edgeOpacity: 0.24 });
+  // Mid tier: four separate catwalk arms plus a center square. Keeping the
+  // intersections split prevents z-fighting and keeps UVs consistent.
+  addSlab('mid-center-hub', 0, 3.2, 0, 6.2, 6.2, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
+  addSlab('mid-west-catwalk', -12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
+  addSlab('mid-east-catwalk', 12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
+  addSlab('mid-north-catwalk', 0, 3.2, -12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
+  addSlab('mid-south-catwalk', 0, 3.2, 12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
   addSlab('mid-nw-platform', -23, 3.05, -19, 13, 9, materials.metal, { edgeColor: 0xff934b });
   addSlab('mid-se-platform', 23, 3.05, 19, 13, 9, materials.metal, { edgeColor: 0xff934b });
   addSlab('mid-ne-platform', 23, 3.05, -19, 9, 13, materials.metal, { edgeColor: 0xff934b });
@@ -3097,6 +3234,7 @@ function updateExecution(dt) {
 function finishExecutionImpact(e) {
   if (!e || e.dead) return;
   execution.impactDone = true;
+  syncEnemyMeshToPosition(e);
   const pos = e.pos.clone().add(new THREE.Vector3(0, e.data.height * 0.62, 0));
   if (execution.kind === 'chainsaw') {
     killEnemy(e, 'chainsaw');
@@ -3666,6 +3804,7 @@ function spawnEnemy(type = null, pos = null) {
   const group = acquireEnemyMesh(type, data);
   if (!group) return null;
   group.position.copy(pos);
+  group.updateMatrixWorld(true);
   const e = {
     type, data, mesh: group, pos, vel: new THREE.Vector3(), hp: data.hp, maxHp: data.hp,
     alive: true, dead: false, staggered: false, staggerT: 0, burning: 0, burnTick: 0,
@@ -4086,6 +4225,7 @@ function staggerEnemy(e) {
 function killEnemy(e, mode = 'gib') {
   const killT0 = perfNowMs();
   if (!e.alive || e.dead) return;
+  syncEnemyMeshToPosition(e);
   e.alive = false;
   e.dead = true;
   if (e.mesh) e.mesh.visible = false;

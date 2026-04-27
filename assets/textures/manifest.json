@@ -1,0 +1,69 @@
+{
+  "materials": [
+    {
+      "id": "argent-catwalk",
+      "name": "Argent Catwalk",
+      "tile": 3,
+      "baseColor": "argent-catwalk/source/argent-catwalk_basecolor.png",
+      "normal": "argent-catwalk/source/argent-catwalk_normal.png",
+      "roughnessMap": "argent-catwalk/source/argent-catwalk_roughness.png",
+      "roughness": 1.0,
+      "metalnessMap": "argent-catwalk/source/argent-catwalk_metalness.png",
+      "metalness": 1.0,
+      "heightMap": "argent-catwalk/source/argent-catwalk_height.png",
+      "displacementScale": 0.012
+    },
+    {
+      "id": "hell-floor",
+      "name": "Hell Floor Chord PBR",
+      "tile": 3,
+      "roughness": 1.0,
+      "metalness": 1.0,
+      "baseColor": "hell-floor/source/hell-floor_basecolor.png",
+      "normal": "hell-floor/source/hell-floor_normal.png",
+      "roughnessMap": "hell-floor/source/hell-floor_roughness.png",
+      "metalnessMap": "hell-floor/source/hell-floor_metalness.png",
+      "heightMap": "hell-floor/source/hell-floor_height.png",
+      "displacementScale": 0.012
+    },
+    {
+      "id": "hell-metal",
+      "name": "Hell Metal Chord PBR",
+      "tile": 3,
+      "roughness": 1.0,
+      "metalness": 1.0,
+      "baseColor": "hell-metal/source/hell-metal_basecolor.png",
+      "normal": "hell-metal/source/hell-metal_normal.png",
+      "roughnessMap": "hell-metal/source/hell-metal_roughness.png",
+      "metalnessMap": "hell-metal/source/hell-metal_metalness.png",
+      "heightMap": "hell-metal/source/hell-metal_height.png",
+      "displacementScale": 0.012
+    },
+    {
+      "id": "hell-rune",
+      "name": "Hell Rune Chord PBR",
+      "tile": 3,
+      "roughness": 1.0,
+      "metalness": 1.0,
+      "baseColor": "hell-rune/source/hell-rune_basecolor.png",
+      "normal": "hell-rune/source/hell-rune_normal.png",
+      "roughnessMap": "hell-rune/source/hell-rune_roughness.png",
+      "metalnessMap": "hell-rune/source/hell-rune_metalness.png",
+      "heightMap": "hell-rune/source/hell-rune_height.png",
+      "displacementScale": 0.012
+    },
+    {
+      "id": "hell-wall",
+      "name": "Hell Wall Chord PBR",
+      "tile": 3,
+      "roughness": 1.0,
+      "metalness": 1.0,
+      "baseColor": "hell-wall/source/hell-wall_basecolor.png",
+      "normal": "hell-wall/source/hell-wall_normal.png",
+      "roughnessMap": "hell-wall/source/hell-wall_roughness.png",
+      "metalnessMap": "hell-wall/source/hell-wall_metalness.png",
+      "heightMap": "hell-wall/source/hell-wall_height.png",
+      "displacementScale": 0.012
+    }
+  ]
+}

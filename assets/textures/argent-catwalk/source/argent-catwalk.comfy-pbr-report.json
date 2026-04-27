@@ -1,0 +1,88 @@
+{
+  "prompt_id": "1258d2e7-f383-4e9e-88d1-49967688e77d",
+  "input": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_base.png",
+  "uploaded_name": "argent-catwalk_base.png",
+  "load_node_id": "2",
+  "patched_save_nodes": {
+    "4": {
+      "map": "basecolor",
+      "mode": "preview"
+    },
+    "5": {
+      "map": "normal",
+      "mode": "preview"
+    },
+    "6": {
+      "map": "roughness",
+      "mode": "preview"
+    },
+    "7": {
+      "map": "metalness",
+      "mode": "preview"
+    },
+    "9": {
+      "map": "height",
+      "mode": "preview"
+    }
+  },
+  "outputs": [
+    {
+      "map": "roughness",
+      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_roughness.png",
+      "source": {
+        "filename": "ComfyUI_temp_updif_00001_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "normal",
+      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_normal.png",
+      "source": {
+        "filename": "ComfyUI_temp_iptqc_00001_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "metalness",
+      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_metalness.png",
+      "source": {
+        "filename": "ComfyUI_temp_lgtig_00001_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "basecolor",
+      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_basecolor.png",
+      "source": {
+        "filename": "ComfyUI_temp_jjerq_00001_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    },
+    {
+      "map": "height",
+      "path": "C:\\repos\\doom-eternal-vibe-clone\\assets\\textures\\argent-catwalk\\source\\argent-catwalk_height.png",
+      "source": {
+        "filename": "ComfyUI_temp_xhcyr_00001_.png",
+        "subfolder": "",
+        "type": "temp"
+      }
+    }
+  ],
+  "manifest_entry": {
+    "id": "argent-catwalk",
+    "name": "Argent Catwalk",
+    "tile": 3,
+    "baseColor": "argent-catwalk/source/argent-catwalk_basecolor.png",
+    "normal": "argent-catwalk/source/argent-catwalk_normal.png",
+    "roughnessMap": "argent-catwalk/source/argent-catwalk_roughness.png",
+    "roughness": 1.0,
+    "metalnessMap": "argent-catwalk/source/argent-catwalk_metalness.png",
+    "metalness": 1.0,
+    "heightMap": "argent-catwalk/source/argent-catwalk_height.png",
+    "displacementScale": 0.012
+  }
+}

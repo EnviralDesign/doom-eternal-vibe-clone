@@ -384,8 +384,14 @@
       materialList(object).forEach((mat) => {
         if (loaded.baseColor) mat.map = loaded.baseColor;
         if (loaded.normal) mat.normalMap = loaded.normal;
-        if (loaded.roughness) mat.roughnessMap = loaded.roughness;
-        if (loaded.metallic) mat.metalnessMap = loaded.metallic;
+        if (loaded.roughness) {
+          mat.roughnessMap = loaded.roughness;
+          mat.roughness = 1;
+        }
+        if (loaded.metallic) {
+          mat.metalnessMap = loaded.metallic;
+          mat.metalness = 1;
+        }
         if (loaded.emissive) {
           mat.emissiveMap = loaded.emissive;
           mat.emissive?.set(0xffffff);
