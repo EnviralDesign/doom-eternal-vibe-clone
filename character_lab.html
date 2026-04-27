@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hellrush Character Lab</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #090909;
+      color: #f4efe5;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 22% 18%, rgba(152, 35, 19, .22), transparent 32%),
+        linear-gradient(145deg, #0b0b0c 0%, #15110f 58%, #080707 100%);
+    }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    .panel {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      width: min(420px, calc(100vw - 32px));
+      background: rgba(8, 8, 8, .78);
+      border: 1px solid rgba(255, 131, 64, .28);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .45);
+      backdrop-filter: blur(18px);
+      padding: 14px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    label {
+      display: grid;
+      gap: 5px;
+      margin: 9px 0;
+      color: #cfc3b6;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    input, select, button {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+      padding: 9px 10px;
+      font: inherit;
+      min-height: 36px;
+    }
+    select option { color: #111; }
+    button {
+      cursor: pointer;
+      background: #e85b22;
+      border-color: #ff9a5c;
+      color: #140703;
+      font-weight: 800;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .rangeRow {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      gap: 8px;
+      align-items: center;
+      margin: 9px 0;
+    }
+    input[type="range"] { padding: 0; accent-color: #ffcf54; }
+    output {
+      display: grid;
+      min-height: 36px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .08);
+      color: #ffcf54;
+      font-weight: 800;
+    }
+    .toggles {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .toggles button {
+      width: auto;
+      min-height: 32px;
+      padding: 7px 10px;
+      background: rgba(255, 255, 255, .08);
+      color: #f4efe5;
+      border-color: rgba(255, 255, 255, .16);
+    }
+    .toggles button.active {
+      background: #ffcf54;
+      color: #191009;
+    }
+    pre {
+      max-height: 210px;
+      overflow: auto;
+      margin: 10px 0 0;
+      padding: 10px;
+      background: rgba(0, 0, 0, .5);
+      border: 1px solid rgba(255, 255, 255, .12);
+      color: #f7d7a2;
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+    .hint {
+      color: #9f978f;
+      font-size: 12px;
+      line-height: 1.4;
+      margin: 9px 0 0;
+    }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.full.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="panel">
+    <h1>Hellrush Character Lab</h1>
+    <label>
+      Model URL
+      <input id="modelUrl" value="assets/characters/ember-runt/ember-runt-walking.glb" />
+    </label>
+    <div class="row">
+      <label>
+        Animation
+        <select id="animationSelect"><option value="">None</option></select>
+      </label>
+      <label>
+        Lighting
+        <select id="lightingSelect">
+          <option value="threepoint">3-Point PBR</option>
+          <option value="arena">Arena</option>
+          <option value="studio">Studio</option>
+          <option value="flat">Flat</option>
+        </select>
+      </label>
+    </div>
+    <label>
+      Emissive Boost
+      <span class="rangeRow">
+        <input id="emissiveBoost" type="range" min="0" max="5" step="0.1" value="1.8" />
+        <output id="emissiveValue">1.8x</output>
+      </span>
+    </label>
+    <button id="loadButton">Load Model</button>
+    <div class="toggles">
+      <button id="wireButton" type="button">Wireframe</button>
+      <button id="boundsButton" type="button" class="active">Bounds</button>
+      <button id="rotateButton" type="button" class="active">Turntable</button>
+    </div>
+    <pre id="stats">Paste or keep a GLB path, then load.</pre>
+    <p class="hint">URL shortcuts: add <code>?model=path/to/file.glb</code>. Drag to orbit, wheel to zoom.</p>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    const qs = new URLSearchParams(location.search);
+    const modelInput = document.querySelector('#modelUrl');
+    const animationSelect = document.querySelector('#animationSelect');
+    const lightingSelect = document.querySelector('#lightingSelect');
+    const stats = document.querySelector('#stats');
+    const wireButton = document.querySelector('#wireButton');
+    const boundsButton = document.querySelector('#boundsButton');
+    const rotateButton = document.querySelector('#rotateButton');
+    const emissiveBoost = document.querySelector('#emissiveBoost');
+    const emissiveValue = document.querySelector('#emissiveValue');
+    let sidecarStatus = 'not checked';
+
+    if (qs.get('model')) modelInput.value = qs.get('model');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x090807);
+    scene.fog = new THREE.Fog(0x090807, 12, 28);
+
+    const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.02, 100);
+    camera.position.set(0, 1.6, 5.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    document.body.appendChild(renderer.domElement);
+
+    function createEnvironmentTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      sky.addColorStop(0, '#fff0d6');
+      sky.addColorStop(0.35, '#66738e');
+      sky.addColorStop(0.62, '#201714');
+      sky.addColorStop(1, '#050403');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const warm = ctx.createRadialGradient(116, 76, 5, 116, 76, 150);
+      warm.addColorStop(0, 'rgba(255, 228, 178, 0.95)');
+      warm.addColorStop(1, 'rgba(255, 90, 28, 0)');
+      ctx.fillStyle = warm;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const cool = ctx.createRadialGradient(392, 88, 5, 392, 88, 150);
+      cool.addColorStop(0, 'rgba(130, 165, 255, 0.7)');
+      cool.addColorStop(1, 'rgba(75, 92, 180, 0)');
+      ctx.fillStyle = cool;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.mapping = THREE.EquirectangularReflectionMapping;
+      tex.colorSpace = THREE.SRGBColorSpace;
+      return tex;
+    }
+
+    scene.environment = createEnvironmentTexture();
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    const grid = new THREE.GridHelper(8, 16, 0x6a2b1c, 0x2c2420);
+    grid.position.y = 0;
+    scene.add(grid);
+
+    const ambient = new THREE.HemisphereLight(0xc8d5ff, 0x2c1107, 0.35);
+    const key = new THREE.SpotLight(0xffd2a0, 9.5, 9, Math.PI * 0.21, 0.55, 1.15);
+    key.position.set(-3.1, 4.2, 3.2);
+    key.target.position.set(0, 1.08, 0);
+    const fill = new THREE.DirectionalLight(0x8fb2ff, 1.3);
+    fill.position.set(3.5, 2.15, 2.5);
+    const rim = new THREE.SpotLight(0xff3b15, 10.5, 8, Math.PI * 0.24, 0.48, 1.3);
+    rim.position.set(2.25, 2.15, -2.7);
+    rim.target.position.set(0, 1.1, 0);
+    const top = new THREE.PointLight(0xffb15e, 1.8, 4.5, 2);
+    top.position.set(0, 3.4, 0.8);
+    const lights = [ambient, key, key.target, fill, rim, rim.target, top];
+    lights.forEach((light) => scene.add(light));
+
+    const box = new THREE.Box3();
+    const helper = new THREE.Box3Helper(box, 0xffd166);
+    scene.add(helper);
+
+    let current = null;
+    let mixer = null;
+    let clips = [];
+    let activeAction = null;
+    let autoRotate = true;
+    let wireframe = false;
+    let bounds = true;
+    let yaw = 0;
+    const pointer = { active: false, x: 0, y: 0, theta: 0.15, phi: 0.16, dist: 5.2 };
+    let lastTime = performance.now();
+
+    function setLighting(mode) {
+      if (mode === 'flat') {
+        ambient.intensity = 2.6; key.intensity = 0; fill.intensity = 0; rim.intensity = 0; top.intensity = 0; scene.fog = null; scene.environmentIntensity = 0.15;
+      } else if (mode === 'studio') {
+        ambient.intensity = 1.15; key.intensity = 4.8; fill.intensity = 1.7; rim.intensity = 1.5; top.intensity = 0.6; scene.fog = null; scene.environmentIntensity = 0.65;
+      } else if (mode === 'arena') {
+        ambient.intensity = 0.45; key.intensity = 2.8; fill.intensity = 0.75; rim.intensity = 8.5; top.intensity = 1.8; scene.fog = new THREE.Fog(0x090807, 12, 28); scene.environmentIntensity = 0.35;
+      } else {
+        ambient.intensity = 0.28; key.intensity = 9.5; fill.intensity = 1.3; rim.intensity = 10.5; top.intensity = 1.8; scene.fog = new THREE.Fog(0x090807, 14, 32); scene.environmentIntensity = 0.85;
+      }
+    }
+
+    function materialList(object) {
+      const materials = new Set();
+      object.traverse((child) => {
+        if (!child.isMesh) return;
+        const list = Array.isArray(child.material) ? child.material : [child.material];
+        list.forEach((m) => materials.add(m));
+      });
+      return [...materials];
+    }
+
+    function setWire(enabled) {
+      wireframe = enabled;
+      if (!current) return;
+      materialList(current).forEach((mat) => { mat.wireframe = enabled; });
+      wireButton.classList.toggle('active', enabled);
+    }
+
+    function applyEmissiveBoost() {
+      const boost = Number(emissiveBoost.value);
+      emissiveValue.textContent = `${boost.toFixed(1)}x`;
+      if (!current) return;
+      materialList(current).forEach((mat) => {
+        if (!mat || !('emissiveIntensity' in mat)) return;
+        if (mat.userData.baseEmissiveIntensity === undefined) {
+          mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+        }
+        if (mat.emissiveMap && mat.emissive && mat.emissive.getHex() === 0) {
+          mat.emissive.set(0xffffff);
+        }
+        mat.emissiveIntensity = mat.userData.baseEmissiveIntensity * boost;
+        mat.needsUpdate = true;
+      });
+    }
+
+    function frameObject(object) {
+      box.setFromObject(object);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      object.position.sub(center);
+      object.position.y += size.y * 0.5;
+      pointer.dist = THREE.MathUtils.clamp(maxDim * 2.1, 2.4, 8);
+      pointer.phi = 0.16;
+      pointer.theta = 0.18;
+      helper.visible = bounds;
+      box.setFromObject(object);
+    }
+
+    function modelDirectory(url) {
+      const clean = url.split('?')[0].replace(/\\/g, '/');
+      return clean.includes('/') ? clean.slice(0, clean.lastIndexOf('/') + 1) : './';
+    }
+
+    function cacheSuffix(url) {
+      const marker = url.indexOf('?');
+      return marker === -1 ? '' : `?${url.slice(marker + 1)}`;
+    }
+
+    async function fetchFirstJson(urls) {
+      for (const url of urls) {
+        try {
+          const resp = await fetch(url, { cache: 'no-store' });
+          if (resp.ok) return { url, json: await resp.json() };
+        } catch {
+          // Try the next candidate.
+        }
+      }
+      return null;
+    }
+
+    async function loadSidecarMaterialOverrides(modelUrl, object) {
+      const dir = modelDirectory(modelUrl);
+      const bust = cacheSuffix(modelUrl);
+      const candidates = [
+        `${dir}material-overrides.json${bust}`,
+        `${dir}../material-overrides.json${bust}`,
+      ];
+      const found = await fetchFirstJson(candidates);
+      let manifest;
+      if (!found) {
+        sidecarStatus = 'none';
+        return;
+      }
+      manifest = found.json;
+      const manifestDir = modelDirectory(found.url);
+
+      const loader = new THREE.TextureLoader();
+      const loadTexture = (spec) => new Promise((resolve, reject) => {
+        loader.load(`${manifestDir}${spec.file}${bust}`, resolve, undefined, reject);
+      });
+      const maps = manifest.maps || {};
+      const loaded = {};
+      for (const [key, spec] of Object.entries(maps)) {
+        if (!spec?.file) continue;
+        const tex = await loadTexture(spec);
+        tex.flipY = false;
+        tex.colorSpace = spec.colorSpace === 'srgb' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+        loaded[key] = tex;
+      }
+
+      materialList(object).forEach((mat) => {
+        if (loaded.baseColor) mat.map = loaded.baseColor;
+        if (loaded.normal) mat.normalMap = loaded.normal;
+        if (loaded.roughness) mat.roughnessMap = loaded.roughness;
+        if (loaded.metallic) mat.metalnessMap = loaded.metallic;
+        if (loaded.emissive) {
+          mat.emissiveMap = loaded.emissive;
+          mat.emissive?.set(0xffffff);
+          mat.userData.baseEmissiveIntensity = maps.emissive?.intensity || mat.emissiveIntensity || 1;
+        }
+        mat.metalness = mat.metalness ?? 1;
+        mat.roughness = mat.roughness ?? 1;
+        mat.needsUpdate = true;
+      });
+      sidecarStatus = `applied ${Object.keys(loaded).join(', ')}`;
+    }
+
+    function collectStats(gltf, object) {
+      let meshes = 0;
+      let tris = 0;
+      let skinned = 0;
+      let bones = 0;
+      let textures = 0;
+      let emissiveMaps = 0;
+      let normalMaps = 0;
+      let roughnessMaps = 0;
+      let metallicMaps = 0;
+      const textureSet = new Set();
+      object.traverse((child) => {
+        if (child.isMesh) {
+          meshes++;
+          const geo = child.geometry;
+          tris += geo.index ? geo.index.count / 3 : (geo.attributes.position?.count || 0) / 3;
+          if (child.isSkinnedMesh) {
+            skinned++;
+            bones += child.skeleton?.bones?.length || 0;
+          }
+        }
+      });
+      materialList(object).forEach((mat) => {
+        ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap'].forEach((keyName) => {
+          if (mat[keyName]) textureSet.add(mat[keyName].uuid);
+        });
+        if (mat.emissiveMap) emissiveMaps++;
+        if (mat.normalMap) normalMaps++;
+        if (mat.roughnessMap) roughnessMaps++;
+        if (mat.metalnessMap) metallicMaps++;
+      });
+      textures = textureSet.size;
+      const size = box.getSize(new THREE.Vector3());
+      return [
+        `File: ${modelInput.value}`,
+        `Meshes: ${meshes}`,
+        `Triangles: ${Math.round(tris).toLocaleString()}`,
+        `Skinned meshes: ${skinned}`,
+        `Bones: ${bones}`,
+        `Materials: ${materialList(object).length}`,
+        `Textures: ${textures}`,
+        `PBR sidecar: ${sidecarStatus}`,
+        `Normal maps: ${normalMaps}`,
+        `Roughness maps: ${roughnessMaps}`,
+        `Metallic maps: ${metallicMaps}`,
+        `Emissive maps: ${emissiveMaps}`,
+        `Emissive boost: ${Number(emissiveBoost.value).toFixed(1)}x`,
+        `Animations: ${gltf.animations.length || 0}`,
+        `Bounds: ${size.x.toFixed(2)} x ${size.y.toFixed(2)} x ${size.z.toFixed(2)}`,
+      ].join('\n');
+    }
+
+    async function loadModel() {
+      const url = modelInput.value.trim();
+      stats.textContent = `Loading ${url}...`;
+      if (current) {
+        root.remove(current);
+        current.traverse((child) => {
+          if (child.geometry) child.geometry.dispose();
+        });
+      }
+      mixer = null;
+      clips = [];
+      activeAction = null;
+      animationSelect.innerHTML = '<option value="">None</option>';
+
+      const loader = new GLTFLoader();
+      const gltf = await loader.loadAsync(url);
+      current = gltf.scene;
+      root.add(current);
+      frameObject(current);
+      setWire(wireframe);
+      await loadSidecarMaterialOverrides(url, current);
+      applyEmissiveBoost();
+
+      clips = gltf.animations || [];
+      if (clips.length) {
+        mixer = new THREE.AnimationMixer(current);
+        clips.forEach((clip, index) => {
+          const opt = document.createElement('option');
+          opt.value = String(index);
+          opt.textContent = clip.name || `Clip ${index + 1}`;
+          animationSelect.appendChild(opt);
+        });
+        animationSelect.value = '0';
+        playClip(0);
+      }
+      stats.textContent = collectStats(gltf, current);
+    }
+
+    function playClip(index) {
+      if (!mixer || !clips[index]) return;
+      if (activeAction) activeAction.fadeOut(0.12);
+      activeAction = mixer.clipAction(clips[index]);
+      activeAction.reset().fadeIn(0.12).play();
+    }
+
+    document.querySelector('#loadButton').addEventListener('click', () => loadModel().catch((err) => {
+      console.error(err);
+      stats.textContent = `Load failed:\n${err.message || err}`;
+    }));
+    animationSelect.addEventListener('change', () => {
+      if (activeAction) activeAction.stop();
+      activeAction = null;
+      if (animationSelect.value !== '') playClip(Number(animationSelect.value));
+    });
+    lightingSelect.addEventListener('change', () => setLighting(lightingSelect.value));
+    emissiveBoost.addEventListener('input', applyEmissiveBoost);
+    wireButton.addEventListener('click', () => setWire(!wireframe));
+    boundsButton.addEventListener('click', () => {
+      bounds = !bounds;
+      helper.visible = bounds;
+      boundsButton.classList.toggle('active', bounds);
+    });
+    rotateButton.addEventListener('click', () => {
+      autoRotate = !autoRotate;
+      rotateButton.classList.toggle('active', autoRotate);
+    });
+
+    renderer.domElement.addEventListener('pointerdown', (ev) => {
+      pointer.active = true; pointer.x = ev.clientX; pointer.y = ev.clientY;
+      renderer.domElement.setPointerCapture(ev.pointerId);
+    });
+    renderer.domElement.addEventListener('pointerup', (ev) => {
+      pointer.active = false;
+      renderer.domElement.releasePointerCapture(ev.pointerId);
+    });
+    renderer.domElement.addEventListener('pointermove', (ev) => {
+      if (!pointer.active) return;
+      pointer.theta -= (ev.clientX - pointer.x) * 0.006;
+      pointer.phi = THREE.MathUtils.clamp(pointer.phi + (ev.clientY - pointer.y) * 0.004, -0.9, 0.95);
+      pointer.x = ev.clientX; pointer.y = ev.clientY;
+      autoRotate = false;
+      rotateButton.classList.remove('active');
+    });
+    renderer.domElement.addEventListener('wheel', (ev) => {
+      pointer.dist = THREE.MathUtils.clamp(pointer.dist + ev.deltaY * 0.006, 1.6, 12);
+    }, { passive: true });
+
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const now = performance.now();
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+      if (mixer) mixer.update(dt);
+      if (autoRotate && current) yaw += dt * 0.55;
+      root.rotation.y = yaw;
+      const x = Math.sin(pointer.theta) * Math.cos(pointer.phi) * pointer.dist;
+      const y = 1.2 + Math.sin(pointer.phi) * pointer.dist;
+      const z = Math.cos(pointer.theta) * Math.cos(pointer.phi) * pointer.dist;
+      camera.position.set(x, y, z);
+      camera.lookAt(0, 1.05, 0);
+      renderer.render(scene, camera);
+    }
+
+    setLighting('threepoint');
+    animate();
+    loadModel().catch(() => {
+      stats.textContent = 'Default model not found yet. Generate one, then load it here.';
+    });
+  </script>
+</body>
+</html>

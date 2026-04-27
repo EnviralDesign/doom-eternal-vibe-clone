@@ -1,5 +1,8 @@
 node_modules/
 .playwright-cli/
+.cache/
+tmp/
+temp/
 .env
 .env.*
 !.env.example
@@ -9,6 +12,11 @@ yarn-error.log*
 pnpm-debug.log*
 *.log
 *.tmp
+*.bak
+*.pyc
+__pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+meshy_output/
+assets/characters/*/runtime/finalize-report.json

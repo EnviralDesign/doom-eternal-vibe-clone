@@ -1,13 +1,15 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
 
 /*
   Hellrush: Meathook Arena — original browser FPS prototype.
   Design goal: Doom Eternal-ish movement/resource/meathook loop with original procedural assets.
-  No external textures/audio. Three.js is loaded from the import map in index.html.
+  Three.js is loaded from the local import map in index.html.
 */
 
-const VERSION = 'threejs-eternalish-6.0-lighting-prewarm';
-const CDN_VERSION = 'three-local-r184-lean';
+const VERSION = 'threejs-eternalish-6.1-ember-runt';
+const CDN_VERSION = 'three-local-r184-full';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -50,6 +52,7 @@ const world = {
 
 const materials = {};
 const textures = {};
+const characterAssets = {};
 const enemies = [];
 const projectiles = [];
 const pickups = [];
@@ -679,6 +682,9 @@ async function main() {
   setBootProgress(0.16, 'Forging materials');
   await nextFrame();
   await initMaterials();
+  setBootProgress(0.25, 'Loading enemy assets');
+  await nextFrame();
+  await loadCharacterAssets();
   setBootProgress(0.30, 'Igniting arena lights');
   await nextFrame();
   initScene();
@@ -805,6 +811,125 @@ async function loadGameTexture(path, repeatX, repeatY, color = true) {
   tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   if (color) tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
+}
+
+function urlDirectory(url) {
+  const clean = url.split('?')[0].replace(/\\/g, '/');
+  return clean.includes('/') ? clean.slice(0, clean.lastIndexOf('/') + 1) : './';
+}
+
+function cacheSuffix(url) {
+  const marker = url.indexOf('?');
+  return marker === -1 ? '' : `?${url.slice(marker + 1)}`;
+}
+
+function loadTextureUrl(url, colorSpace = THREE.NoColorSpace) {
+  return new Promise((resolve, reject) => {
+    new THREE.TextureLoader().load(url, (tex) => {
+      tex.flipY = false;
+      tex.colorSpace = colorSpace;
+      tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      resolve(tex);
+    }, undefined, reject);
+  });
+}
+
+function loadGltf(url) {
+  return new Promise((resolve, reject) => {
+    new GLTFLoader().load(url, resolve, undefined, reject);
+  });
+}
+
+function collectMaterials(object) {
+  const mats = [];
+  object.traverse((child) => {
+    if (!child.isMesh || !child.material) return;
+    if (Array.isArray(child.material)) mats.push(...child.material);
+    else mats.push(child.material);
+  });
+  return mats;
+}
+
+function cloneMaterialInstances(object) {
+  const remap = new Map();
+  object.traverse((child) => {
+    if (!child.isMesh || !child.material) return;
+    const cloneMat = (mat) => {
+      if (!mat) return mat;
+      if (!remap.has(mat)) remap.set(mat, mat.clone());
+      return remap.get(mat);
+    };
+    child.material = Array.isArray(child.material) ? child.material.map(cloneMat) : cloneMat(child.material);
+  });
+}
+
+async function applySidecarMaterialOverrides(modelUrl, object) {
+  const bust = cacheSuffix(modelUrl);
+  const dir = urlDirectory(modelUrl);
+  const candidates = [`${dir}material-overrides.json${bust}`, `${dir}../material-overrides.json${bust}`];
+  let found = null;
+  for (const url of candidates) {
+    try {
+      const resp = await fetch(url, { cache: 'no-store' });
+      if (resp.ok) {
+        found = { url, manifest: await resp.json() };
+        break;
+      }
+    } catch {
+      // Try the next sidecar location.
+    }
+  }
+  if (!found) return null;
+  const manifestDir = urlDirectory(found.url);
+  const loaded = {};
+  for (const [key, spec] of Object.entries(found.manifest.maps || {})) {
+    if (!spec?.file) continue;
+    const space = spec.colorSpace === 'srgb' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    loaded[key] = await loadTextureUrl(`${manifestDir}${spec.file}${bust}`, space);
+  }
+  for (const mat of collectMaterials(object)) {
+    if (loaded.baseColor) mat.map = loaded.baseColor;
+    if (loaded.normal) mat.normalMap = loaded.normal;
+    if (loaded.roughness) mat.roughnessMap = loaded.roughness;
+    if (loaded.metallic) mat.metalnessMap = loaded.metallic;
+    if (loaded.emissive) {
+      mat.emissiveMap = loaded.emissive;
+      mat.emissive?.set(0xffffff);
+      mat.emissiveIntensity = found.manifest.maps?.emissive?.intensity || mat.emissiveIntensity || 1;
+    }
+    mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+    mat.needsUpdate = true;
+  }
+  return loaded;
+}
+
+async function loadCharacterAssets() {
+  const modelUrl = './assets/characters/ember-runt/runtime/models/ember-runt-walking.glb?v=ember-runt-v2';
+  try {
+    const gltf = await loadGltf(modelUrl);
+    const root = gltf.scene;
+    await applySidecarMaterialOverrides(modelUrl, root);
+    root.traverse((child) => {
+      child.frustumCulled = false;
+      if (child.isMesh) {
+        child.castShadow = false;
+        child.receiveShadow = true;
+      }
+    });
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    root.position.sub(center);
+    root.position.y += size.y * 0.5;
+    characterAssets.emberRunt = {
+      name: 'Ember Runt',
+      scene: root,
+      animations: gltf.animations || [],
+      height: size.y || 1.75
+    };
+  } catch (err) {
+    console.warn('Ember Runt runtime asset unavailable; using procedural husk.', err);
+  }
 }
 
 async function initMaterials() {
@@ -1084,7 +1209,7 @@ async function prewarmGpu() {
       mesh.visible = true;
       mesh.position.set(x + (i % 4) * 1.2, 0.05, -10.2 - Math.floor(i / 4) * 1.6);
       mesh.rotation.y = Math.PI;
-      mesh.scale.setScalar(1);
+      mesh.scale.setScalar(mesh.userData.baseScale || 1);
       shown.push(mesh);
     }
     x += 4.8;
@@ -1119,7 +1244,7 @@ async function prewarmGpu() {
   for (const mesh of shown) {
     mesh.visible = false;
     mesh.position.set(0, -999, 0);
-    mesh.scale.setScalar(1);
+    mesh.scale.setScalar(mesh.userData.baseScale || 1);
   }
   if (particleFX) particleFX.clear();
   if (tracerFX) tracerFX.clear();
@@ -1637,9 +1762,16 @@ function acquireEnemyMesh(type, data) {
   mesh.visible = true;
   mesh.position.set(0, -999, 0);
   mesh.rotation.set(0, 0, 0);
-  mesh.scale.setScalar(1);
+  mesh.scale.setScalar(mesh.userData.baseScale || 1);
+  if (mesh.userData.action) {
+    mesh.userData.action.reset();
+    mesh.userData.action.play();
+  }
   mesh.traverse(o => {
-    if (o.isMesh && o.material && o.material.emissiveIntensity !== undefined) o.material.emissiveIntensity = 0.22;
+    if (o.isMesh && o.material && o.material.emissiveIntensity !== undefined) {
+      o.material.emissiveIntensity = o.material.userData.baseEmissiveIntensity || 0.22;
+      if (o.material.emissive) o.material.emissive.setHex(data.emissive);
+    }
   });
   if (!mesh.parent) scene.add(mesh);
   return mesh;
@@ -1651,7 +1783,8 @@ function releaseEnemyMesh(e) {
   e.mesh.visible = false;
   e.mesh.position.set(0, -999, 0);
   e.mesh.rotation.set(0, 0, 0);
-  e.mesh.scale.setScalar(1);
+  e.mesh.scale.setScalar(e.mesh.userData.baseScale || 1);
+  if (e.mesh.userData.mixer) e.mesh.userData.mixer.setTime(0);
   e.mesh.traverse(o => { if (o.isMesh) o.visible = true; });
   if (type && enemyPools[type]) enemyPools[type].push(e.mesh);
   e.mesh = null;
@@ -2768,7 +2901,7 @@ function updateExecution(dt) {
     player.pitch = lerp(player.pitch, targetPitch, lookT);
 
     e.mesh.rotation.y = lerpAngle(e.mesh.rotation.y, Math.atan2(player.pos.x - e.pos.x, player.pos.z - e.pos.z), clamp(dt * 8, 0, 1));
-    e.mesh.scale.setScalar(1 + Math.sin(clockTime * 42) * 0.018 + (execution.kind === 'chainsaw' ? 0.035 : 0.0));
+    e.mesh.scale.setScalar((e.mesh.userData.baseScale || 1) * (1 + Math.sin(clockTime * 42) * 0.018 + (execution.kind === 'chainsaw' ? 0.035 : 0.0)));
     if (!execution.impactDone && execution.t >= execution.impactTime) finishExecutionImpact(e);
   } else if (execution.impactDone) {
     const cam = getCameraPos(tmpV1);
@@ -3375,7 +3508,39 @@ function spawnEnemy(type = null, pos = null) {
   return e;
 }
 
+function createRuntimeEnemyMesh(type, data) {
+  if (type !== 'husk' || !characterAssets.emberRunt) return null;
+  const asset = characterAssets.emberRunt;
+  const group = SkeletonUtils.clone(asset.scene);
+  cloneMaterialInstances(group);
+  const modelScale = data.height / Math.max(0.001, asset.height);
+  group.scale.setScalar(modelScale);
+  group.rotation.y = Math.PI;
+  group.userData.poolType = type;
+  group.userData.runtimeCharacter = 'ember-runt';
+  group.userData.baseScale = modelScale;
+  group.userData.mixer = new THREE.AnimationMixer(group);
+  group.userData.action = null;
+  if (asset.animations.length) {
+    const action = group.userData.mixer.clipAction(asset.animations[0]);
+    action.enabled = true;
+    action.play();
+    group.userData.action = action;
+  }
+  group.traverse((o) => {
+    o.frustumCulled = false;
+    if (o.isMesh) {
+      o.castShadow = false;
+      o.receiveShadow = true;
+    }
+  });
+  return group;
+}
+
 function createEnemyMesh(type, data) {
+  const runtimeMesh = createRuntimeEnemyMesh(type, data);
+  if (runtimeMesh) return runtimeMesh;
+
   const group = new THREE.Group();
   const bodyMat = new THREE.MeshStandardMaterial({ color: data.color, emissive: data.emissive, emissiveIntensity: 0.2, roughness: 0.64, metalness: 0.05 });
   const dark = new THREE.MeshStandardMaterial({ color: 0x150d0d, roughness: 0.78, metalness: 0.06 });
@@ -3570,11 +3735,11 @@ function updateEnemy(e, dt) {
   if (e.staggered) {
     e.staggerT -= dt;
     e.mesh.rotation.z = Math.sin(clockTime * 14) * 0.08;
-    e.mesh.scale.setScalar(1 + Math.sin(clockTime * 18) * 0.025);
+    e.mesh.scale.setScalar((e.mesh.userData.baseScale || 1) * (1 + Math.sin(clockTime * 18) * 0.025));
     if (e.staggerT <= 0) {
       e.staggered = false;
       e.hp = Math.max(e.hp, e.data.staggerHp);
-      e.mesh.scale.setScalar(1);
+      e.mesh.scale.setScalar(e.mesh.userData.baseScale || 1);
     }
     facePlayer(e, dt, 4);
     return;
@@ -3663,12 +3828,18 @@ function moveEnemy(e, dt) {
 function animateEnemyMesh(e, dt) {
   const burnPulse = e.burning > 0 ? (0.35 + Math.sin(clockTime * 18) * 0.22) : 0;
   const painScale = e.pain > 0 ? 1 + e.pain * 0.08 : 1;
-  e.mesh.scale.setScalar(painScale + burnPulse * 0.03);
+  const baseScale = e.mesh.userData.baseScale || 1;
+  if (e.mesh.userData.mixer) {
+    const animRate = e.staggered ? 0.25 : e.inExecution ? 0.08 : e.type === 'husk' ? 1.15 : 1;
+    e.mesh.userData.mixer.update(dt * animRate);
+  }
+  e.mesh.scale.setScalar(baseScale * (painScale + burnPulse * 0.03));
   e.mesh.position.y = e.pos.y + Math.sin(clockTime * (e.type === 'husk' ? 9 : 5) + e.pos.x) * 0.035;
   const emissiveIntensity = (e.burning > 0 ? 0.9 + burnPulse : 0.22) + (e.staggered ? 1.8 : 0) + e.pain * 0.8;
   const emissiveHex = e.staggered ? 0x40ff38 : e.data.emissive;
   for (const o of e.emissiveMeshes) {
-    o.material.emissiveIntensity = emissiveIntensity;
+    const base = o.material.userData.baseEmissiveIntensity || 0.22;
+    o.material.emissiveIntensity = Math.max(base, emissiveIntensity);
     o.material.emissive.setHex(emissiveHex);
   }
 }

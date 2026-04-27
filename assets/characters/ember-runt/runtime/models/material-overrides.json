@@ -1,0 +1,30 @@
+{
+  "materialName": "Material_1",
+  "source": "Finalized runtime texture set generated from authoring Meshy maps.",
+  "maps": {
+    "baseColor": {
+      "file": "../textures/base_color.webp",
+      "colorSpace": "srgb"
+    },
+    "normal": {
+      "file": "../textures/normal.png",
+      "colorSpace": "linear"
+    },
+    "roughness": {
+      "file": "../textures/roughness.webp",
+      "colorSpace": "linear"
+    },
+    "metallic": {
+      "file": "../textures/metallic.webp",
+      "colorSpace": "linear"
+    },
+    "emissive": {
+      "file": "../textures/emission.webp",
+      "colorSpace": "srgb",
+      "intensity": 1.8
+    }
+  },
+  "notes": [
+    "Placed beside runtime models so character_lab.html can restore PBR/emissive maps for rigged/animated GLBs."
+  ]
+}

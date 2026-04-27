@@ -53,8 +53,24 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 
 - A single-page Three.js arena FPS in `index.html`, `style.css`, and `src/game.js`.
 - Generated hell-material textures in `assets/textures`.
+- Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
 - A local `asset_lab.html` for inspecting weapons, enemies, pickups, and finisher props.
-- A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
+- A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
+- A startup loading phase that prepares textures, shaders, pooled enemies/projectiles/pickups, the Ember Runt husk asset, combat effects, finisher props, hook visuals, and common audio paths before gameplay begins.
+
+## Character Asset Flow
+
+Authoring files live beside each character so they can be revisited: source reference image, Meshy output GLBs, high-resolution PBR textures, and metadata. Runtime files live under `assets/characters/<name>/runtime` and are the only assets the game should load directly.
+
+For Ember Runt, the game loads:
+
+```text
+assets/characters/ember-runt/runtime/models/ember-runt-walking.glb
+assets/characters/ember-runt/runtime/models/material-overrides.json
+assets/characters/ember-runt/runtime/textures/*
+```
+
+The runtime GLB has embedded texture images stripped out; `material-overrides.json` reattaches the base color, normal, roughness, metallic, and emissive maps. Use `character_lab.html?model=assets/characters/ember-runt/runtime/models/ember-runt-walking.glb%3Fv=ember-runt-v2` to inspect the exact runtime path with cache-busted sidecar textures.
 
 ## Current Focus
 

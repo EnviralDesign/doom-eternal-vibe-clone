@@ -1,0 +1,30 @@
+{
+  "materialName": "Material_1",
+  "source": "Meshy image-to-3d texture_urls",
+  "maps": {
+    "baseColor": {
+      "file": "textures/base_color.png",
+      "colorSpace": "srgb"
+    },
+    "normal": {
+      "file": "textures/normal.png",
+      "colorSpace": "linear"
+    },
+    "roughness": {
+      "file": "textures/roughness.png",
+      "colorSpace": "linear"
+    },
+    "metallic": {
+      "file": "textures/metallic.png",
+      "colorSpace": "linear"
+    },
+    "emissive": {
+      "file": "textures/emission.png",
+      "colorSpace": "srgb",
+      "intensity": 1.8
+    }
+  },
+  "notes": [
+    "Sidecar restores PBR/emissive maps for rigged/animated GLBs if Meshy rigging export flattens material bindings."
+  ]
+}

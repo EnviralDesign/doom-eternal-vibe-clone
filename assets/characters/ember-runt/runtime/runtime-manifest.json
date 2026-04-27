@@ -1,0 +1,42 @@
+{
+  "name": "ember runt",
+  "references": {
+    "source_image": "assets/characters/ember-runt/references/source.png",
+    "original_generated_image": "assets/concepts/ember-runt-reference-v2-native-square.png"
+  },
+  "models": {
+    "rigged": "models/ember-runt-rigged.glb",
+    "walking": "models/ember-runt-walking.glb",
+    "running": "models/ember-runt-running.glb"
+  },
+  "modelSizes": {
+    "rigged": {
+      "sourceBytes": 32261008,
+      "runtimeBytes": 4759276,
+      "removedImages": 1
+    },
+    "walking": {
+      "sourceBytes": 32273792,
+      "runtimeBytes": 4772060,
+      "removedImages": 1
+    },
+    "running": {
+      "sourceBytes": 32269184,
+      "runtimeBytes": 4767448,
+      "removedImages": 1
+    }
+  },
+  "materialOverride": "models/material-overrides.json",
+  "textures": {
+    "baseColor": "textures/base_color.webp",
+    "normal": "textures/normal.png",
+    "roughness": "textures/roughness.webp",
+    "metallic": "textures/metallic.webp",
+    "emissive": "textures/emission.webp"
+  },
+  "sourceMetadata": "ember-runt/metadata.json",
+  "maxTexture": 1024,
+  "notes": [
+    "Runtime GLBs have embedded Meshy rigging-export images stripped by default; external texture sidecars restore PBR/emissive maps in the lab/runtime loader."
+  ]
+}

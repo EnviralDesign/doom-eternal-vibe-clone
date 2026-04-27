@@ -1,0 +1,64 @@
+{
+  "name": "ember runt",
+  "created_at": "2026-04-27T11:44:40.340430",
+  "source_project_dir": "C:\\repos\\doom-eternal-vibe-clone\\meshy_output\\20260427_114020_ember-runt_019dcfd0",
+  "concept": "assets/concepts/ember-runt-reference-v2-native-square.png",
+  "references": {
+    "source_image": "assets/characters/ember-runt/references/source.png",
+    "original_generated_image": "assets/concepts/ember-runt-reference-v2-native-square.png"
+  },
+  "image_to_3d_task_id": "019dcfd0-1e0c-7e30-929b-f478a69115ef",
+  "rig_task_id": "019dcfd4-2716-745a-8df4-f29ab75e4831",
+  "target_polycount": 100000,
+  "model_type": "standard",
+  "generation_payload": {
+    "image_url": "<stored in references/source.png>",
+    "model_type": "standard",
+    "ai_model": "latest",
+    "topology": "triangle",
+    "target_polycount": 100000,
+    "should_remesh": true,
+    "save_pre_remeshed_model": true,
+    "should_texture": true,
+    "enable_pbr": true,
+    "hd_texture": true,
+    "image_enhancement": false,
+    "remove_lighting": true,
+    "pose_mode": "a-pose",
+    "symmetry_mode": "auto",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "runtime_files": {
+    "authoring": "assets/characters/ember-runt/ember-runt-authoring.glb",
+    "pre_remeshed": "assets/characters/ember-runt/ember-runt-pre-remeshed.glb",
+    "rigged": "assets/characters/ember-runt/ember-runt-rigged.glb",
+    "walking": "assets/characters/ember-runt/ember-runt-walking.glb",
+    "running": "assets/characters/ember-runt/ember-runt-running.glb",
+    "thumbnail": "assets/characters/ember-runt/thumbnail.png",
+    "material_overrides": "assets/characters/ember-runt/material-overrides.json",
+    "textures": "assets/characters/ember-runt/textures",
+    "runtime": "assets/characters/ember-runt/runtime/runtime-manifest.json"
+  },
+  "consumed_credits": {
+    "image_to_3d": 30,
+    "rigging": 5
+  },
+  "authoring_observations": {
+    "authoring_triangles": 99935,
+    "pre_remeshed_triangles": 259784,
+    "runtime_walking_triangles": 99935,
+    "pbr_maps": [
+      "base_color",
+      "normal",
+      "roughness",
+      "metallic",
+      "emission"
+    ]
+  },
+  "notes": [
+    "Second pass generated from native square reference with standard model, hd_texture=true, image_enhancement=false, no texture_prompt.",
+    "Runtime output is produced by tools/finalize_character_asset.py and strips embedded rigging-export images from GLBs."
+  ]
+}
