@@ -1,0 +1,160 @@
+{
+  "id": "hook-node",
+  "name": "Meat Hook Node",
+  "prompt": "floating demonic traversal hook node game prop, purple energy crystal core inside metal claw rings, readable grapple target, glowing cyan and violet emissive accents, no stand, no background, centered standalone asset, physically based material",
+  "previewTaskId": "019dd1ff-6d3e-78a1-a908-f08599464599",
+  "refineTaskId": "019dd203-0cb0-726c-9f5d-9146fc46e352",
+  "meshyProject": "meshy_output/20260427_215113_hook-node_019dd1ff",
+  "createdAt": "2026-04-27T21:56:41.300854",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "floating demonic traversal hook node game prop, purple energy crystal core inside metal claw rings, readable grapple target, glowing cyan and violet emissive accents, no stand, no background, centered standalone asset, physically based material",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 30000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd1ff-6d3e-78a1-a908-f08599464599",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_215113_hook-node_019dd1ff/textures/base_color.png",
+    "normal": "meshy_output/20260427_215113_hook-node_019dd1ff/textures/normal.png",
+    "roughness": "meshy_output/20260427_215113_hook-node_019dd1ff/textures/roughness.png",
+    "metallic": "meshy_output/20260427_215113_hook-node_019dd1ff/textures/metallic.png",
+    "emission": "meshy_output/20260427_215113_hook-node_019dd1ff/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd1ff-6d3e-78a1-a908-f08599464599",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 672532840,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "floating demonic traversal hook node game prop, purple energy crystal core inside metal claw rings, readable grapple target, glowing cyan and violet emissive accents, no stand, no background, centered standalone asset, physically based material",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777344673525,
+    "progress": 100,
+    "started_at": 1777344674151,
+    "finished_at": 1777344893812,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1ff-6d3e-78a1-a908-f08599464599/output/model.glb?Expires=4930934400&Signature=IYQlVP4JBtKF1IJcQkiLWoNr9HiQAJUy2~82l5CYvG2WBwIn4Y21JSR62myd1vVBGlEislHdRXuIHHpA2AKEUFXPLFtO~mMFCHsg1Lgwzpyi49gshKI9U9~hz29W7U~TWCPBDL1YAFTujAtot~qkrcsjC8ES4vcN9ka-XYnBgDjK~HeBmuXQk2hQ5dgbU-eGsTQL7qZKhG0Uy1GaLhdszcjVx4dIAKP80GCwqkkk06GLsC3LEv6K28BnkLsafwTwWLqhGdTiJZMynEQebc-CcX4AwP7UbspkbwltWZEfisGxPgnyMBfjpAyRV4kn2Kt5FAfslpf2gIbwsm-SUaSHVQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1ff-6d3e-78a1-a908-f08599464599/output/preview.png?Expires=4930934400&Signature=dYxNokwHqzeghDcFFKQSRRWr6V7dqI-Uf2Jaxia-0EL~8kEEk7exh~xDrYh1767uFFfiIPmKE9Juao0hc5U369lxhoqmnBImpm2GIGxfjTHOACkDox1hmYG75SPWlSFnCac-ar4ZWeYWeWFIMLXXFkPYsM1DvW~OF4TdZS~ZEnXqdjnBJHdQVz~B0QBqAp7NN50Zhr8uyw0s3LGf7-nZEYPgC2H2DUZTFmj3vQhOXajosu4ocSMRh5bwzgI6ywXVMY6nn6nfzNnMkgJr1Gmr0Y1gG0mCXoZuA~HkOhAl5hmd9wsxT2-rKvtJXU8m34hKS5Sqw0SynlJKL8nhBAiETQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd203-0cb0-726c-9f5d-9146fc46e352",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 672532840,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "floating demonic traversal hook node game prop, purple energy crystal core inside metal claw rings, readable grapple target, glowing cyan and violet emissive accents, no stand, no background, centered standalone asset, physically based material",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777344908618,
+    "progress": 100,
+    "started_at": 1777344909471,
+    "finished_at": 1777344983080,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/model.glb?Expires=4930934400&Signature=Xa1kezz6l1li3rZwQbBNtUOr1Apr6ONwqfn-Ya1-ShzD--BRjhaNa01afIUUTQ0BPyHc-wFnlCa~V0S0ulJvp8MANO5Xl~cIBWJ8f4U0tLGXDkv0QFvoV9Of2lWUcfMHt0z0SD5KFwR6at8WJR4m9Jx69mWCRhZgDyU7jsFKPTNTlJLNsclX29cNzlI0kgH-RIo3H5bYdwRNMBfn8yY0Ya7RF-NFXYKxiwjLhYV~lW6w5LU3n9nilg6d3zsu1SVDzPLoPOdJQgP2dorXnHfCkePrdtWoT8OmGSfCar988TucLvTakaQVSJ7NShpr~gH4bE7qeLynvusaG~BgNurphA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/preview.png?Expires=4930934400&Signature=ndHaGQ-SmqDBPs~czdJRPhTgfe1J5LaV42wPDQEsVhgkgjsgmAhGjG84Nsa1Z3V6OVhytIxRI~MTi6QMA5K2YIBu4L1XQLXGxjIK4NXvhqWcsOLRftv-BzOM1ZGg7iUFm505bUxlA703o36G7eI~fo5zxge4jtLGaf63ljfUaH8JwcSpU9nMWczIHu2Efr5NcmQXB1-7ycmMZXAeALhM3de6Yh-9fiO-X-zhCyOPNE2HabENF5jAcbPHxDW9cbPiZKcNIOxiJjkPldGrtIGGWK~Ko1Yq1wyGyWaZgzs7ytEHKwgp5KtPma51EyBoQIzIvCgduQAvfPAtdyOlgaqlsw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/texture_0.png?Expires=4930934400&Signature=obgJqcTSC~8erl8WZyfDjpskql9kgdJ-5FBPwt67vdb1PyBsieMAjuqDSMRfLc9LZdspbCUEs1w6G1s-rqX42hePeHhOFQil96x0tUXeMihRCGFtKL-6xmMJAY5elE0qt~mA6V4ZBSuBKd-oMIvHv9UbZA-iO3F9-VjjhfwJYvxXkEG93B~WyXsi5JnCBShNofokpXksFvCqW5ZsvAKLAqgbkrMWA9S1ip10V3k4q~XwFBX15CSekYWxLTT4h8RR-ieuhtSe3KtL1tVDR4A0AKKNDs0QXokTB2EOy9xIzSgdq9jCYaRR467k--WqTX4ZNmZsBAbSdAW1KRvviQ~kUA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/texture_0_metallic.png?Expires=4930934400&Signature=iLiXohLbp0ynczzqOD6hPqS6YtDEyrNYsbl8gJJurDHQwQigFIuwrnslc5lkrWjnmfzF1RWa7KsQDRiNokgYiN881O4ZwD0wihPB2R~nlrRfjnNCDA0D5tE9ieE~aGS6lI6ZMxb7GD-OQnq0nZgGh~LtPSgyxIWeqXoCi-O3IyBUAL4aDLBhqemznD47NoKGThUsZziLkFE20CmTF1PmKJRN3nfDOve7tD9jjqMVHcNb~VQRmbtzU6u9t5lswJ8zw7t4y4lXEceveWmw5j99F-R52nAAGYnZkO3O4toQjFUVJ40R0cI3r90fS8rqTWFXA5hAFi1ZlLFB2~kjWGLNoA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/texture_0_roughness.png?Expires=4930934400&Signature=lDXyq8TszRJMEi-qR-KA29L1IaCyQBlqDVuXcKwE1NTOSL03Mw47OLHHv4HP3~-cCSEOiYWqOYo9rR6TrUXPapX7or8C5CHS2ttbmwBUHbrIrkbOgNHMLAODCK5YnQ7iWJvKP2DJs1DxZN62s-WpFgC2CVNH5ZWl07Sk48Tvwcd5rBJXS~Mv~FRhl61afSLxxC-jkVnKJCuEVLmkQGwKjQ5CcunpiFjyYvLRcWuasXOVMmYBK3qhQR9EdUOtJBLDihp7-9jeBVkex83m94GyKdh39fw7pMVz~jBdaY340aAOSVqVXSi5APDG7JgvKeb7KEk4wgF6ejgSNV1rFA138w__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/texture_0_normal.png?Expires=4930934400&Signature=J3Vo3eYJ5nzrnjtysnczDcyjMG2nfpowBx0kS7mOwv9yp5JlM9AOgn89bpJFradE1yZ1BDdTR469BXu87dczLrqQMJN8FWwUwK5RCyzu4UPRvHYRSzD2Zc9Lyi-2DBG-EVYmERuKHLKt6n~1~tsVQ9NiLAW~WINGEBD5YbvvtQoZ7bFJdDSayjlfD~SR9GB47qBbwHLdoZopyWLkGSzlzTo9BF3j3PKumwPYU~pBna~QGApbBS7gjZbClFIIGj~2lc-5p4i~kZGPRJegtquJlMjMU0hizhlnd8bwyF3UNIHu~TeGC43vGmdSI4GYf9MbHwys2~yPnNi2lKq~Xr4Rug__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd203-0cb0-726c-9f5d-9146fc46e352/output/texture_0_emission.png?Expires=4930934400&Signature=onpMAIxZ3K4MVC9XVM54q3WRHR4RClT~Y6JNj43sJCdr3oOMQxKYUMYvbQMVIfynT08sGKMOUi52ta8jNiV5tHL-NuD074aHs2ewGeiSn0swaExqeMHiwHgjgCEvZdM-yyqHP1LR9ecpL-OvgwKcSd2zYXW2XkmYdwNZHv8KbTAMnkFkZZl0zY-mDoLuLwgT5xRFDoxnzyMmJfTuPUUyLyrpaWdAC9DKaRUsZqGMcZeL5bFTNzUcJlp47oWwAJlhpWPU1~thfGxvq6809~GdgCLbShnwfC8djqmdMFobKMwuZEVHQyVT~p4wUxcFYYYLXxLJUt4s8YWrR7rw9AlQEg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd1ff-6d3e-78a1-a908-f08599464599"
+  },
+  "promoted": {
+    "asset": "hook-node",
+    "runtimeDir": "assets/environment/hook-node/runtime",
+    "model": {
+      "source": "assets/environment/hook-node/source/hook-node-meshy-refined.glb",
+      "runtime": "assets/environment/hook-node/runtime/models/hook-node.glb",
+      "source_bytes": 11438308,
+      "runtime_bytes": 1011416,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/hook-node/source/textures/base_color.png",
+        "runtime": "assets/environment/hook-node/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7836100,
+        "runtime_bytes": 683222
+      },
+      "normal": {
+        "source": "assets/environment/hook-node/source/textures/normal.png",
+        "runtime": "assets/environment/hook-node/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7976275,
+        "runtime_bytes": 7948968
+      },
+      "roughness": {
+        "source": "assets/environment/hook-node/source/textures/roughness.png",
+        "runtime": "assets/environment/hook-node/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 823190,
+        "runtime_bytes": 48036
+      },
+      "metallic": {
+        "source": "assets/environment/hook-node/source/textures/metallic.png",
+        "runtime": "assets/environment/hook-node/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 954793,
+        "runtime_bytes": 101520
+      },
+      "emissive": {
+        "source": "assets/environment/hook-node/source/textures/emission.png",
+        "runtime": "assets/environment/hook-node/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1317828,
+        "runtime_bytes": 119902
+      }
+    },
+    "manifest": "assets/environment/hook-node/runtime/runtime-manifest.json"
+  }
+}

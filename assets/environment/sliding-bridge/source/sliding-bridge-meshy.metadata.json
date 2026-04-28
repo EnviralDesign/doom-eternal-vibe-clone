@@ -1,0 +1,160 @@
+{
+  "id": "sliding-bridge",
+  "name": "Sliding Bridge",
+  "prompt": "small sliding bridge platform segment, rectangular 6 by 4 meter hell tech slab, armored metal panels, orange heat seams, cyan edge lights, underside rails, no background, standalone game prop",
+  "previewTaskId": "019dd221-8942-7f08-beb1-e949cf7e0555",
+  "refineTaskId": "019dd223-fcf6-79a2-9489-7f1512f06d86",
+  "meshyProject": "meshy_output/20260427_222828_sliding-bridge_019dd221",
+  "createdAt": "2026-04-27T22:32:40.530852",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "small sliding bridge platform segment, rectangular 6 by 4 meter hell tech slab, armored metal panels, orange heat seams, cyan edge lights, underside rails, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 38000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd221-8942-7f08-beb1-e949cf7e0555",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_222828_sliding-bridge_019dd221/textures/base_color.png",
+    "normal": "meshy_output/20260427_222828_sliding-bridge_019dd221/textures/normal.png",
+    "roughness": "meshy_output/20260427_222828_sliding-bridge_019dd221/textures/roughness.png",
+    "metallic": "meshy_output/20260427_222828_sliding-bridge_019dd221/textures/metallic.png",
+    "emission": "meshy_output/20260427_222828_sliding-bridge_019dd221/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd221-8942-7f08-beb1-e949cf7e0555",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 358407671,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "small sliding bridge platform segment, rectangular 6 by 4 meter hell tech slab, armored metal panels, orange heat seams, cyan edge lights, underside rails, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346907644,
+    "progress": 100,
+    "started_at": 1777346907865,
+    "finished_at": 1777347063700,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd221-8942-7f08-beb1-e949cf7e0555/output/model.glb?Expires=4930934400&Signature=GeJFlFtidcfWWNK2TDKxGGhCOD9pg2XF4Ti806rFHqT0SVrIgH~E5EZhNk5dVdvL5NyBzXN59F5W2~BqP~tZhuYFG3EJocbvP6Y96ZK46Q2uKnVctIvBF1-4znrAN4kyNMgcLRfUwmiNqLbe8VpnRbdny9QJnGXdE3iHbk842m479qY0EdBgxYBAMP90nnqBuR4rhTmw5qgwG1FJG54xOq2u0oD6rajjPPaSzAliJNXRcyySRT5aTqvZJJNTtMrcDDuuxq5sZx7PXgAmZ5sbJ0cMGUDL-FmzReFvmbLXlp8QktRFVBZnoRpyXdQwMF5vuyjj9geVB-tbf9nPgvSOQQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd221-8942-7f08-beb1-e949cf7e0555/output/preview.png?Expires=4930934400&Signature=ZNCgYNGYnIGPrveDe6Bv6w~mdDSLrP2-ZPvAcz4CX2k~~30tJSclFcrkffJttsXQH4Hh23Yxd0YDnjyWnsYryEj52d7o0~Am-FSOu4UBC-7EM9ho0su3h6ofKKkuZFgm8-0YKBapk3500X53-ly1bwHtBjwpa5lKVedFJlfDChfN42Z80ZU8z5P22dz-oE49ppl-gMuFV7MaRguOrFuai1kUobLhJZnTi4uz68ICQU-gBOLVmUeAQK1XOi3QB7u38gWsIvTR8v7ln8k-jxg0PfuiourKfDPxyZaoNlUIHLnUip-uDIg1vQ4PpI3D-Lq9YuKNNtI4EgIhWPM-xBMu5Q__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd223-fcf6-79a2-9489-7f1512f06d86",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 358407671,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "small sliding bridge platform segment, rectangular 6 by 4 meter hell tech slab, armored metal panels, orange heat seams, cyan edge lights, underside rails, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777347067314,
+    "progress": 100,
+    "started_at": 1777347067675,
+    "finished_at": 1777347142573,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/model.glb?Expires=4930934400&Signature=gJI6s1NUww30y3jhk1GOZSiybGCj04v38KMaautN3THlmO5wjm8s6IyTjUagR7lQMSF~PRJ1e19cZdCRaol6vg-mcNjE4Hz0ldnyM5xGenovkc3a~QHKQRXk4u10y2q1Jr-KDyxAH6B4sYUbwDJxzmIawBBELZRCtJfDfXGjeqwAVaVcVzCztQK14km6uAGfYbygzC1lc0W2o4Ks0W-ia3HJnVn0AtKvgVinjwox~jNdf0tFLNadJ2SXxiDX~AFwEd0WnPoV8FJEiLCHsPbHyzDahy6w8gUrHgSJbpXkwa4omW2wlOntzdJ3fidpv8wWjf1IIOL5hMf8aHzkwLBCSw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/preview.png?Expires=4930934400&Signature=Ka4zdiYrnYavrqgitYkopIth71jIoypB1neNHlKfkTxMR0-0IEf6i0SpsOCxSo7q3TUuwMwVSA-r6GUhtK0nytY8-vCTuLa9JqLjT5o~01aBZHpyuwLKMWhILfhDHGp83aaJmIshx2QChvZV46VnXtCXZyuo9rXecXR09r8LXGyvG6fZpdyqxHS9XRjxjNDtjHYyemfrZUx2b9HGrgX6Eg6ezlDUCwFhCNbHv5kMCNPOEYGpAweXYxaL7tRJo4PBDS8qVCuqXBUqUrnIKrCy-~Fc5UEpSwb9FjCUXn~vX7AAd65sAaqr-PnVSoUXeVD1BXQs~TIy88lJAP3TfANFqA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/texture_0.png?Expires=4930934400&Signature=e6kmU7pKvDJKbb14gEucWbdMCDSPoYXI82b2x8Ym39A-XVPqH~Uq169LBFWCVQ81wojdR7oPj86iXRvL23ase3cnm-1HF5AyXCo48Uq4u2XuPDiZK4Hd7SFWKYllcS7pIsyL3TxhoGR22xeQE0KCo5xPdO3nAHrk4K4rmQ8A41UO598JDklyvx4OfF1gMRGaTk36nfl5bCvClMT21oERHhXNCzsFRxRGIV2rOyPLc~Cy95GTNbiH7TaSCUc1f84tCO-cZ7wuUEu73Ww~0g7KqjFGuYTEjTnGjQE7xTeyxliKoBmB39QrA5Tx9TtWXSv~N~kPVxl-QS4a0iTBpX9Wdw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/texture_0_metallic.png?Expires=4930934400&Signature=XCKDpc6vg3IlJ-HZ0yRwRpfRkMpxYDe2978HNMZbvDQW-1bHUwTApHCE0epsbaeNfLfQ4oe1YHENCIET3ORB5ooi6hZ4kjzCQbqxlsVuiVcxsrOjvUC6bn6v3Q3mGZqAS6Oa9V7HUxoHbLLN5Kku7rVOrWFlWy6kibH-3p2xo6Vu6AlJE6qrw~LnFG5QEZBhWovc8WrX1rqn0Kj7cie7ANuqanle2hM3ZMXgtgrRuE~RBlPreSCSJVEAjRoQuEI7quvEwxzCRnSqpy0j83iz4DmxjF~bj0QhMPUTtIS2H0Xexo~vTDW9VEUDdrTZuih7xnvCyjwyJbpu99EllJ8tDA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/texture_0_roughness.png?Expires=4930934400&Signature=JI-hw9WBgNKn7SpAREeJavSNFtIgR8LSRUIX9fcZJrvd3URFTLHQ74TfE6gaUySgAAHxsN~sNhiHTaK1BLodgIGM2DfIF2Akd-kag97CO4wypmGNebj4zissOKVqhH1bCyNUGCSHIODDMU2904QyTYkeuDlzilM1QRpB3~qG9oNocLdSk7UFyeuy1g2wMngQCkt4NongfWLJSfUktw4zPJ8UIIVducAZwQOoAJAAWJKBy8mbGnGraSga~A6OM-nd3jEtUzw6dUk8A9mzh1QSz9t7c4zT7AqKvmc91GmNgxvcrr3Qwq1Hj~G~-v2nIFzuvf4v3fSyqVm6XbZ3AZEAmw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/texture_0_normal.png?Expires=4930934400&Signature=Ic7s7OIq-dSRIIl9iIz2jhwE9NBIIIFSwWICQdPfnj07dmwrQR2UFQWIoMXqiX4adgPXgoLBv22YBKf0NKi-C9L1lA3aVpRFc-yRs7dCV1euoeP79esEZrgD7xUWcbQSE1He6dnEYiTcZpcbetAlrpwyuGtKsSZ2j0tnGdRJ853tMgPo6B7UQ-VyYfBNkT29Hnr6peun2iL026Q42VI5SOYf5cdu0KUzoWBhrjLMO4BaGp9Lslh~c3p1idjQ3FUHBicKtVJgj6VpGLMGSEzwwsTjzV1XXoqW-pBWcQ5uR7K6Av27QhO6a1WJ0FMn5~TcunQGNlX9HQ3AerlBXsmqMQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd223-fcf6-79a2-9489-7f1512f06d86/output/texture_0_emission.png?Expires=4930934400&Signature=G0GzaamdZVjtNDNwORwyOVewfsEeSbN40KcYnHxKiYha3I5-~Lt4CJDx08jzte9ZzV4z-7pWiEwS5FbKl7q13nXVob-N39G0cCM5BCQpr-2HGouUHcjvAjvZupF7yVU6-KeBos0RiXFX~NZA~xNNkyuipuX9PTli37X2wBaeXVSnIN1DnKQiwLeXNSFvGsj9qijxKRiIcchWruHCxUD-Ydr4yVbkJk4D5Du6PDYNX3HB6HGPnsEkLjX2EMBik78SrIw4ZJXV8ytDjDQT71gfqLlqeRPBOGBD3rDK3au-bzLHs5eXnkbfeW55hX16quPCyliJapDygB7nA5BJMBEMIg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd221-8942-7f08-beb1-e949cf7e0555"
+  },
+  "promoted": {
+    "asset": "sliding-bridge",
+    "runtimeDir": "assets/environment/sliding-bridge/runtime",
+    "model": {
+      "source": "assets/environment/sliding-bridge/source/sliding-bridge-meshy-refined.glb",
+      "runtime": "assets/environment/sliding-bridge/runtime/models/sliding-bridge.glb",
+      "source_bytes": 12452620,
+      "runtime_bytes": 1412800,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/sliding-bridge/source/textures/base_color.png",
+        "runtime": "assets/environment/sliding-bridge/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7152430,
+        "runtime_bytes": 563404
+      },
+      "normal": {
+        "source": "assets/environment/sliding-bridge/source/textures/normal.png",
+        "runtime": "assets/environment/sliding-bridge/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7474480,
+        "runtime_bytes": 7456539
+      },
+      "roughness": {
+        "source": "assets/environment/sliding-bridge/source/textures/roughness.png",
+        "runtime": "assets/environment/sliding-bridge/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1496075,
+        "runtime_bytes": 222500
+      },
+      "metallic": {
+        "source": "assets/environment/sliding-bridge/source/textures/metallic.png",
+        "runtime": "assets/environment/sliding-bridge/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1522940,
+        "runtime_bytes": 262558
+      },
+      "emissive": {
+        "source": "assets/environment/sliding-bridge/source/textures/emission.png",
+        "runtime": "assets/environment/sliding-bridge/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1173513,
+        "runtime_bytes": 113484
+      }
+    },
+    "manifest": "assets/environment/sliding-bridge/runtime/runtime-manifest.json"
+  }
+}

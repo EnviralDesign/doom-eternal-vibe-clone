@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hellrush Level Editor</title>
+  <link rel="icon" href="data:," />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/build/three.full.module.js",
+      "three/addons/": "./vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, "Segoe UI", sans-serif; background:#070504; color:#f9ead6; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; overflow:hidden; background:#070504; }
+    canvas { display:block; width:100vw; height:100vh; }
+    .editor {
+      position:fixed;
+      left:14px;
+      top:58px;
+      bottom:14px;
+      z-index:20;
+      display:grid;
+      grid-template-rows:auto auto minmax(130px, 1fr) auto minmax(130px, .56fr);
+      gap:10px;
+      width:min(440px, calc(100vw - 28px));
+      padding:14px;
+      background:rgba(13, 7, 5, .86);
+      border:1px solid rgba(255, 142, 72, .30);
+      box-shadow:0 22px 86px rgba(0,0,0,.55);
+      backdrop-filter:blur(14px);
+    }
+    h1 { margin:0; font-size:22px; line-height:1.05; color:#fff0d0; }
+    p { margin:4px 0 0; color:rgba(255,232,205,.70); font-size:12px; line-height:1.35; }
+    label { display:grid; gap:5px; color:#cdbdaf; font-size:11px; font-weight:900; text-transform:uppercase; }
+    select, input, textarea, button {
+      width:100%;
+      min-height:34px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.07);
+      color:#fff1de;
+      padding:7px 9px;
+      font:inherit;
+      font-weight:760;
+    }
+    select option { color:#111; }
+    button { cursor:pointer; color:#1d0803; background:linear-gradient(180deg,#ffc36c,#ef5c22); border-color:#ffd69b; }
+    button.secondary { color:#f8ead8; background:rgba(255,255,255,.075); border-color:rgba(255,255,255,.16); }
+    .row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .two { display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+    .toolbar { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
+    .toolbar.four { grid-template-columns:1fr 1fr 1fr 1fr; }
+    .list { min-height:0; overflow:auto; border:1px solid rgba(255,255,255,.10); background:rgba(0,0,0,.25); }
+    .item {
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      align-items:center;
+      width:100%;
+      min-height:34px;
+      padding:8px 9px;
+      color:#f8ead8;
+      background:transparent;
+      border:0;
+      border-bottom:1px solid rgba(255,255,255,.07);
+      text-align:left;
+    }
+    .item.active { color:#071217; background:#9ce8ff; }
+    .item small { color:inherit; opacity:.68; }
+    .fields { display:grid; gap:8px; }
+    textarea { min-height:100%; resize:none; font:12px/1.35 ui-monospace, SFMono-Regular, Consolas, monospace; color:#ffdfb6; }
+    #status {
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      z-index:20;
+      max-width:min(580px, calc(100vw - 28px));
+      padding:9px 11px;
+      background:rgba(0,0,0,.48);
+      border:1px solid rgba(156,232,255,.24);
+      color:#dff8ff;
+      font-size:12px;
+      font-weight:800;
+    }
+  </style>
+</head>
+<body>
+  <main class="editor">
+    <header>
+      <h1>Level Editor</h1>
+      <p>Manifest-backed static environment editor. Save writes <code>assets/levels/hellrush-arena.json</code>.</p>
+    </header>
+    <div class="two">
+      <label>View
+        <select id="viewMode">
+          <option value="full">Full</option>
+          <option value="proxy">Proxy</option>
+          <option value="both">Full + Proxy</option>
+        </select>
+      </label>
+      <label>Asset
+        <select id="assetSelect"></select>
+      </label>
+    </div>
+    <div id="itemList" class="list"></div>
+    <section class="fields">
+      <label>Name <input id="nameInput" /></label>
+      <label>Position</label>
+      <div class="row"><input id="xInput" type="number" step="0.05" /><input id="yInput" type="number" step="0.05" /><input id="zInput" type="number" step="0.05" /></div>
+      <label>Rotation</label>
+      <div class="row"><input id="rxInput" type="number" step="0.01" /><input id="ryInput" type="number" step="0.01" /><input id="rzInput" type="number" step="0.01" /></div>
+      <label>Scale</label>
+      <div class="row"><input id="sxInput" type="number" step="0.05" /><input id="syInput" type="number" step="0.05" /><input id="szInput" type="number" step="0.05" /></div>
+      <div class="toolbar four">
+        <button id="translateButton" type="button">Move</button>
+        <button id="rotateButton" type="button" class="secondary">Rotate</button>
+        <button id="scaleButton" type="button" class="secondary">Scale</button>
+        <button id="frameButton" type="button" class="secondary">Frame</button>
+      </div>
+      <div class="toolbar">
+        <button id="addButton" type="button">Add</button>
+        <button id="duplicateButton" type="button" class="secondary">Duplicate</button>
+        <button id="deleteButton" type="button" class="secondary">Delete</button>
+      </div>
+      <div class="toolbar four">
+        <button id="saveButton" type="button">Save</button>
+        <button id="reloadButton" type="button" class="secondary">Reload</button>
+        <button id="editAssetButton" type="button" class="secondary">Edit Asset</button>
+        <a href="index.html?inspect" style="display:grid;text-decoration:none"><button type="button" class="secondary">Play</button></a>
+      </div>
+    </section>
+    <textarea id="jsonOut" spellcheck="false"></textarea>
+  </main>
+  <div id="status">Loading level manifest...</div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { createGameComposer, createGameRenderer, createPmremGenerator, loadAndApplyGameEnvironment } from './src/render-pipeline.js';
+    import { ENVIRONMENT_ASSET_IDS, loadEnvironmentAssets } from './src/environment-runtime.js';
+    import {
+      collectLevelInstances,
+      createInstancedLevelVisuals,
+      createLevelInstanceObject,
+      defaultLevelInstance,
+      instanceCollisionSize,
+      writeObjectTransformToInstance
+    } from './src/level-runtime.js';
+    import { createLevelMaterialLibrary } from './src/level-materials.js';
+    import { editRouteForLevelInstance } from './src/asset-edit-routes.js';
+    import { createEditorTransformGizmo } from './src/editor-transform-gizmo.js';
+    import './src/app-nav.js?v=1';
+
+    const LEVEL_PATH = 'assets/levels/hellrush-arena.json';
+    const viewMode = document.querySelector('#viewMode');
+    const assetSelect = document.querySelector('#assetSelect');
+    const itemList = document.querySelector('#itemList');
+    const statusEl = document.querySelector('#status');
+    const jsonOut = document.querySelector('#jsonOut');
+    const editAssetButton = document.querySelector('#editAssetButton');
+    const fields = {
+      name: document.querySelector('#nameInput'),
+      x: document.querySelector('#xInput'),
+      y: document.querySelector('#yInput'),
+      z: document.querySelector('#zInput'),
+      rx: document.querySelector('#rxInput'),
+      ry: document.querySelector('#ryInput'),
+      rz: document.querySelector('#rzInput'),
+      sx: document.querySelector('#sxInput'),
+      sy: document.querySelector('#syInput'),
+      sz: document.querySelector('#szInput')
+    };
+
+    const renderer = createGameRenderer({ antialias:true, maxDpr:1.5, shadowMap:false });
+    document.body.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(54, innerWidth / innerHeight, 0.05, 220);
+    const { composer } = createGameComposer(renderer, scene, camera);
+    const pmrem = createPmremGenerator(renderer);
+    await loadAndApplyGameEnvironment({ renderer, scene, pmrem });
+    const environmentAssets = await loadEnvironmentAssets({ renderer });
+    const grid = new THREE.GridHelper(96, 48, 0x8e3b2a, 0x32211c);
+    scene.add(grid);
+
+    const previewRoot = new THREE.Group();
+    scene.add(previewRoot);
+    const pickProxyMaterial = new THREE.MeshBasicMaterial({ color:0x9ce8ff, wireframe:true, transparent:true, opacity:0, depthWrite:false, colorWrite:false });
+    const { materials: editorMaterials } = await createLevelMaterialLibrary({ renderer });
+    const defaultLevelMaterial = editorMaterials.default;
+    const resolveEditorMaterial = (id) => editorMaterials[id] || editorMaterials.default;
+    const mats = {
+      proxy: new THREE.MeshBasicMaterial({ color:0x9ce8ff, wireframe:true, transparent:true, opacity:.55 }),
+      pickProxy: pickProxyMaterial,
+      selected: new THREE.LineBasicMaterial({ color:0xffffff, depthTest:false }),
+      selectedCollider: new THREE.MeshBasicMaterial({ color:0xffd24a, wireframe:true, transparent:true, opacity:.92, depthTest:false })
+    };
+
+    let manifest = null;
+    let selectedIndex = 0;
+    let yaw = 0.72;
+    let pitch = 0.34;
+    let dist = 92;
+    const target = new THREE.Vector3(0, 3.5, 0);
+    let dragMode = null;
+    let lastX = 0;
+    let lastY = 0;
+    let pointerDown = null;
+    let selectedObject = null;
+    let transformDragging = false;
+    let instancedPreview = null;
+    let selectedVisual = null;
+    let lastPick = null;
+    const selectableObjects = [];
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    const transformGizmo = createEditorTransformGizmo({
+      camera,
+      domElement: renderer.domElement,
+      scene,
+      modeButtons: {
+        translate: document.querySelector('#translateButton'),
+        rotate: document.querySelector('#rotateButton'),
+        scale: document.querySelector('#scaleButton')
+      },
+      onDraggingChanged: value => { transformDragging = value; },
+      onChange: () => composer.render(),
+      onObjectChange: () => {
+        if (!selectedObject) return;
+        writeObjectTransformToInstance(selectedObject, selectedObject.userData.environmentInstance);
+        instancedPreview?.updateInstance(selectedIndex);
+        updateSelectedVisual();
+        syncFields();
+        syncJson();
+      }
+    });
+
+    ENVIRONMENT_ASSET_IDS.forEach(id => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = environmentAssets[id]?.name || id;
+      assetSelect.appendChild(option);
+    });
+
+    function instances() {
+      manifest.level.instances ||= [];
+      return manifest.level.instances;
+    }
+
+    function itemName(item, i) {
+      return item.name || item.asset || item.material || `level-${i + 1}`;
+    }
+
+    function array3(value, fallback) {
+      return Array.isArray(value) ? value : fallback;
+    }
+
+    function selectedItem() {
+      return selectedIndex >= 0 ? instances()[selectedIndex] || null : null;
+    }
+
+    function syncJson() {
+      jsonOut.value = JSON.stringify(manifest, null, 2);
+    }
+
+    function applyFieldsToSelected() {
+      const item = selectedItem();
+      if (!item) return;
+      item.name = fields.name.value || item.name;
+      item.position = [Number(fields.x.value), Number(fields.y.value), Number(fields.z.value)];
+      item.rotation = [Number(fields.rx.value), Number(fields.ry.value), Number(fields.rz.value)];
+      item.scale = [Number(fields.sx.value), Number(fields.sy.value), Number(fields.sz.value)];
+      if (selectedObject) {
+        selectedObject.name = item.name;
+        selectedObject.position.fromArray(item.position);
+        selectedObject.rotation.set(item.rotation[0], item.rotation[1], item.rotation[2]);
+        selectedObject.scale.fromArray(item.scale);
+        selectedObject.updateMatrixWorld(true);
+        instancedPreview?.updateInstance(selectedIndex);
+        updateSelectedVisual();
+      }
+      syncJson();
+    }
+
+    function syncFields() {
+      const item = selectedItem();
+      const disabled = !item;
+      Object.values(fields).forEach(input => input.disabled = disabled);
+      const editRoute = editRouteForLevelInstance(item);
+      editAssetButton.disabled = !editRoute;
+      editAssetButton.textContent = editRoute?.label || 'Edit Asset';
+      editAssetButton.title = editRoute?.href || 'Select a runtime asset or material-backed instance';
+      if (!item) {
+        fields.name.value = '';
+        for (const key of ['x', 'y', 'z', 'rx', 'ry', 'rz', 'sx', 'sy', 'sz']) fields[key].value = '';
+        return;
+      }
+      const pos = array3(item.position, [0, 0, 0]);
+      const rot = array3(item.rotation, [0, 0, 0]);
+      const scale = array3(item.scale, [1, 1, 1]);
+      fields.name.value = itemName(item, selectedIndex);
+      fields.x.value = Number(pos[0] || 0).toFixed(3);
+      fields.y.value = Number(pos[1] || 0).toFixed(3);
+      fields.z.value = Number(pos[2] || 0).toFixed(3);
+      fields.rx.value = Number(rot[0] || 0).toFixed(3);
+      fields.ry.value = Number(rot[1] || 0).toFixed(3);
+      fields.rz.value = Number(rot[2] || 0).toFixed(3);
+      fields.sx.value = Number(scale[0] ?? 1).toFixed(3);
+      fields.sy.value = Number(scale[1] ?? 1).toFixed(3);
+      fields.sz.value = Number(scale[2] ?? 1).toFixed(3);
+    }
+
+    function renderList() {
+      const items = instances();
+      itemList.innerHTML = '';
+      items.forEach((item, i) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `item${i === selectedIndex ? ' active' : ''}`;
+        const pos = array3(item.position, [0, 0, 0]);
+        const typeLabel = item.asset || item.geometry || item.collisionKind || item.kind || 'instance';
+        button.innerHTML = `<span>${itemName(item, i)}</span><small>${typeLabel} · ${pos.map(v => Number(v || 0).toFixed(1)).join(', ')}</small>`;
+        button.addEventListener('click', () => selectIndex(i));
+        itemList.appendChild(button);
+      });
+      syncFields();
+    }
+
+    function makeInstanceController(item, i) {
+      const group = new THREE.Group();
+      group.name = item.name || item.asset || `environment-${i + 1}`;
+      group.userData.environmentInstance = item;
+      group.userData.assetId = item.asset;
+      group.userData.selectable = true;
+      group.userData.index = i;
+      const pos = array3(item.position, [0, 0, 0]);
+      const rot = array3(item.rotation, [0, 0, 0]);
+      const scale = array3(item.scale, [1, 1, 1]);
+      group.position.set(pos[0], pos[1], pos[2]);
+      group.rotation.set(rot[0], rot[1], rot[2]);
+      group.scale.set(scale[0], scale[1], scale[2]);
+
+      const size = instanceCollisionSize(item, environmentAssets[item.asset]);
+      const proxyGeometry = new THREE.BoxGeometry(Math.max(0.1, size[0]), Math.max(0.1, size[1]), Math.max(0.1, size[2]));
+      proxyGeometry.userData.editorOwned = true;
+      const showProxy = viewMode.value !== 'full';
+      const proxy = new THREE.Mesh(proxyGeometry, showProxy ? mats.proxy : mats.pickProxy);
+      proxy.name = `${group.name}-select-proxy`;
+      proxy.position.y = -size[1] * 0.5;
+      proxy.userData.selectableRoot = group;
+      proxy.renderOrder = showProxy ? 10 : -1;
+      group.add(proxy);
+
+      const helper = new THREE.BoxHelper(group, 0xffffff);
+      helper.material = mats.selected;
+      helper.geometry.userData.editorOwned = true;
+      helper.visible = false;
+      helper.renderOrder = 50;
+      helper.userData.selectionHelper = true;
+      group.userData.selectionHelper = helper;
+      group.add(helper);
+      selectableObjects.push(proxy);
+      return group;
+    }
+
+    function clearSelectedVisual() {
+      if (!selectedVisual) return;
+      selectedVisual.root.removeFromParent();
+      selectedVisual.root.traverse(child => {
+        if (child.geometry?.userData?.editorOwned) child.geometry.dispose?.();
+      });
+      selectedVisual = null;
+    }
+
+    function buildSelectedVisual() {
+      clearSelectedVisual();
+      const item = selectedItem();
+      if (!item) return;
+      const root = new THREE.Group();
+      root.name = `${item.name || item.asset}-selection-overlay`;
+      const source = createLevelInstanceObject(item, environmentAssets, {
+        mode:'full',
+        materialResolver: resolveEditorMaterial,
+        defaultMaterial: defaultLevelMaterial
+      });
+      source.traverse(child => {
+        child.raycast = () => {};
+        if (child.isMesh && child.material) {
+          child.material = Array.isArray(child.material)
+            ? child.material.map(mat => mat?.clone?.() || mat)
+            : child.material.clone?.() || child.material;
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          for (const mat of mats) {
+            mat.colorWrite = false;
+            mat.depthWrite = false;
+          }
+        }
+      });
+      const box = new THREE.Box3();
+      const boundsHelper = new THREE.Box3Helper(box, 0x62e8ff);
+      boundsHelper.material.depthTest = false;
+      boundsHelper.renderOrder = 88;
+      root.add(source, boundsHelper);
+
+      const size = instanceCollisionSize(item, environmentAssets[item.asset]);
+      const colliderGroup = new THREE.Group();
+      const colliderGeometry = new THREE.BoxGeometry(Math.max(0.1, size[0]), Math.max(0.1, size[1]), Math.max(0.1, size[2]));
+      colliderGeometry.userData.editorOwned = true;
+      const collider = new THREE.Mesh(colliderGeometry, mats.selectedCollider);
+      collider.position.y = -size[1] * 0.5;
+      collider.renderOrder = 90;
+      colliderGroup.add(collider);
+      root.add(colliderGroup);
+
+      selectedVisual = { root, source, box, boundsHelper, colliderGroup };
+      previewRoot.add(root);
+      updateSelectedVisual();
+    }
+
+    function updateSelectedVisual() {
+      if (!selectedVisual || !selectedObject) return;
+      for (const object of [selectedVisual.source, selectedVisual.colliderGroup]) {
+        object.position.copy(selectedObject.position);
+        object.rotation.copy(selectedObject.rotation);
+        object.scale.copy(selectedObject.scale);
+        object.updateMatrixWorld(true);
+      }
+      selectedVisual.box.setFromObject(selectedVisual.source);
+      selectedVisual.boundsHelper.updateMatrixWorld(true);
+    }
+
+    function clearPreview() {
+      transformGizmo.detach();
+      selectedObject = null;
+      instancedPreview = null;
+      clearSelectedVisual();
+      selectableObjects.length = 0;
+      while (previewRoot.children.length) {
+        const child = previewRoot.children.pop();
+        child.traverse?.((o) => {
+          if (o.geometry?.userData?.editorOwned) o.geometry.dispose?.();
+        });
+      }
+    }
+
+    function renderPreview() {
+      clearPreview();
+      instancedPreview = createInstancedLevelVisuals(instances(), environmentAssets, {
+        mode: viewMode.value,
+        materialResolver: resolveEditorMaterial,
+        defaultMaterial: defaultLevelMaterial
+      });
+      previewRoot.add(instancedPreview.root);
+      selectableObjects.push(...instancedPreview.instancedMeshes);
+      instances().forEach((item, i) => previewRoot.add(makeInstanceController(item, i)));
+      const nextSelection = selectedIndex >= 0
+        ? Math.min(selectedIndex, Math.max(0, instances().length - 1))
+        : -1;
+      selectIndex(nextSelection, { rerender:false });
+    }
+
+    window.__hellrushLevelEditorInfo = () => {
+      let instancedMeshes = 0;
+      previewRoot.traverse(child => { if (child.isInstancedMesh) instancedMeshes++; });
+      const selectedBoundsSize = selectedVisual?.box ? selectedVisual.box.getSize(new THREE.Vector3()).toArray().map(v => Number(v.toFixed(3))) : null;
+      const items = manifest?.level?.instances || [];
+      return {
+        instances: items.length,
+        instancedMeshes,
+        selectedIndex,
+        selected: selectedIndex >= 0 ? items[selectedIndex]?.name || null : null,
+        viewMode: viewMode.value,
+        selectedBoundsSize,
+        lastPick
+      };
+    };
+
+    function selectIndex(index, { rerender = true } = {}) {
+      selectedIndex = index;
+      selectedObject = selectedIndex >= 0
+        ? previewRoot.children.find(child => child.userData.index === selectedIndex) || null
+        : null;
+      previewRoot.traverse(child => {
+        if (child.userData.selectionHelper) child.visible = child.parent === selectedObject;
+      });
+      if (selectedObject) transformGizmo.attach(selectedObject);
+      else transformGizmo.detach();
+      buildSelectedVisual();
+      if (rerender) renderList();
+      else renderList();
+      syncFields();
+    }
+
+    async function loadManifest() {
+      const resp = await fetch(`${LEVEL_PATH}?v=${Date.now()}`, { cache:'no-store' });
+      manifest = await resp.json();
+      manifest.level ||= {};
+      manifest.level.instances ||= collectLevelInstances(manifest.level);
+      selectedIndex = 0;
+      syncJson();
+      renderList();
+      renderPreview();
+      statusEl.textContent = `Loaded ${LEVEL_PATH}`;
+    }
+
+    async function saveManifest() {
+      try {
+        manifest = JSON.parse(jsonOut.value);
+      } catch (err) {
+        statusEl.textContent = `JSON parse failed: ${err.message}`;
+        return;
+      }
+      const resp = await fetch('/__hellrush/save-json', {
+        method:'POST',
+        headers:{ 'content-type':'application/json' },
+        body: JSON.stringify({ path: LEVEL_PATH, json: manifest })
+      });
+      const result = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(result.detail || result.error || `Save failed (${resp.status})`);
+      statusEl.textContent = `Saved ${result.path}`;
+      renderList();
+      renderPreview();
+    }
+
+    viewMode.addEventListener('change', () => renderPreview());
+    Object.values(fields).forEach(input => input.addEventListener('input', applyFieldsToSelected));
+    document.querySelector('#addButton').addEventListener('click', () => {
+      const item = defaultLevelInstance(assetSelect.value, instances().length + 1);
+      instances().push(item);
+      selectedIndex = instances().length - 1;
+      syncJson();
+      renderPreview();
+    });
+    document.querySelector('#duplicateButton').addEventListener('click', () => {
+      const items = instances();
+      if (!items[selectedIndex]) return;
+      items.splice(selectedIndex + 1, 0, JSON.parse(JSON.stringify(items[selectedIndex])));
+      selectedIndex += 1;
+      items[selectedIndex].name = `${items[selectedIndex].name || items[selectedIndex].asset}-copy`;
+      syncJson(); renderPreview();
+    });
+    document.querySelector('#deleteButton').addEventListener('click', () => {
+      const items = instances();
+      if (!items[selectedIndex]) return;
+      items.splice(selectedIndex, 1);
+      selectedIndex = Math.max(0, selectedIndex - 1);
+      syncJson(); renderPreview();
+    });
+    document.querySelector('#frameButton').addEventListener('click', () => {
+      if (!selectedObject) return;
+      target.copy(selectedObject.position);
+      dist = 28;
+    });
+    document.querySelector('#saveButton').addEventListener('click', () => saveManifest().catch(err => statusEl.textContent = err.message));
+    document.querySelector('#reloadButton').addEventListener('click', () => loadManifest().catch(err => statusEl.textContent = err.message));
+    editAssetButton.addEventListener('click', () => {
+      const route = editRouteForLevelInstance(selectedItem());
+      if (!route) return;
+      location.href = route.href;
+    });
+    jsonOut.addEventListener('change', () => {
+      try {
+        manifest = JSON.parse(jsonOut.value);
+        renderList(); renderPreview(); statusEl.textContent = 'JSON applied locally';
+      } catch (err) {
+        statusEl.textContent = `JSON parse failed: ${err.message}`;
+      }
+    });
+
+    renderer.domElement.addEventListener('contextmenu', ev => ev.preventDefault());
+    renderer.domElement.addEventListener('pointerdown', ev => {
+      if (transformDragging) return;
+      dragMode = ev.button === 2 ? 'pan' : ev.button === 0 ? 'orbit' : null;
+      lastX = ev.clientX;
+      lastY = ev.clientY;
+      pointerDown = { x: ev.clientX, y: ev.clientY, button: ev.button };
+      if (dragMode) renderer.domElement.setPointerCapture(ev.pointerId);
+    });
+    renderer.domElement.addEventListener('pointerup', ev => {
+      const moved = pointerDown ? Math.hypot(ev.clientX - pointerDown.x, ev.clientY - pointerDown.y) : 999;
+      if (dragMode) renderer.domElement.releasePointerCapture(ev.pointerId);
+      if (!transformDragging && pointerDown?.button === 0 && moved < 4) pick(ev);
+      dragMode = null;
+      pointerDown = null;
+    });
+    renderer.domElement.addEventListener('pointermove', ev => {
+      if (!dragMode || transformDragging) return;
+      const dx = ev.clientX - lastX;
+      const dy = ev.clientY - lastY;
+      if (dragMode === 'orbit') {
+        yaw -= dx * 0.006;
+        pitch = THREE.MathUtils.clamp(pitch + dy * 0.004, -0.45, 0.95);
+      } else if (dragMode === 'pan') {
+        const panScale = Math.max(0.02, dist * 0.0018);
+        const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
+        const up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+        target.addScaledVector(right, -dx * panScale);
+        target.addScaledVector(up, dy * panScale);
+      }
+      lastX = ev.clientX; lastY = ev.clientY;
+    });
+    renderer.domElement.addEventListener('wheel', ev => { dist = THREE.MathUtils.clamp(dist + ev.deltaY * 0.06, 18, 160); }, { passive:true });
+    addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+
+    function pick(ev) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.x = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((ev.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects(selectableObjects, true);
+      const visualHit = hits.find(candidate => candidate.object?.isInstancedMesh && candidate.instanceId != null);
+      if (visualHit) {
+        const instanceIndex = visualHit.object.userData.environmentInstanceSlots?.[visualHit.instanceId];
+        lastPick = { kind:'mesh', index:instanceIndex ?? null, mesh:visualHit.object.name };
+        if (instanceIndex != null) selectIndex(instanceIndex);
+        return;
+      }
+      const hit = hits[0];
+      if (!hit) {
+        lastPick = { kind:'void' };
+        selectIndex(-1);
+        return;
+      }
+      let root = hit?.object || null;
+      while (root && !root.userData.selectableRoot && root.parent) root = root.parent;
+      const selectedRoot = root?.userData.selectableRoot || root;
+      lastPick = { kind:'proxy', index:selectedRoot?.userData.index ?? null, mesh:hit.object?.name || null };
+      if (selectedRoot?.userData.index != null) selectIndex(selectedRoot.userData.index);
+    }
+
+    function frame() {
+      requestAnimationFrame(frame);
+      const cp = Math.cos(pitch), sp = Math.sin(pitch);
+      camera.position.set(
+        target.x + Math.sin(yaw) * cp * dist,
+        target.y + sp * dist,
+        target.z + Math.cos(yaw) * cp * dist
+      );
+      camera.lookAt(target);
+      previewRoot.traverse(child => {
+        if (child.userData.selectionHelper && child.visible) child.update();
+      });
+      composer.render();
+    }
+
+    await loadManifest().catch(err => statusEl.textContent = err.message);
+    frame();
+  </script>
+</body>
+</html>

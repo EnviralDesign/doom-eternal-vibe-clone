@@ -1,0 +1,446 @@
+{
+  "createdAt": "2026-04-27T22:37:47.740051",
+  "assets": [
+    {
+      "asset": "catwalk-center-hub",
+      "runtimeDir": "assets/environment/catwalk-center-hub/runtime",
+      "model": {
+        "source": "assets/environment/catwalk-center-hub/source/catwalk-center-hub-meshy-refined.glb",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/models/catwalk-center-hub.glb",
+        "source_bytes": 11769448,
+        "runtime_bytes": 1662472,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/catwalk-center-hub/source/textures/base_color.png",
+          "runtime": "assets/environment/catwalk-center-hub/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 6626690,
+          "runtime_bytes": 411528
+        },
+        "normal": {
+          "source": "assets/environment/catwalk-center-hub/source/textures/normal.png",
+          "runtime": "assets/environment/catwalk-center-hub/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 6798393,
+          "runtime_bytes": 6778257
+        },
+        "roughness": {
+          "source": "assets/environment/catwalk-center-hub/source/textures/roughness.png",
+          "runtime": "assets/environment/catwalk-center-hub/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1465999,
+          "runtime_bytes": 204890
+        },
+        "metallic": {
+          "source": "assets/environment/catwalk-center-hub/source/textures/metallic.png",
+          "runtime": "assets/environment/catwalk-center-hub/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1361897,
+          "runtime_bytes": 173730
+        },
+        "emissive": {
+          "source": "assets/environment/catwalk-center-hub/source/textures/emission.png",
+          "runtime": "assets/environment/catwalk-center-hub/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 861905,
+          "runtime_bytes": 110130
+        }
+      },
+      "manifest": "assets/environment/catwalk-center-hub/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "catwalk-straight-arm",
+      "runtimeDir": "assets/environment/catwalk-straight-arm/runtime",
+      "model": {
+        "source": "assets/environment/catwalk-straight-arm/source/catwalk-straight-arm-meshy-refined.glb",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/models/catwalk-straight-arm.glb",
+        "source_bytes": 12009664,
+        "runtime_bytes": 1798836,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/catwalk-straight-arm/source/textures/base_color.png",
+          "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 6956822,
+          "runtime_bytes": 425848
+        },
+        "normal": {
+          "source": "assets/environment/catwalk-straight-arm/source/textures/normal.png",
+          "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 7093047,
+          "runtime_bytes": 7076626
+        },
+        "roughness": {
+          "source": "assets/environment/catwalk-straight-arm/source/textures/roughness.png",
+          "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1499317,
+          "runtime_bytes": 202236
+        },
+        "metallic": {
+          "source": "assets/environment/catwalk-straight-arm/source/textures/metallic.png",
+          "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1660017,
+          "runtime_bytes": 305866
+        },
+        "emissive": {
+          "source": "assets/environment/catwalk-straight-arm/source/textures/emission.png",
+          "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 877555,
+          "runtime_bytes": 57854
+        }
+      },
+      "manifest": "assets/environment/catwalk-straight-arm/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "low-hell-cover",
+      "runtimeDir": "assets/environment/low-hell-cover/runtime",
+      "model": {
+        "source": "assets/environment/low-hell-cover/source/low-hell-cover-meshy-refined.glb",
+        "runtime": "assets/environment/low-hell-cover/runtime/models/low-hell-cover.glb",
+        "source_bytes": 12322904,
+        "runtime_bytes": 1042352,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/low-hell-cover/source/textures/base_color.png",
+          "runtime": "assets/environment/low-hell-cover/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 7845264,
+          "runtime_bytes": 680148
+        },
+        "normal": {
+          "source": "assets/environment/low-hell-cover/source/textures/normal.png",
+          "runtime": "assets/environment/low-hell-cover/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 7946545,
+          "runtime_bytes": 7896062
+        },
+        "roughness": {
+          "source": "assets/environment/low-hell-cover/source/textures/roughness.png",
+          "runtime": "assets/environment/low-hell-cover/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1401201,
+          "runtime_bytes": 185690
+        },
+        "metallic": {
+          "source": "assets/environment/low-hell-cover/source/textures/metallic.png",
+          "runtime": "assets/environment/low-hell-cover/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1605205,
+          "runtime_bytes": 309790
+        },
+        "emissive": {
+          "source": "assets/environment/low-hell-cover/source/textures/emission.png",
+          "runtime": "assets/environment/low-hell-cover/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1008140,
+          "runtime_bytes": 121618
+        }
+      },
+      "manifest": "assets/environment/low-hell-cover/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "rune-pillar",
+      "runtimeDir": "assets/environment/rune-pillar/runtime",
+      "model": {
+        "source": "assets/environment/rune-pillar/source/rune-pillar-meshy-refined.glb",
+        "runtime": "assets/environment/rune-pillar/runtime/models/rune-pillar.glb",
+        "source_bytes": 10025768,
+        "runtime_bytes": 1128592,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/rune-pillar/source/textures/base_color.png",
+          "runtime": "assets/environment/rune-pillar/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 6516783,
+          "runtime_bytes": 302618
+        },
+        "normal": {
+          "source": "assets/environment/rune-pillar/source/textures/normal.png",
+          "runtime": "assets/environment/rune-pillar/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 6421239,
+          "runtime_bytes": 6391335
+        },
+        "roughness": {
+          "source": "assets/environment/rune-pillar/source/textures/roughness.png",
+          "runtime": "assets/environment/rune-pillar/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1274244,
+          "runtime_bytes": 145638
+        },
+        "metallic": {
+          "source": "assets/environment/rune-pillar/source/textures/metallic.png",
+          "runtime": "assets/environment/rune-pillar/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1344937,
+          "runtime_bytes": 165472
+        },
+        "emissive": {
+          "source": "assets/environment/rune-pillar/source/textures/emission.png",
+          "runtime": "assets/environment/rune-pillar/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 764744,
+          "runtime_bytes": 84462
+        }
+      },
+      "manifest": "assets/environment/rune-pillar/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "hell-torch",
+      "runtimeDir": "assets/environment/hell-torch/runtime",
+      "model": {
+        "source": "assets/environment/hell-torch/source/hell-torch-meshy-refined.glb",
+        "runtime": "assets/environment/hell-torch/runtime/models/hell-torch.glb",
+        "source_bytes": 13214288,
+        "runtime_bytes": 974172,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/hell-torch/source/textures/base_color.png",
+          "runtime": "assets/environment/hell-torch/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 8138426,
+          "runtime_bytes": 812480
+        },
+        "normal": {
+          "source": "assets/environment/hell-torch/source/textures/normal.png",
+          "runtime": "assets/environment/hell-torch/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 8574712,
+          "runtime_bytes": 8554421
+        },
+        "roughness": {
+          "source": "assets/environment/hell-torch/source/textures/roughness.png",
+          "runtime": "assets/environment/hell-torch/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1064945,
+          "runtime_bytes": 101680
+        },
+        "metallic": {
+          "source": "assets/environment/hell-torch/source/textures/metallic.png",
+          "runtime": "assets/environment/hell-torch/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1224124,
+          "runtime_bytes": 172682
+        },
+        "emissive": {
+          "source": "assets/environment/hell-torch/source/textures/emission.png",
+          "runtime": "assets/environment/hell-torch/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 3197856,
+          "runtime_bytes": 185978
+        }
+      },
+      "manifest": "assets/environment/hell-torch/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "moving-lift",
+      "runtimeDir": "assets/environment/moving-lift/runtime",
+      "model": {
+        "source": "assets/environment/moving-lift/source/moving-lift-meshy-refined.glb",
+        "runtime": "assets/environment/moving-lift/runtime/models/moving-lift.glb",
+        "source_bytes": 15324888,
+        "runtime_bytes": 1618996,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/moving-lift/source/textures/base_color.png",
+          "runtime": "assets/environment/moving-lift/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 8586466,
+          "runtime_bytes": 1069790
+        },
+        "normal": {
+          "source": "assets/environment/moving-lift/source/textures/normal.png",
+          "runtime": "assets/environment/moving-lift/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 9273718,
+          "runtime_bytes": 9269150
+        },
+        "roughness": {
+          "source": "assets/environment/moving-lift/source/textures/roughness.png",
+          "runtime": "assets/environment/moving-lift/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1231042,
+          "runtime_bytes": 116744
+        },
+        "metallic": {
+          "source": "assets/environment/moving-lift/source/textures/metallic.png",
+          "runtime": "assets/environment/moving-lift/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1659836,
+          "runtime_bytes": 376444
+        },
+        "emissive": {
+          "source": "assets/environment/moving-lift/source/textures/emission.png",
+          "runtime": "assets/environment/moving-lift/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1980498,
+          "runtime_bytes": 212982
+        }
+      },
+      "manifest": "assets/environment/moving-lift/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "sliding-bridge",
+      "runtimeDir": "assets/environment/sliding-bridge/runtime",
+      "model": {
+        "source": "assets/environment/sliding-bridge/source/sliding-bridge-meshy-refined.glb",
+        "runtime": "assets/environment/sliding-bridge/runtime/models/sliding-bridge.glb",
+        "source_bytes": 12452620,
+        "runtime_bytes": 1412800,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/sliding-bridge/source/textures/base_color.png",
+          "runtime": "assets/environment/sliding-bridge/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 7152430,
+          "runtime_bytes": 563404
+        },
+        "normal": {
+          "source": "assets/environment/sliding-bridge/source/textures/normal.png",
+          "runtime": "assets/environment/sliding-bridge/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 7474480,
+          "runtime_bytes": 7456539
+        },
+        "roughness": {
+          "source": "assets/environment/sliding-bridge/source/textures/roughness.png",
+          "runtime": "assets/environment/sliding-bridge/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1496075,
+          "runtime_bytes": 222500
+        },
+        "metallic": {
+          "source": "assets/environment/sliding-bridge/source/textures/metallic.png",
+          "runtime": "assets/environment/sliding-bridge/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1522940,
+          "runtime_bytes": 262558
+        },
+        "emissive": {
+          "source": "assets/environment/sliding-bridge/source/textures/emission.png",
+          "runtime": "assets/environment/sliding-bridge/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1173513,
+          "runtime_bytes": 113484
+        }
+      },
+      "manifest": "assets/environment/sliding-bridge/runtime/runtime-manifest.json"
+    },
+    {
+      "asset": "lava-trench-module",
+      "runtimeDir": "assets/environment/lava-trench-module/runtime",
+      "model": {
+        "source": "assets/environment/lava-trench-module/source/lava-trench-module-meshy-refined.glb",
+        "runtime": "assets/environment/lava-trench-module/runtime/models/lava-trench-module.glb",
+        "source_bytes": 14171648,
+        "runtime_bytes": 1209728,
+        "removed_images": 4,
+        "removed_image_buffer_views": 4
+      },
+      "textures": {
+        "baseColor": {
+          "source": "assets/environment/lava-trench-module/source/textures/base_color.png",
+          "runtime": "assets/environment/lava-trench-module/runtime/textures/base_color.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 8098292,
+          "runtime_bytes": 815530
+        },
+        "normal": {
+          "source": "assets/environment/lava-trench-module/source/textures/normal.png",
+          "runtime": "assets/environment/lava-trench-module/runtime/textures/normal.png",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 8604805,
+          "runtime_bytes": 8596129
+        },
+        "roughness": {
+          "source": "assets/environment/lava-trench-module/source/textures/roughness.png",
+          "runtime": "assets/environment/lava-trench-module/runtime/textures/roughness.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 1227686,
+          "runtime_bytes": 132502
+        },
+        "metallic": {
+          "source": "assets/environment/lava-trench-module/source/textures/metallic.png",
+          "runtime": "assets/environment/lava-trench-module/runtime/textures/metallic.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 970136,
+          "runtime_bytes": 71388
+        },
+        "emissive": {
+          "source": "assets/environment/lava-trench-module/source/textures/emission.png",
+          "runtime": "assets/environment/lava-trench-module/runtime/textures/emission.webp",
+          "original_size": "2048x2048",
+          "runtime_size": "2048x2048",
+          "source_bytes": 3538526,
+          "runtime_bytes": 348982
+        }
+      },
+      "manifest": "assets/environment/lava-trench-module/runtime/runtime-manifest.json"
+    }
+  ],
+  "failures": []
+}

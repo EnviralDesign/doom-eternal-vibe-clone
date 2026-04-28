@@ -1,0 +1,160 @@
+{
+  "id": "moving-lift",
+  "name": "Moving Lift",
+  "prompt": "square demonic elevator lift platform, 5 meter game platform, heavy black metal slab, orange molten edge vents, blue rune arrows, thick beveled underside machinery, no background, standalone game environment asset",
+  "previewTaskId": "019dd21b-c34e-78c2-89b9-9a23d9ddcdc3",
+  "refineTaskId": "019dd21f-9910-71f4-8e8c-81406b118413",
+  "meshyProject": "meshy_output/20260427_222209_moving-lift_019dd21b",
+  "createdAt": "2026-04-27T22:28:22.812659",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "square demonic elevator lift platform, 5 meter game platform, heavy black metal slab, orange molten edge vents, blue rune arrows, thick beveled underside machinery, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 44000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd21b-c34e-78c2-89b9-9a23d9ddcdc3",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_222209_moving-lift_019dd21b/textures/base_color.png",
+    "normal": "meshy_output/20260427_222209_moving-lift_019dd21b/textures/normal.png",
+    "roughness": "meshy_output/20260427_222209_moving-lift_019dd21b/textures/roughness.png",
+    "metallic": "meshy_output/20260427_222209_moving-lift_019dd21b/textures/metallic.png",
+    "emission": "meshy_output/20260427_222209_moving-lift_019dd21b/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd21b-c34e-78c2-89b9-9a23d9ddcdc3",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 2405202784,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "square demonic elevator lift platform, 5 meter game platform, heavy black metal slab, orange molten edge vents, blue rune arrows, thick beveled underside machinery, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346529384,
+    "progress": 100,
+    "started_at": 1777346529838,
+    "finished_at": 1777346775085,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21b-c34e-78c2-89b9-9a23d9ddcdc3/output/model.glb?Expires=4930934400&Signature=oRzDdcjUeCvyx0YGeyEF9A~VJ9KGz9QSyj6mE4l8wOV1RoftsfF4nKN-LIRUxqXUdXKpYDfVmGyPpjfatzwzJi1xnxnc7GEhHmIFkCApYe3NvfmncPCmiZaTrflV9sOxAjBS0o2eLoFqTU4jhS9RzXiBgx9Vli0JARguzR5K4Nhc5030YVn6qFzQWiQICoaJI89eSeGF-KdzXQJkgncSA2DQxOe-mXyjHwD8ojagl7YOhe8Xxwd8nZb08pVxJa7rK9ZV97DtOlB3sJVVayihlAKPHjSbJEaCMax2gvV2~DZTKP78AVpx5UoNV~yqj3Tyn9WQ9lo8e8ZtAtJ9hZD~QA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21b-c34e-78c2-89b9-9a23d9ddcdc3/output/preview.png?Expires=4930934400&Signature=fvDkEv4EbRhBNf-oWajSW7cBp4R7LELajcXOJOWQwmgFePcjRbDJ7PZgj2iovPmIc2VT9GJZpgai~hAjBByzN99BNYd-ThvADsOdRxSzwFdTrOJCy9g7Vad1gk8y9RPWlB9LKKwKQtwdaIjx-jIunB15Ed8w4Ku4NYedvUaMDe9GhEewnFoyVXWwyPWaBnq3bfHASmS-nvIGHywt4ZP0zb9b9X3VmF~jCyYqxoQHKD~IkjDbqwMaWD7OpyzNn9tGYSfyLuW49C2J-tBmpW16r2z3j6VNYdDkuQco8oHiKeQiYmSfjQ85SIBJWkUN3BFGwnvjMHddANPz~3k90h~cGA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd21f-9910-71f4-8e8c-81406b118413",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 2405202784,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "square demonic elevator lift platform, 5 meter game platform, heavy black metal slab, orange molten edge vents, blue rune arrows, thick beveled underside machinery, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346779576,
+    "progress": 100,
+    "started_at": 1777346779662,
+    "finished_at": 1777346874225,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/model.glb?Expires=4930934400&Signature=ew31Jx3qzBPAMuBdIe-vAkm-tKjjuH2eryKzuaoWUCk-6hB2L61XqBtPygDs9bTjENfBJHxMl04vE17NQuHJKkswQ6bERkPu2vB39PP76L7lA2P8d2IF46hDxwTML7gMTARFPyHRxtkUSUaW0L7zD3ei04Ge-XjtgNIIuUmHr351U4h7ur4~HMdAYRsbD1xeonAt7cvzRAsfgedd~RVmarMqoQlCIym2vxsY01R-ojaerfST0xoPo17DRB~HK-nGOTlByeFiuHn8yEF1mjMzMOfdh0eSyai1gzOKPPGYTsk83x7JXMDEbueix~vv3iFvfslY2xTvXeUk1haOHw~TLQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/preview.png?Expires=4930934400&Signature=aExStZKAGd1zZ90PuDJFGnavEpXZ2llyQSsfC0bCihV4mAvqbV-~7WysDCmuDJZCuTJho23OW7Ud-6ASqYiSehfVmhbdpJWCw5z65EMADfUIYNPR71oPZYTKGnNGoTeQeqEe32yGjy2rAozapO6BhbnciB~~rqPzMcSRQPoI2WGrAbJUebOPVlcy8FASlnvYmlxqc5IJabpgKXN8ASHvMpmx0agNlYcafZ35h6BUwRxlq4y0EMEL49bOgWqQhry3WFO2A4aYAlcfo-Kf6ow~TSUvl2hLMW~VqRWr681imHMvPBvAlj4NejNQ2Rht2vcpv9CiD2zxMx2nnrN9bOpcpA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/texture_0.png?Expires=4930934400&Signature=b-zKzuUkUNa~E2JxeAxw08uK7Hw6koBIT29DccMM5pErLZzVZaAnA9BODHc07pbhnB2HY~tLtxeIoRAK3lIXugeSDGDsYWXlVo7ydH3ijuKswAEnQGW7WPlOq6HetGq7Gyb-OJ9CcezI~~zpoT129n66CEMpD1L0UvQOXp2W4ruS6rmMftUAdaS7Z569cRbqyzKBUxo9jGmhzcEOhAhLSMoG9CWpe-OG4~GcluxHzZM-aYUB~BGY7cxHJCNd8qXJS1rEb2KwBULuBV0hpZ4L4sYZ4J5mxaLfic6kGKY4fB~WPPECx1P3bYv7EvEgen5okisTT2ez2wL4qJGnaB2iVA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/texture_0_metallic.png?Expires=4930934400&Signature=bP0Up4W7lgvQKyv9s3LCf3Z9yWyIstSmLK9LLRQhYpNbvtFDFThf1njvuveHS1nFmNpJoLkYpQ9LaBardHfPmkY~y6Y4PcONy2j1cpZrFT66WkEgPiFS144WU7TYsPeHUlcPlK652RB2Ttte1UYmJ8hKAYUje2~xkMu3IYPwwhKgXd3~Aj1ICO9LnjLn33Ae0RACsIYzFf8hsiExMAgnmHdzMnDaJpaBftdaYYeNsq-IDwvcd8JcI71DRCFN2DNsWSbTrjNBuleaAili67lQD6PnkmVFSIXLzItirjSipmbAmMz7SlKrOGTkYatED5P7my4Qm6jjwJQXKjkth9tmeg__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/texture_0_roughness.png?Expires=4930934400&Signature=qYAKswe-y09SzrbXJkgflHH7xmdMdG2lec248O6c44VxawqesFN0RfTvTj-ivA9KqeoUg1YjUcMZmswKOidKNX21GFgfP55qhqch7mj4hIAyQ0T57WfOFM6hdH1jF78ovUe3V5lgRDGgXlhmKkKlh17YzqzCJygm2yspa5dV5kAJXHe5GMBIGNa8fD28spR6uUqtJIHjQgOqq6Ua5xZdPabzkOTq1~fc4qkjZUArWtaGwuCZrm4S5ZuHOHonLo-Ji6nGrn4OYIUzAfi6GXf1OmnQfRUr3-EdrzUhSuiT-a2HujGHyX1GqWVMUMO-2hCRfl4JnR90l9vE09uQrIvZ-Q__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/texture_0_normal.png?Expires=4930934400&Signature=JQtX138TcbqjL4ZRGGYLsg3Un~uzlKzj~y2D27WBWKw8~0HmPGwLW1jvS0RmNZ9Pu9Ufn7X2S~4WccVfcVMkDJzA7CFLMF0iCggW4dEKNKxLOnT~vJl2nnNEjEYSSwh2OGx9Gst4IkDiYTGlK2dYnluZfasjtcSNQSXdHNavGEe4ivNhK5762iYdmwLUqc13y8WPrKzMKqTTg6Yq1WgZvaew5RQCzX3ieEgyivJDBnEq5ZhtdapBI9GNAZ1nYAm93cQNrsRhUZWnI80cyTptVxOs8YE2Jn5tW4Bdl38pOtbtKkDNyaOygHSrBv00Tj9XuEenq-vmJ04-0NycjOm3nA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21f-9910-71f4-8e8c-81406b118413/output/texture_0_emission.png?Expires=4930934400&Signature=ChL5pU0B-GNmDZ3m2c4hFbuiPZf6mqWTn-10YitfojfECidUdafxmURsvGPgghyuarz5gb4K7Dbpjd2kS1dU7Uya-QD52na3VjNjo9Q3HgawfTuXMA3M6nEhZaZTxdao7NuzzAavsvowToZOIeUVaOW~LwopdChtY4JOFab6ZLuT111y4QPc4UMBX3h1zqAL2IgQsPPdWKC-PbV4Y0bZILYI5Xec~Njn-9eAdl8nllDx8NEmQAIw4DlZs6IE9h43x9EfWP1q5ItVXvHWFpTsdB-0W0QU02ch-6OcpsBZzABr7xYowEK3h5wcP3o2f4Qf6RQnpnWXIGXi911X7LssdQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd21b-c34e-78c2-89b9-9a23d9ddcdc3"
+  },
+  "promoted": {
+    "asset": "moving-lift",
+    "runtimeDir": "assets/environment/moving-lift/runtime",
+    "model": {
+      "source": "assets/environment/moving-lift/source/moving-lift-meshy-refined.glb",
+      "runtime": "assets/environment/moving-lift/runtime/models/moving-lift.glb",
+      "source_bytes": 15324888,
+      "runtime_bytes": 1618996,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/moving-lift/source/textures/base_color.png",
+        "runtime": "assets/environment/moving-lift/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 8586466,
+        "runtime_bytes": 1069790
+      },
+      "normal": {
+        "source": "assets/environment/moving-lift/source/textures/normal.png",
+        "runtime": "assets/environment/moving-lift/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 9273718,
+        "runtime_bytes": 9269150
+      },
+      "roughness": {
+        "source": "assets/environment/moving-lift/source/textures/roughness.png",
+        "runtime": "assets/environment/moving-lift/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1231042,
+        "runtime_bytes": 116744
+      },
+      "metallic": {
+        "source": "assets/environment/moving-lift/source/textures/metallic.png",
+        "runtime": "assets/environment/moving-lift/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1659836,
+        "runtime_bytes": 376444
+      },
+      "emissive": {
+        "source": "assets/environment/moving-lift/source/textures/emission.png",
+        "runtime": "assets/environment/moving-lift/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1980498,
+        "runtime_bytes": 212982
+      }
+    },
+    "manifest": "assets/environment/moving-lift/runtime/runtime-manifest.json"
+  }
+}

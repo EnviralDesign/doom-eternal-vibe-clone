@@ -37,6 +37,8 @@ def allowed_json_save_path(clean: str) -> bool:
     return bool(
         re.fullmatch(r"assets/(environment|weapons|characters)/.+/runtime-manifest\.json", clean)
         or re.fullmatch(r"assets/textures/.+/material\.json", clean)
+        or clean == "assets/textures/manifest.json"
+        or re.fullmatch(r"assets/levels/[A-Za-z0-9_.-]+\.json", clean)
     )
 
 

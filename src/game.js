@@ -1,10 +1,21 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import {
+  GAME_RENDER_PIPELINE,
+  applySceneEnvironment,
+  createGameComposer,
+  createGameRenderer,
+  createPmremEnvironment as createPipelinePmremEnvironment,
+  createPmremGenerator,
+  loadEquirectSky as loadPipelineEquirectSky
+} from './render-pipeline.js';
+import {
+  collectEnvironmentInstances,
+  collectLevelInstances,
+  createInstancedEnvironmentVisuals
+} from './level-runtime.js';
+import { createLevelMaterialLibrary } from './level-materials.js';
 
 /*
   Hellrush: Meathook Arena — original browser FPS prototype.
@@ -14,6 +25,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 const VERSION = 'threejs-eternalish-6.4-environment-runtime-pipeline';
 const CDN_VERSION = 'three-local-r184-full';
+const DEFAULT_LEVEL_MANIFEST_URL = './assets/levels/hellrush-arena.json?v=level-manifest-1';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -23,6 +35,9 @@ const now = () => performance.now() * 0.001;
 const TAU = Math.PI * 2;
 const qs = new URLSearchParams(location.search);
 const lightingLabMode = qs.has('lightingLab');
+const cameraInspectMode = lightingLabMode || qs.has('cameraInspect') || qs.has('cameraLab') || qs.has('shots');
+const inspectMode = qs.has('inspect') || qs.has('noEnemies') || qs.has('walkthrough');
+const envOnlyMode = qs.has('envOnly') || qs.has('noPunctuals') || qs.has('environmentOnly');
 const qualityMode = qs.get('quality') || 'cinematic';
 const cinematicMode = qualityMode !== 'gameplay' && !qs.has('performance');
 
@@ -36,6 +51,7 @@ const ZERO = new THREE.Vector3(0, 0, 0);
 
 let renderer, scene, camera, composer, bloomPass, pmremGenerator;
 let environmentRenderTarget = null;
+let activeLevelManifest = null;
 let clockTime = 0;
 let lastFrame = 0;
 let running = false;
@@ -64,6 +80,19 @@ const textures = {};
 const characterAssets = {};
 const weaponAssets = {};
 const environmentAssets = {};
+const environmentAssetIds = [
+  'floating-hell-platform',
+  'jump-pad',
+  'hook-node',
+  'catwalk-center-hub',
+  'catwalk-straight-arm',
+  'low-hell-cover',
+  'rune-pillar',
+  'hell-torch',
+  'moving-lift',
+  'sliding-bridge',
+  'lava-trench-module',
+];
 const enemies = [];
 const projectiles = [];
 const pickups = [];
@@ -248,6 +277,7 @@ let damageOverlay, vignetteOverlay;
 let lavaMaterial;
 let cameraBaseFov = 82;
 let lightingLabState = null;
+let cameraInspectState = null;
 
 // V5 hotfix: cut in-game allocation churn. The biggest stalls came from
 // creating/removing hundreds of Meshes, geometries, lights, pickups, tracers,
@@ -772,6 +802,8 @@ async function main() {
   setBootProgress(0.32, 'Loading environment assets');
   await nextFrame();
   await loadEnvironmentAssets();
+  setBootProgress(0.34, 'Loading level manifest');
+  activeLevelManifest = await fetchJsonOptional(DEFAULT_LEVEL_MANIFEST_URL);
   setBootProgress(0.36, 'Igniting arena lights');
   await nextFrame();
   initScene();
@@ -790,13 +822,14 @@ async function main() {
   await prewarmGpu();
   if (lightingLabMode) setupLightingLab();
   else setupInput();
+  if (cameraInspectMode && !lightingLabMode) setupCameraInspector();
   setBootProgress(1, 'Ready');
   if (dom.startButton) dom.startButton.disabled = false;
   requestAnimationFrame(loop);
 }
 
 function bindDom() {
-  for (const id of ['overlay','startButton','hud','health','armor','ammo','ammoStrip','shells','bullets','weapon','dash','jump','fuel','glory','flame','stage','score','status','crosshair','lockHint','help','damage','vignette','minimap','version','bootFill','bootStatus','perfLog']) {
+  for (const id of ['overlay','startButton','hud','health','armor','ammo','ammoStrip','shells','bullets','weapon','dash','jump','fuel','glory','flame','stage','score','status','crosshair','lockHint','help','damage','vignette','minimap','version','bootFill','bootStatus','perfLog','pauseIndicator']) {
     dom[id] = document.getElementById(id);
   }
   if (dom.version) dom.version.textContent = `${VERSION} · ${CDN_VERSION}`;
@@ -832,38 +865,48 @@ function setBootProgress(value, label) {
 }
 
 function initRenderer() {
-  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lightingLabMode ? 1.5 : PERF.maxDpr));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x070504, 1);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = PERF.shadowType;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = cinematicMode ? 1.16 : 1.08;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer = createGameRenderer({
+    antialias: true,
+    maxDpr: lightingLabMode ? GAME_RENDER_PIPELINE.maxDpr : PERF.maxDpr,
+    exposure: cinematicMode ? GAME_RENDER_PIPELINE.cinematicToneMappingExposure : GAME_RENDER_PIPELINE.toneMappingExposure,
+    shadowMap: true,
+    shadowType: PERF.shadowType
+  });
   document.body.appendChild(renderer.domElement);
-  pmremGenerator = new THREE.PMREMGenerator(renderer);
-  pmremGenerator.compileEquirectangularShader();
+  pmremGenerator = createPmremGenerator(renderer);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0d0a0b);
   scene.fog = new THREE.FogExp2(0x120b0c, 0.014);
+  window.__hellrushRenderInfo = () => {
+    let lights = 0;
+    let instancedMeshes = 0;
+    scene.traverse((object) => {
+      if (object.isLight) lights++;
+      if (object.isInstancedMesh) instancedMeshes++;
+    });
+    return {
+      envOnlyMode,
+      inspectMode,
+      lights,
+      instancedMeshes,
+      levelInstanceCount: scene.userData.levelInstanceCount || 0,
+      orientedBoxes: world.boxes.filter(box => box.oriented).length,
+      renderer: renderer.userData?.renderPipeline || null,
+      scene: scene.userData?.renderPipeline || null
+    };
+  };
 
   camera = new THREE.PerspectiveCamera(cameraBaseFov, window.innerWidth / window.innerHeight, 0.025, 180);
   camera.rotation.order = 'YXZ';
   scene.add(camera);
 
   if (PERF.postprocess) {
-    composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
-      lightingLabMode ? 0.16 : 0.10,
-      0.18,
-      1.34
-    );
-    composer.addPass(bloomPass);
-    composer.addPass(new OutputPass());
+    ({ composer, bloomPass } = createGameComposer(renderer, scene, camera, {
+      strength: lightingLabMode ? 0.16 : 0.10,
+      radius: 0.18,
+      threshold: 1.34
+    }));
   }
 
   window.addEventListener('resize', () => {
@@ -925,17 +968,9 @@ function createFallbackEnvironmentTexture() {
 }
 
 function createPmremEnvironment(texture) {
-  if (!texture || !pmremGenerator) return texture || null;
-  try {
-    if (environmentRenderTarget) environmentRenderTarget.dispose();
-    environmentRenderTarget = pmremGenerator.fromEquirectangular(texture);
-    const env = environmentRenderTarget.texture;
-    env.name = 'pmrem-hell-environment';
-    return env;
-  } catch (err) {
-    console.warn('PMREM environment generation failed; using direct environment texture.', err);
-    return texture;
-  }
+  const env = createPipelinePmremEnvironment(pmremGenerator, texture, environmentRenderTarget);
+  environmentRenderTarget = env.renderTarget;
+  return env.texture;
 }
 
 async function loadGameTexture(path, repeatX, repeatY, color = true) {
@@ -958,14 +993,7 @@ async function loadGameTexture(path, repeatX, repeatY, color = true) {
 }
 
 async function loadEquirectSky(path) {
-  const tex = await new Promise((resolve, reject) => {
-    new THREE.TextureLoader().load(path, resolve, undefined, reject);
-  });
-  tex.mapping = THREE.EquirectangularReflectionMapping;
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
-  tex.needsUpdate = true;
-  return tex;
+  return loadPipelineEquirectSky(renderer, path);
 }
 
 async function loadPbrTextureSet(basePath, slug, repeatX = 1, repeatY = 1, options = {}) {
@@ -1274,219 +1302,79 @@ async function loadWeaponAssets() {
   }));
 }
 
-async function loadEnvironmentAssets() {
-  const base = './assets/environment/floating-hell-platform/runtime/';
-  const manifest = await fetchJsonOptional(`${base}runtime-manifest.json?v=platform-50k-2`) || {};
-  const platformUrl = `${base}${manifest.model || 'models/floating-hell-platform.glb'}?v=${manifest.version || 'platform-50k-1'}`;
-  try {
-    const gltf = await loadGltf(platformUrl);
-    const root = gltf.scene;
-    applyScalarMaterialOverrides(root, manifest.materialOverrides);
-    root.traverse((child) => {
-      child.frustumCulled = false;
-      if (!child.isMesh) return;
-      child.castShadow = true;
-      child.receiveShadow = true;
-      const mats = Array.isArray(child.material) ? child.material : [child.material];
-      for (const mat of mats) {
-        if (!mat) continue;
-        if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
-        if (mat.emissiveMap) {
-          mat.emissive?.set(0xffffff);
-          mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, 1.35);
-        }
-        mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
-        mat.needsUpdate = true;
+function prepareEnvironmentRuntimeDefaults(root, manifest) {
+  applyScalarMaterialOverrides(root, manifest.materialOverrides);
+  root.traverse((child) => {
+    child.frustumCulled = false;
+    if (!child.isMesh) return;
+    child.castShadow = true;
+    child.receiveShadow = true;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    for (const mat of mats) {
+      if (!mat) continue;
+      if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
+      if (mat.emissiveMap) {
+        mat.emissive?.set(0xffffff);
+        mat.emissiveIntensity = Math.max(mat.emissiveIntensity || 0, 1.35);
       }
-    });
-    const box = new THREE.Box3().setFromObject(root);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    root.position.sub(center);
-    root.position.y += size.y * 0.5;
-    environmentAssets.floatingHellPlatform = {
-      scene: root,
-      size,
-      source: platformUrl,
-      manifest
-    };
-  } catch (err) {
-    console.warn('Floating hell platform runtime asset unavailable; using blockout sky altar.', err);
+      mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+      mat.needsUpdate = true;
+    }
+  });
+}
+
+async function loadEnvironmentRuntimeAsset(id) {
+  const base = `./assets/environment/${id}/runtime/`;
+  const manifest = await fetchJsonOptional(`${base}runtime-manifest.json?v=environment-runtime-1`);
+  if (!manifest?.model) return null;
+  const modelUrl = `${base}${manifest.model}?v=${manifest.version || 'environment-runtime-1'}`;
+  const gltf = await loadGltf(modelUrl);
+  const root = gltf.scene;
+  if (manifest.materialOverride) await applySidecarMaterialOverrides(modelUrl, root);
+  prepareEnvironmentRuntimeDefaults(root, manifest);
+  const box = new THREE.Box3().setFromObject(root);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  root.position.sub(center);
+  const collisionType = manifest.prefab?.collision?.type || manifest.collision?.type || 'box';
+  if (collisionType !== 'sphere') root.position.y += size.y * 0.5;
+  const normalizedSize = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3());
+  return {
+    id,
+    name: manifest.name || id,
+    scene: root,
+    size: normalizedSize,
+    source: modelUrl,
+    manifest
+  };
+}
+
+async function loadEnvironmentAssets() {
+  await Promise.all(environmentAssetIds.map(async (id) => {
+    try {
+      const asset = await loadEnvironmentRuntimeAsset(id);
+      if (asset) environmentAssets[id] = asset;
+    } catch (err) {
+      const fallback = id === 'floating-hell-platform' ? 'blockout sky altar' : 'procedural fallback';
+      console.warn(`Runtime environment asset unavailable for ${id}; using ${fallback}.`, err);
+    }
+  }));
+  if (environmentAssets['floating-hell-platform']) {
+    environmentAssets.floatingHellPlatform = environmentAssets['floating-hell-platform'];
   }
 }
 
 async function initMaterials() {
-  textures.floor = makeCanvasTexture((ctx, s) => {
-    ctx.fillStyle = '#29241f'; ctx.fillRect(0, 0, s, s);
-    for (let y = 0; y < s; y += 64) {
-      for (let x = 0; x < s; x += 64) {
-        ctx.fillStyle = ((x + y) / 64) % 2 ? '#211c19' : '#332c26';
-        ctx.fillRect(x + 2, y + 2, 60, 60);
-        ctx.strokeStyle = '#5d4b39'; ctx.lineWidth = 2; ctx.strokeRect(x + 2, y + 2, 60, 60);
-        ctx.strokeStyle = 'rgba(255,122,40,.14)'; ctx.beginPath(); ctx.moveTo(x + 10, y + 52); ctx.lineTo(x + 53, y + 12); ctx.stroke();
-      }
-    }
-    for (let i = 0; i < 1200; i++) {
-      const a = Math.random() * 45;
-      ctx.fillStyle = `rgba(${70 + a},${55 + a * 0.4},${42},${Math.random() * 0.12})`;
-      ctx.fillRect(Math.random() * s, Math.random() * s, 1 + Math.random() * 3, 1 + Math.random() * 3);
-    }
-    ctx.lineWidth = 2;
-    for (let i = 0; i < 32; i++) {
-      const x = Math.random() * s, y = Math.random() * s, r = 14 + Math.random() * 24;
-      ctx.strokeStyle = Math.random() < .55 ? 'rgba(255,86,28,.18)' : 'rgba(80,220,255,.13)';
-      ctx.beginPath();
-      for (let k = 0; k < 6; k++) {
-        const a = Math.PI / 6 + k * Math.PI / 3;
-        const px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
-        if (k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-      }
-      ctx.closePath(); ctx.stroke();
-    }
-  }, 512, 8, 8);
-
-  textures.wall = makeCanvasTexture((ctx, s) => {
-    const g = ctx.createLinearGradient(0, 0, s, s);
-    g.addColorStop(0, '#2d2220'); g.addColorStop(0.45, '#4a3430'); g.addColorStop(1, '#151211');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, s, s);
-    for (let y = 0; y < s; y += 42) {
-      ctx.strokeStyle = '#090606'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(s, y + 13); ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,96,32,.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, y + 2); ctx.lineTo(s, y + 15); ctx.stroke();
-    }
-    for (let i = 0; i < 24; i++) {
-      ctx.fillStyle = 'rgba(255,80,20,.2)';
-      ctx.fillRect(Math.random() * s, Math.random() * s, 12 + Math.random() * 45, 2);
-    }
-    ctx.strokeStyle = 'rgba(120,210,255,.16)'; ctx.lineWidth = 2;
-    for (let i = 0; i < 18; i++) {
-      const x = Math.random() * s, y = Math.random() * s;
-      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 18 + Math.random() * 44, y + Math.random() * 18); ctx.lineTo(x + Math.random() * 24, y + 24 + Math.random() * 32); ctx.stroke();
-    }
-  }, 512, 3, 2);
-
-  textures.metal = makeCanvasTexture((ctx, s) => {
-    ctx.fillStyle = '#1a1b1d'; ctx.fillRect(0, 0, s, s);
-    for (let i = 0; i < 10; i++) {
-      ctx.fillStyle = i % 2 ? '#25282b' : '#121416';
-      ctx.fillRect(0, i * s / 10, s, s / 11);
-    }
-    ctx.strokeStyle = '#555b62'; ctx.lineWidth = 3;
-    for (let x = 0; x < s; x += 64) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 18, s); ctx.stroke(); }
-    ctx.fillStyle = 'rgba(255,255,255,.08)';
-    for (let i = 0; i < 500; i++) ctx.fillRect(Math.random() * s, Math.random() * s, 1, 1);
-  }, 512, 4, 4);
-
-  textures.normalRough = makeCanvasTexture((ctx, s) => {
-    const img = ctx.createImageData(s, s);
-    for (let y = 0; y < s; y++) {
-      for (let x = 0; x < s; x++) {
-        const nx = Math.sin(x * 0.16) * 0.5 + Math.sin((x + y) * 0.07) * 0.35 + (Math.random() - 0.5) * 0.3;
-        const ny = Math.cos(y * 0.14) * 0.5 + Math.cos((x - y) * 0.05) * 0.35 + (Math.random() - 0.5) * 0.3;
-        const i = (y * s + x) * 4;
-        img.data[i] = clamp(128 + nx * 65, 0, 255);
-        img.data[i + 1] = clamp(128 + ny * 65, 0, 255);
-        img.data[i + 2] = 228;
-        img.data[i + 3] = 255;
-      }
-    }
-    ctx.putImageData(img, 0, 0);
-  }, 256, 5, 5, false);
-
+  const levelLibrary = await createLevelMaterialLibrary({ renderer });
+  Object.assign(textures, levelLibrary.textures);
+  Object.assign(materials, levelLibrary.materials);
   try {
-    const [floorSet, wallSet, metalSet, runeSet, catwalkSet, skyTex] = await Promise.all([
-      loadPbrTextureSet('./assets/textures/hell-floor/source', 'hell-floor', 8, 8, { roughness: 0.86, metalness: 0.02, envMapIntensity: 0.35 }),
-      loadPbrTextureSet('./assets/textures/hell-wall/source', 'hell-wall', 3, 2, { roughness: 0.88, metalness: 0.015, envMapIntensity: 0.25 }),
-      loadPbrTextureSet('./assets/textures/hell-metal/source', 'hell-metal', 4, 4, { roughness: 0.58, metalness: 0.28, envMapIntensity: 0.55 }),
-      loadPbrTextureSet('./assets/textures/hell-rune/source', 'hell-rune', 4, 4, { roughness: 0.62, metalness: 0.18, envMapIntensity: 0.48 }),
-      loadPbrTextureSet('./assets/textures/argent-catwalk/source', 'argent-catwalk', 3, 3, { roughness: 0.62, metalness: 0.65, envMapIntensity: 0.68 }),
-      loadEquirectSky('./assets/skies/deep-hell-panorama-2k.webp?v=2')
-    ]);
-    textures.floorSet = floorSet;
-    textures.wallSet = wallSet;
-    textures.metalSet = metalSet;
-    textures.runeSet = runeSet;
-    textures.catwalkSet = catwalkSet;
-    textures.floor = floorSet.map;
-    textures.wall = wallSet.map;
-    textures.metal = metalSet.map;
-    textures.rune = runeSet.map;
+    const skyTex = await loadEquirectSky('./assets/skies/deep-hell-panorama-2k.webp?v=2');
     textures.sky = skyTex;
     textures.environment = createPmremEnvironment(skyTex);
   } catch (err) {
-    console.warn('V6 image textures unavailable; using procedural fallback.', err);
+    console.warn('V6 sky texture unavailable; using procedural fallback.', err);
   }
-
-  materials.floor = new THREE.MeshStandardMaterial({
-    map: textures.floorSet?.map || textures.floor,
-    normalMap: textures.floorSet?.normalMap || textures.normalRough,
-    roughnessMap: textures.floorSet?.roughnessMap,
-    metalnessMap: textures.floorSet?.metalnessMap,
-    normalScale: new THREE.Vector2(0.32, 0.32),
-    roughness: textures.floorSet?.roughness ?? 0.86,
-    metalness: textures.floorSet?.metalness ?? 0.02,
-    envMapIntensity: 0.35, color: 0xfff1dc
-  });
-  materials.wall = new THREE.MeshStandardMaterial({
-    map: textures.wallSet?.map || textures.wall,
-    normalMap: textures.wallSet?.normalMap || textures.normalRough,
-    roughnessMap: textures.wallSet?.roughnessMap,
-    metalnessMap: textures.wallSet?.metalnessMap,
-    normalScale: new THREE.Vector2(0.18, 0.18),
-    roughness: textures.wallSet?.roughness ?? 0.88,
-    metalness: textures.wallSet?.metalness ?? 0.015,
-    color: 0xffe7d2, envMapIntensity: 0.25
-  });
-  materials.metal = new THREE.MeshStandardMaterial({
-    map: textures.metalSet?.map || textures.metal,
-    normalMap: textures.metalSet?.normalMap || textures.normalRough,
-    roughnessMap: textures.metalSet?.roughnessMap,
-    metalnessMap: textures.metalSet?.metalnessMap,
-    normalScale: new THREE.Vector2(0.26, 0.26),
-    roughness: textures.metalSet?.roughness ?? 0.58,
-    metalness: textures.metalSet?.metalness ?? 0.28,
-    color: 0xd2d5ce, envMapIntensity: 0.55
-  });
-  materials.darkMetal = new THREE.MeshStandardMaterial({ color: 0x333338, roughness: 0.72, metalness: 0.18, envMapIntensity: 0.45 });
-  materials.redMetal = new THREE.MeshStandardMaterial({ color: 0x7a2d25, emissive: 0x180300, emissiveIntensity: 0.08, roughness: 0.74, metalness: 0.12, envMapIntensity: 0.35 });
-  materials.obsidian = new THREE.MeshStandardMaterial({ color: 0x17131a, emissive: 0x0c0206, emissiveIntensity: 0.06, roughness: 0.82, metalness: 0.04, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.22, 0.22), envMapIntensity: 0.28 });
-  materials.runeMetal = new THREE.MeshStandardMaterial({
-    map: textures.runeSet?.map || textures.rune || textures.metal,
-    normalMap: textures.runeSet?.normalMap || textures.normalRough,
-    roughnessMap: textures.runeSet?.roughnessMap,
-    metalnessMap: textures.runeSet?.metalnessMap,
-    color: 0xd1f2ff, emissive: 0x042236, emissiveIntensity: 0.16,
-    roughness: textures.runeSet?.roughness ?? 0.62,
-    metalness: textures.runeSet?.metalness ?? 0.18,
-    normalScale: new THREE.Vector2(0.18, 0.18), envMapIntensity: 0.48
-  });
-  materials.catwalk = new THREE.MeshStandardMaterial({
-    map: textures.catwalkSet?.map || textures.runeSet?.map || textures.rune || textures.metal,
-    normalMap: textures.catwalkSet?.normalMap || textures.runeSet?.normalMap || textures.normalRough,
-    roughnessMap: textures.catwalkSet?.roughnessMap,
-    metalnessMap: textures.catwalkSet?.metalnessMap,
-    color: 0xe7f7ff,
-    emissive: 0x021b24,
-    emissiveIntensity: 0.08,
-    roughness: textures.catwalkSet?.roughness ?? 0.62,
-    metalness: textures.catwalkSet?.metalness ?? 0.65,
-    normalScale: new THREE.Vector2(0.16, 0.16),
-    envMapIntensity: 0.68
-  });
-  materials.bone = new THREE.MeshStandardMaterial({ color: 0xd1b287, roughness: 0.64, metalness: 0.03, normalMap: textures.normalRough, normalScale: new THREE.Vector2(0.1, 0.1) });
-  materials.enemyArmor = new THREE.MeshStandardMaterial({ color: 0x1a1b20, emissive: 0x210407, emissiveIntensity: 0.2, roughness: 0.36, metalness: 0.75 });
-  materials.orangeGlow = new THREE.MeshStandardMaterial({ color: 0xff7430, emissive: 0xff4a10, emissiveIntensity: 1.15, roughness: 0.35 });
-  materials.blueGlow = new THREE.MeshStandardMaterial({ color: 0x8ee7ff, emissive: 0x23bdff, emissiveIntensity: 1.35, roughness: 0.18 });
-  materials.greenGlow = new THREE.MeshStandardMaterial({ color: 0x8cff5e, emissive: 0x38ff20, emissiveIntensity: 1.55, roughness: 0.2 });
-  materials.purpleGlow = new THREE.MeshStandardMaterial({ color: 0xd096ff, emissive: 0x9e3dff, emissiveIntensity: 1.2, roughness: 0.18 });
-  materials.blood = new THREE.MeshBasicMaterial({ color: 0x5d0702, transparent: true, opacity: 0.7, depthWrite: false });
-  materials.health = new THREE.MeshStandardMaterial({ color: 0x43fff2, emissive: 0x18d7ff, emissiveIntensity: 1.15, roughness: 0.18, metalness: 0.08 });
-  materials.healthDark = new THREE.MeshStandardMaterial({ color: 0x073942, emissive: 0x0c8fa0, emissiveIntensity: 0.55, roughness: 0.34, metalness: 0.18 });
-  materials.armor = new THREE.MeshStandardMaterial({ color: 0x4d6f2f, emissive: 0x315f18, emissiveIntensity: 0.75, roughness: 0.36, metalness: 0.36 });
-  materials.armorDark = new THREE.MeshStandardMaterial({ color: 0x1d2e16, roughness: 0.52, metalness: 0.42 });
-  materials.ammo = new THREE.MeshStandardMaterial({ color: 0xff8b24, emissive: 0xff5e00, emissiveIntensity: 1.0, roughness: 0.28, metalness: 0.42 });
-  materials.ammoDark = new THREE.MeshStandardMaterial({ color: 0x3b1a09, emissive: 0x522000, emissiveIntensity: 0.25, roughness: 0.52, metalness: 0.35 });
-  materials.pickupWhite = new THREE.MeshStandardMaterial({ color: 0xfaffd6, emissive: 0xb6ffca, emissiveIntensity: 0.45, roughness: 0.24, metalness: 0.14 });
-  materials.runeGlass = new THREE.MeshStandardMaterial({ color: 0x13232b, emissive: 0x0b8fc8, emissiveIntensity: 0.85, roughness: 0.22, metalness: 0.38, transparent: true, opacity: 0.72, depthWrite: false });
 
   // Shared geometry cuts allocation churn during firefights and helps avoid periodic GC hitches.
   sharedGeometries.particle = new THREE.SphereGeometry(1, 6, 4);
@@ -1500,29 +1388,22 @@ async function initMaterials() {
   sharedGeometries.pickupHalo = new THREE.TorusGeometry(0.31, 0.018, 8, 28);
   sharedGeometries.pickupSmallHalo = new THREE.TorusGeometry(0.20, 0.014, 8, 20);
   sharedGeometries.missile = THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.07, 0.28, 4, 8) : new THREE.SphereGeometry(0.12, 8, 8);
-
-  lavaMaterial = new THREE.ShaderMaterial({
-    uniforms: { time: { value: 0 }, pulse: { value: 1 } },
-    vertexShader: `varying vec2 vUv; void main(){ vUv=uv; vec3 p=position; p.y += sin((position.x+position.z)*0.7)*0.035; gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0); }`,
-    fragmentShader: `varying vec2 vUv; uniform float time; uniform float pulse;
-      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
-      float noise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); float a=hash(i), b=hash(i+vec2(1.,0.)), c=hash(i+vec2(0.,1.)), d=hash(i+vec2(1.,1.)); vec2 u=f*f*(3.-2.*f); return mix(a,b,u.x)+(c-a)*u.y*(1.-u.x)+(d-b)*u.x*u.y; }
-      void main(){ vec2 uv=vUv*5.0; float n=noise(uv+vec2(time*.55,-time*.25))*0.65 + noise(uv*2.2-vec2(time*.15,time*.45))*0.35; float veins=smoothstep(.48,.88,n); vec3 c=mix(vec3(.18,.025,.005), vec3(1.0,.28,.04), veins); c += vec3(1.0,.75,.25)*pow(veins,4.0)*1.25; gl_FragColor=vec4(c*pulse, .92); }`,
-    transparent: true,
-    depthWrite: false
-  });
+  lavaMaterial = levelLibrary.lavaMaterial;
 }
-
 function initScene() {
-  scene.background = textures.sky || new THREE.Color(0x0d0a0b);
   if (!textures.environment) {
     const fallbackEnvironment = createFallbackEnvironmentTexture();
     textures.fallbackEnvironment = fallbackEnvironment;
     textures.environment = createPmremEnvironment(fallbackEnvironment);
   }
-  scene.environment = textures.environment || textures.sky || textures.fallbackEnvironment || null;
-  if ('backgroundIntensity' in scene) scene.backgroundIntensity = cinematicMode ? 0.92 : 0.82;
-  if ('environmentIntensity' in scene) scene.environmentIntensity = cinematicMode ? 0.86 : 0.65;
+  applySceneEnvironment(scene, {
+    background: textures.sky,
+    environment: textures.environment || textures.sky || textures.fallbackEnvironment,
+    backgroundIntensity: cinematicMode ? GAME_RENDER_PIPELINE.backgroundIntensity : GAME_RENDER_PIPELINE.gameplayBackgroundIntensity,
+    environmentIntensity: cinematicMode ? GAME_RENDER_PIPELINE.environmentIntensity : GAME_RENDER_PIPELINE.gameplayEnvironmentIntensity
+  });
+
+  if (envOnlyMode) return;
 
   const hemi = new THREE.HemisphereLight(0x9fbad4, 0x2b120a, 0.36);
   scene.add(hemi);
@@ -2062,6 +1943,7 @@ class FlashLightPool {
     this.capacity = capacity;
     this.next = 0;
     this.items = [];
+    if (envOnlyMode) return;
     for (let i = 0; i < capacity; i++) {
       const light = new THREE.PointLight(0xffffff, 0, 6, 2);
       light.visible = true;
@@ -2072,6 +1954,7 @@ class FlashLightPool {
     }
   }
   flash(pos, color, intensity, life, distance = 7) {
+    if (!this.items.length) return;
     const item = this.items[this.next];
     this.next = (this.next + 1) % this.capacity;
     item.light.color.setHex(color);
@@ -2338,12 +2221,15 @@ function addBlock(name, cx, topY, cz, sx, h, sz, mat, opts = {}) {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.name = name;
   mesh.position.set(cx, topY - h / 2, cz);
+  mesh.rotation.y = opts.rotationY || 0;
   mesh.castShadow = opts.cast !== false;
   mesh.receiveShadow = opts.receive !== false;
   scene.add(mesh);
   if (opts.edges !== false) addEdges(mesh, opts.edgeColor || 0xff6a24, opts.edgeOpacity ?? 0.12);
 
+  const rotationY = opts.rotationY || 0;
   const box = { name, min: { x: cx - sx / 2, y: topY - h, z: cz - sz / 2 }, max: { x: cx + sx / 2, y: topY, z: cz + sz / 2 }, mesh, step: !!opts.step, sx, h, sz };
+  if (Math.abs(rotationY) > 1e-6) configureOrientedBox(box, cx, topY - h / 2, cz, sx, h, sz, rotationY);
   mesh.userData.box = box;
   if (opts.collide !== false) world.boxes.push(box);
   if (opts.walk !== false) {
@@ -2352,6 +2238,65 @@ function addBlock(name, cx, topY, cz, sx, h, sz, mat, opts = {}) {
     world.floors.push(floor);
   }
   return mesh;
+}
+
+function configureOrientedBox(box, cx, cy, cz, sx, h, sz, rotationY) {
+  const hx = sx * 0.5;
+  const hy = h * 0.5;
+  const hz = sz * 0.5;
+  const c = Math.cos(rotationY);
+  const s = Math.sin(rotationY);
+  box.oriented = true;
+  box.center = { x: cx, y: cy, z: cz };
+  box.half = { x: hx, y: hy, z: hz };
+  box.rotationY = rotationY;
+  box.cos = c;
+  box.sin = s;
+  const ax = Math.abs(c) * hx + Math.abs(s) * hz;
+  const az = Math.abs(s) * hx + Math.abs(c) * hz;
+  box.min = { x: cx - ax, y: cy - hy, z: cz - az };
+  box.max = { x: cx + ax, y: cy + hy, z: cz + az };
+}
+
+function worldToBoxLocal2(box, x, z) {
+  const dx = x - box.center.x;
+  const dz = z - box.center.z;
+  return {
+    x: dx * box.cos - dz * box.sin,
+    z: dx * box.sin + dz * box.cos
+  };
+}
+
+function boxLocalToWorldVector2(box, x, z) {
+  return {
+    x: x * box.cos + z * box.sin,
+    z: -x * box.sin + z * box.cos
+  };
+}
+
+function boxContainsHorizontal(box, x, z, radius = 0) {
+  if (!box.oriented) {
+    return x + radius > box.min.x && x - radius < box.max.x && z + radius > box.min.z && z - radius < box.max.z;
+  }
+  const local = worldToBoxLocal2(box, x, z);
+  return Math.abs(local.x) <= box.half.x + radius && Math.abs(local.z) <= box.half.z + radius;
+}
+
+function resolveOrientedHorizontal(box) {
+  const local = worldToBoxLocal2(box, player.pos.x, player.pos.z);
+  const px = box.half.x + player.radius - Math.abs(local.x);
+  const pz = box.half.z + player.radius - Math.abs(local.z);
+  if (px <= 0 || pz <= 0) return false;
+  let pushLocalX = 0;
+  let pushLocalZ = 0;
+  if (px < pz) pushLocalX = (local.x >= 0 ? 1 : -1) * px;
+  else pushLocalZ = (local.z >= 0 ? 1 : -1) * pz;
+  const push = boxLocalToWorldVector2(box, pushLocalX, pushLocalZ);
+  player.pos.x += push.x + Math.sign(push.x || 0) * 0.001;
+  player.pos.z += push.z + Math.sign(push.z || 0) * 0.001;
+  if (Math.abs(push.x) >= Math.abs(push.z)) player.vel.x = 0;
+  else player.vel.z = 0;
+  return true;
 }
 
 function addFloorPlate(name, cx, y, cz, sx, sz, mat = materials.floor, opts = {}) {
@@ -2372,23 +2317,32 @@ function addCylinder(name, pos, radius, height, mat, radial = 24, opts = {}) {
 }
 
 function addTorch(x, y, z, color = 0xff5a18, intensity = 2.2, dist = 13) {
-  const light = new THREE.PointLight(color, intensity, dist, 2.0);
-  light.position.set(x, y, z);
-  light.castShadow = intensity > 1.7;
-  if (light.castShadow) {
-    light.shadow.mapSize.set(512, 512);
-    light.shadow.camera.near = 0.5;
-    light.shadow.camera.far = dist + 2;
-    light.shadow.bias = -0.00018;
-    light.shadow.normalBias = 0.035;
+  let light = null;
+  if (!envOnlyMode) {
+    light = new THREE.PointLight(color, intensity, dist, 2.0);
+    light.position.set(x, y, z);
+    light.castShadow = intensity > 1.7;
+    if (light.castShadow) {
+      light.shadow.mapSize.set(512, 512);
+      light.shadow.camera.near = 0.5;
+      light.shadow.camera.far = dist + 2;
+      light.shadow.bias = -0.00018;
+      light.shadow.normalBias = 0.035;
+    }
+    scene.add(light);
+    world.lights.push(light);
   }
-  scene.add(light);
-  world.lights.push(light);
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 2), materials.orangeGlow);
-  core.position.set(x, y, z);
-  core.castShadow = false;
-  scene.add(core);
-  world.decorations.push({ mesh: core, spin: rand(-1.5, 1.5), bob: rand(0, 10) });
+  const visual = addEnvironmentPrefabVisual('hell-torch', 'hell-torch-runtime', tmpV1.set(x, y - 2.15, z), {
+    scaleTo: [0.9, 2.4, 0.9],
+    decorate: true
+  });
+  if (!visual) {
+    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.28, 2), materials.orangeGlow);
+    core.position.set(x, y, z);
+    core.castShadow = false;
+    scene.add(core);
+    world.decorations.push({ mesh: core, spin: rand(-1.5, 1.5), bob: rand(0, 10) });
+  }
   return light;
 }
 
@@ -2404,6 +2358,106 @@ function addRuneGlassPanel(name, cx, topY, cz, sx, sz, rot = 0) {
 
 function addSlab(name, cx, topY, cz, sx, sz, mat = materials.floor, opts = {}) {
   return addBlock(name, cx, topY, cz, sx, opts.thickness ?? 0.34, sz, mat, { ...opts, collide: true, walk: true, receive: true });
+}
+
+function cloneEnvironmentPrefab(id) {
+  const asset = environmentAssets[id];
+  if (!asset?.scene || !asset.size) return null;
+  const visual = asset.scene.clone(true);
+  visual.traverse((child) => {
+    child.frustumCulled = false;
+    if (child.isMesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    }
+  });
+  return visual;
+}
+
+function addEnvironmentPrefabVisual(id, name, pos, opts = {}) {
+  const asset = environmentAssets[id];
+  const visual = cloneEnvironmentPrefab(id);
+  if (!visual || !asset?.size) return null;
+  visual.name = name;
+  if (opts.scaleTo) {
+    visual.scale.set(
+      opts.scaleTo[0] / Math.max(0.001, asset.size.x),
+      opts.scaleTo[1] / Math.max(0.001, asset.size.y),
+      opts.scaleTo[2] / Math.max(0.001, asset.size.z)
+    );
+  } else if (opts.fitFootprint) {
+    const scale = Math.max(
+      opts.fitFootprint[0] / Math.max(0.001, asset.size.x),
+      opts.fitFootprint[1] / Math.max(0.001, asset.size.z)
+    ) * (opts.scaleBoost ?? 1);
+    visual.scale.setScalar(scale);
+  } else {
+    visual.scale.setScalar(opts.scale ?? 1);
+  }
+  visual.position.copy(pos);
+  const rotation = opts.rotation || [0, 0, 0];
+  visual.rotation.set(rotation[0] || 0, rotation[1] || 0, rotation[2] || 0);
+  if (opts.parent) opts.parent.add(visual);
+  else scene.add(visual);
+  if (opts.decorate !== false && !opts.parent) world.decorations.push({ mesh: visual });
+  return visual;
+}
+
+function environmentPrefabConfig(id) {
+  const asset = environmentAssets[id];
+  const manifest = asset?.manifest || {};
+  const prefab = manifest.prefab || null;
+  const collision = prefab?.collision || manifest.collision || {};
+  const size = collision.size || [asset?.size?.x || 1, asset?.size?.y || 1, asset?.size?.z || 1];
+  const center = collision.center || [0, -size[1] * 0.5, 0];
+  return {
+    prefab,
+    collision,
+    visual: prefab?.visual || manifest.placement || {},
+    size,
+    center,
+    localTop: center[1] + size[1] * 0.5
+  };
+}
+
+function addLevelEnvironmentPrefabVisual(id, name, pos, opts = {}) {
+  const config = environmentPrefabConfig(id);
+  const visual = addEnvironmentPrefabVisual(id, name, ZERO, {
+    scale: config.visual.scale ?? 1,
+    rotation: config.visual.rotation || [config.visual.rotationX ?? 0, config.visual.rotationY ?? 0, config.visual.rotationZ ?? 0],
+    parent: opts.parent,
+    decorate: opts.decorate
+  });
+  if (!visual) return null;
+  const visualPos = config.visual.position || [config.visual.x ?? 0, config.visual.y ?? 0, config.visual.z ?? 0];
+  visual.position.set(
+    pos.x + (visualPos[0] || 0),
+    pos.y - config.localTop + (visualPos[1] || 0),
+    pos.z + (visualPos[2] || 0)
+  );
+  visual.rotation.y += opts.rotationY || 0;
+  return visual;
+}
+
+function addRuntimeSlabPrefab(id, name, cx, topY, cz, sx, sz, mat, opts = {}) {
+  const h = opts.thickness ?? environmentAssets[id]?.manifest?.prefab?.collision?.size?.[1] ?? 0.34;
+  const slab = addSlab(name, cx, topY, cz, sx, sz, mat, { ...opts, thickness: h });
+  const visual = addLevelEnvironmentPrefabVisual(id, `${name}-${id}`, tmpV1.set(cx, topY, cz), {
+    rotationY: opts.rotationY || 0,
+    decorate: true
+  });
+  if (visual) slab.visible = false;
+  return slab;
+}
+
+function addRuntimeBoxPrefab(id, name, cx, topY, cz, sx, h, sz, mat, opts = {}) {
+  const block = addBlock(name, cx, topY, cz, sx, h, sz, mat, opts);
+  const visual = addLevelEnvironmentPrefabVisual(id, `${name}-${id}`, tmpV1.set(cx, topY, cz), {
+    rotationY: opts.rotationY || 0,
+    decorate: true
+  });
+  if (visual) block.visible = false;
+  return block;
 }
 
 function addFloatingHellPlatformVisual(name, cx, y, cz, sx, sz, opts = {}) {
@@ -2430,20 +2484,7 @@ function addFloatingHellPlatformVisual(name, cx, y, cz, sx, sz, opts = {}) {
 }
 
 function floatingHellPlatformConfig() {
-  const manifest = environmentAssets.floatingHellPlatform?.manifest || {};
-  const prefab = manifest.prefab || null;
-  const collision = prefab?.collision || manifest.collision || {};
-  const visual = prefab?.visual || manifest.placement || {};
-  const size = collision.size || [7.4, 0.72, 7.4];
-  const center = collision.center || [0, -size[1] * 0.5, 0];
-  return {
-    prefab,
-    collision,
-    visual,
-    size,
-    center,
-    localTop: center[1] + size[1] * 0.5
-  };
+  return environmentPrefabConfig('floating-hell-platform');
 }
 
 function addFloatingHellPlatformInstance(name, x, topY, z, opts = {}) {
@@ -2484,6 +2525,14 @@ function addFloatingHellPlatformInstance(name, x, topY, z, opts = {}) {
 
 function addMovingPlatform(name, cx, topY, cz, sx, sz, mat, opts = {}) {
   const mesh = addSlab(name, cx, topY, cz, sx, sz, mat, { ...opts, edgeColor: opts.edgeColor || 0x76f4ff, edgeOpacity: opts.edgeOpacity ?? 0.28 });
+  if (opts.prefab) {
+    const visual = addLevelEnvironmentPrefabVisual(opts.prefab, `${name}-${opts.prefab}`, tmpV1.set(0, mesh.userData.box.h * 0.5, 0), {
+      parent: mesh,
+      rotationY: opts.rotationY || 0,
+      decorate: false
+    });
+    if (visual) mesh.visible = false;
+  }
   const box = mesh.userData.box;
   world.movers.push({
     name, mesh, box, floor: box.floor, base: new THREE.Vector3(cx, topY, cz),
@@ -2523,7 +2572,276 @@ function addRibArch(x, z, rot = 0) {
   world.decorations.push({ mesh: group });
 }
 
+function levelMaterial(id, fallback = materials.floor) {
+  return materials[id] || fallback || materials.default;
+}
+
+function vec3FromArray(value, fallback = [0, 0, 0]) {
+  const v = Array.isArray(value) ? value : fallback;
+  return new THREE.Vector3(Number(v[0] || 0), Number(v[1] || 0), Number(v[2] || 0));
+}
+
+function levelArray3(value, fallback = [0, 0, 0]) {
+  const v = Array.isArray(value) ? value : fallback;
+  return [Number(v[0] || 0), Number(v[1] || 0), Number(v[2] || 0)];
+}
+
+function addLevelEnvironmentInstance(item, { visual = true } = {}) {
+  const pos = levelArray3(item.position, [0, 0, 0]);
+  const rot = levelArray3(item.rotation, [0, item.rotationY || 0, 0]);
+  const scale = levelArray3(item.scale, [1, 1, 1]);
+  const config = environmentPrefabConfig(item.asset);
+  const baseSize = levelArray3(config.size, [4, 0.34, 4]);
+  const sx = Math.max(0.05, baseSize[0] * scale[0]);
+  const h = Math.max(0.05, baseSize[1] * scale[1]);
+  const sz = Math.max(0.05, baseSize[2] * scale[2]);
+  const options = {
+    ...(item.options || {}),
+    rotationY: rot[1],
+    thickness: h
+  };
+  const name = item.name || item.asset || 'environment-instance';
+  if (item.moving) {
+    addMovingPlatform(name, pos[0], pos[1], pos[2], sx, sz, levelMaterial(item.material, materials.metal), {
+      ...options,
+      ...item.moving,
+      prefab: item.asset
+    });
+    return;
+  }
+  if (item.asset === 'floating-hell-platform') {
+    if (!visual) {
+      const slab = addSlab(name, pos[0], pos[1], pos[2], sx, sz, levelMaterial(item.material, materials.obsidian), options);
+      slab.visible = false;
+      return;
+    }
+    addFloatingHellPlatformInstance(name, pos[0], pos[1], pos[2], {
+      ...options,
+      scale: scale[0],
+      width: baseSize[0],
+      depth: baseSize[2]
+    });
+    return;
+  }
+  if (item.collisionKind === 'box') {
+    if (!visual) {
+      const block = addBlock(name, pos[0], pos[1], pos[2], sx, h, sz, levelMaterial(item.material, materials.wall), options);
+      block.visible = false;
+      return;
+    }
+    addRuntimeBoxPrefab(item.asset, name, pos[0], pos[1], pos[2], sx, h, sz, levelMaterial(item.material, materials.wall), options);
+    return;
+  }
+  if (!visual) {
+    const slab = addSlab(name, pos[0], pos[1], pos[2], sx, sz, levelMaterial(item.material, materials.catwalk), options);
+    slab.visible = false;
+    return;
+  }
+  addRuntimeSlabPrefab(item.asset, name, pos[0], pos[1], pos[2], sx, sz, levelMaterial(item.material, materials.catwalk), options);
+}
+
+function addGeneratedLevelInstance(item, { visual = true } = {}) {
+  const pos = levelArray3(item.position, [0, 0, 0]);
+  const rot = levelArray3(item.rotation, [0, item.rotationY || 0, 0]);
+  const scale = levelArray3(item.scale, [1, 1, 1]);
+  const baseSize = levelArray3(item.collisionSize, [4, 0.34, 4]);
+  const sx = Math.max(0.05, baseSize[0] * scale[0]);
+  const h = Math.max(0.05, baseSize[1] * scale[1]);
+  const sz = Math.max(0.05, baseSize[2] * scale[2]);
+  const options = { ...(item.options || {}), rotationY: rot[1] };
+  const name = item.name || item.geometry || item.collisionKind || 'level-instance';
+
+  if (item.collisionKind === 'lava' || item.gameplay?.damage === 'lava') {
+    const geo = new THREE.PlaneGeometry(sx, sz, Math.max(2, Math.floor(sx)), Math.max(2, Math.floor(sz)));
+    const mesh = new THREE.Mesh(geo, lavaMaterial || levelMaterial(item.material, materials.default));
+    mesh.name = name;
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(pos[0], pos[1], pos[2]);
+    mesh.visible = visual;
+    scene.add(mesh);
+    const trench = visual ? addEnvironmentPrefabVisual('lava-trench-module', `${name}-lava-trench-module`, tmpV1.set(pos[0], item.visualY ?? pos[1] - 0.01, pos[2]), {
+      scaleTo: [sx, item.visualHeight ?? Math.max(0.08, h), sz],
+      decorate: true
+    }) : null;
+    if (trench) mesh.visible = false;
+    world.lavaPlanes.push({ mesh, minX: pos[0] - sx / 2, maxX: pos[0] + sx / 2, minZ: pos[2] - sz / 2, maxZ: pos[2] + sz / 2 });
+    return mesh;
+  }
+
+  if (item.collisionKind === 'visual' || options.collide === false && options.walk === false) {
+    if (!visual) return null;
+    const geo = new THREE.BoxGeometry(sx, h, sz);
+    const mesh = new THREE.Mesh(geo, levelMaterial(item.material, materials.default));
+    mesh.name = name;
+    mesh.position.set(pos[0], pos[1] - h * 0.5, pos[2]);
+    mesh.rotation.set(rot[0], rot[1], rot[2]);
+    mesh.castShadow = options.cast !== false;
+    mesh.receiveShadow = options.receive !== false;
+    scene.add(mesh);
+    return mesh;
+  }
+
+  const mat = levelMaterial(item.material, materials.default);
+  const mesh = addBlock(name, pos[0], pos[1], pos[2], sx, h, sz, mat, {
+    ...options,
+    collide: options.collide ?? item.collisionKind !== 'floor',
+    walk: options.walk ?? true
+  });
+  if (!visual) mesh.visible = false;
+  return mesh;
+}
+
+function applyLevelManifest(manifest) {
+  if (!manifest || manifest.schema !== 'hellrush-level-v1') return false;
+  const level = manifest.level || {};
+  world.bounds = Number(level.bounds ?? 44);
+  world.mapScale = Number(level.mapScale ?? world.bounds * 2 + 4);
+  if (Array.isArray(level.playerStart)) player.pos.copy(vec3FromArray(level.playerStart, [0, 0.05, 11]));
+
+  const canonicalInstances = collectLevelInstances(level, { includeLegacy: false });
+  scene.userData.levelInstanceCount = canonicalInstances.length;
+  if (canonicalInstances.length) {
+    const staticVisualInstances = [];
+    for (const item of canonicalInstances) {
+      if (item.asset && environmentAssets[item.asset]?.scene) {
+        if (item.moving) addLevelEnvironmentInstance(item, { visual: true });
+        else {
+          addLevelEnvironmentInstance(item, { visual: false });
+          staticVisualInstances.push(item);
+        }
+      } else {
+        addGeneratedLevelInstance(item, { visual: true });
+      }
+    }
+    if (staticVisualInstances.length) {
+      const instanced = createInstancedEnvironmentVisuals(staticVisualInstances, environmentAssets, { mode: 'full' });
+      scene.add(instanced.root);
+      world.decorations.push({ mesh: instanced.root });
+    }
+  } else {
+  for (const item of level.floorPlates || []) {
+    addFloorPlate(item.name || 'floor-plate', item.cx || 0, item.topY ?? 0, item.cz || 0, item.sx || 8, item.sz || 8, levelMaterial(item.material, materials.floor), item.options || {});
+  }
+  for (const item of level.blocks || []) {
+    addBlock(item.name || 'block', item.cx || 0, item.topY || 1, item.cz || 0, item.sx || 1, item.h || 1, item.sz || 1, levelMaterial(item.material, materials.wall), item.options || {});
+  }
+  for (const item of level.lavaStrips || []) {
+    const sx = item.sx || 8;
+    const sz = item.sz || 3;
+    const cx = item.cx || 0;
+    const cz = item.cz || 0;
+    const geo = new THREE.PlaneGeometry(sx, sz, Math.max(2, Math.floor(sx)), Math.max(2, Math.floor(sz)));
+    const mesh = new THREE.Mesh(geo, lavaMaterial);
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.position.set(cx, item.y ?? 0.045, cz);
+    scene.add(mesh);
+    const trench = addEnvironmentPrefabVisual('lava-trench-module', item.name || 'lava-trench-module', tmpV1.set(cx, item.visualY ?? 0.035, cz), {
+      scaleTo: [sx, item.visualHeight ?? 0.16, sz],
+      decorate: true
+    });
+    if (trench) mesh.visible = false;
+    world.lavaPlanes.push({ mesh, minX: cx - sx / 2, maxX: cx + sx / 2, minZ: cz - sz / 2, maxZ: cz + sz / 2 });
+  }
+  for (const item of level.slabs || []) {
+    const options = { ...(item.options || {}) };
+    if (item.h != null && options.thickness == null) options.thickness = item.h;
+    addSlab(item.name || 'slab', item.cx || 0, item.topY || 1, item.cz || 0, item.sx || 4, item.sz || 4, levelMaterial(item.material, materials.floor), options);
+  }
+  const environmentInstances = collectEnvironmentInstances(level, { includeLegacy: false });
+  if (environmentInstances.length) {
+    for (const item of environmentInstances) addLevelEnvironmentInstance(item, { visual: false });
+    const instanced = createInstancedEnvironmentVisuals(environmentInstances, environmentAssets, { mode: 'full' });
+    scene.add(instanced.root);
+    world.decorations.push({ mesh: instanced.root });
+  } else {
+    for (const item of level.runtimeSlabs || []) {
+      const options = { ...(item.options || {}) };
+      if (item.h != null && options.thickness == null) options.thickness = item.h;
+      addRuntimeSlabPrefab(item.asset, item.name || item.asset || 'runtime-slab', item.cx || 0, item.topY || 1, item.cz || 0, item.sx || 4, item.sz || 4, levelMaterial(item.material, materials.catwalk), options);
+    }
+    for (const item of level.runtimeBoxes || []) {
+      addRuntimeBoxPrefab(item.asset, item.name || item.asset || 'runtime-box', item.cx || 0, item.topY || 1, item.cz || 0, item.sx || 2, item.h || 1, item.sz || 2, levelMaterial(item.material, materials.wall), item.options || {});
+    }
+  }
+  for (const item of level.runePillars || []) {
+    const pos = vec3FromArray(item.position, [0, 2.35, 0]);
+    const radius = item.radius ?? 0.9;
+    const height = item.height ?? 4.7;
+    const cyl = addCylinder(item.name || 'rune-pillar', pos, radius, height, levelMaterial(item.material, materials.obsidian), item.radial || 8, item.options || { edges: true, edgeColor: 0x913dff });
+    const visual = addEnvironmentPrefabVisual('rune-pillar', `${item.name || 'rune-pillar'}-runtime`, tmpV1.set(pos.x, 0, pos.z), { scaleTo: [radius * 2.1, height, radius * 2.1] });
+    if (visual) cyl.visible = false;
+    world.boxes.push({ name: `${item.name || 'rune-pillar'}-collider`, min: { x: pos.x - radius, y: 0, z: pos.z - radius }, max: { x: pos.x + radius, y: height, z: pos.z + radius }, mesh: cyl });
+  }
+  for (const item of level.glassPanels || []) {
+    addRuneGlassPanel(item.name || 'rune-glass', item.cx || 0, item.topY || 4, item.cz || 0, item.sx || 8, item.sz || 3, item.rotationY || 0);
+  }
+  if (!environmentInstances.length) {
+    for (const item of level.floatingPlatforms || []) {
+      addFloatingHellPlatformInstance(item.name || 'floating-platform', item.x || 0, item.topY || 4, item.z || 0, item.options || {});
+    }
+    for (const item of level.movingPlatforms || []) {
+      const options = { ...(item.options || {}) };
+      if (item.h != null && options.thickness == null) options.thickness = item.h;
+      addMovingPlatform(item.name || 'moving-platform', item.cx || 0, item.topY || 2, item.cz || 0, item.sx || 4, item.sz || 4, levelMaterial(item.material, materials.metal), options);
+    }
+  }
+  }
+  if (!canonicalInstances.length) {
+    for (const item of level.stairRuns || []) {
+      const count = item.count || 0;
+      for (let i = 0; i < count; i++) {
+        const top = (item.topStart || 0.4) + i * (item.topStep || 0.4);
+        addBlock(`${item.name || 'stair'}-${i}`, (item.cxStart || 0) + i * (item.cxStep || 0), top, (item.czStart || 0) + i * (item.czStep || 0), item.sx || 1, top, item.sz || 1, levelMaterial(item.material, materials.darkMetal), item.options || { step: true, edgeOpacity: 0.13 });
+      }
+    }
+  }
+  for (const item of level.jumpPads || []) {
+    addJumpPad(vec3FromArray(item.position, [0, 0.18, 0]), vec3FromArray(item.boost, [0, 12, 0]), item.label || 'jump pad');
+  }
+  for (const item of level.hookNodes || []) {
+    addHookNode(vec3FromArray(item.position, [0, 5, 0]), item.label || 'hook node');
+  }
+  for (const item of level.spawnPoints || []) {
+    world.spawnPoints.push(vec3FromArray(item.position || item, [0, 0, 0]));
+  }
+  for (const item of level.rails || []) {
+    addRail(vec3FromArray(item.a), vec3FromArray(item.b), levelMaterial(item.material, materials.blueGlow));
+  }
+  for (const item of level.torches || []) {
+    const pos = vec3FromArray(item.position, [0, 4, 0]);
+    addTorch(pos.x, pos.y, pos.z, item.color ?? 0xff5a18, item.intensity ?? 1.55, item.distance ?? 13);
+  }
+  for (const item of level.distantSpires || []) {
+    addDistantSpire(item.x || 0, item.z || 0, item.height || 14, item.radius || 1, item.color ?? 0x08070a);
+  }
+  for (const item of level.ribArches || []) {
+    addRibArch(item.x || 0, item.z || 0, item.rotationY || 0);
+  }
+  for (const item of level.pickups || []) {
+    spawnPickup(item.type || 'ammo', vec3FromArray(item.position, [0, 1, 0]), item.amount ?? 1, item.burst ?? false);
+  }
+  return true;
+}
+
 function createLevel() {
+  if (applyLevelManifest(activeLevelManifest)) return;
+  createHardcodedLevel();
+}
+
+function spawnLevelStartPickups() {
+  const configured = activeLevelManifest?.level?.pickups;
+  if (Array.isArray(configured) && configured.length) {
+    for (const item of configured) {
+      spawnPickup(item.type || 'ammo', vec3FromArray(item.position, [0, 1, 0]), item.amount ?? 1, item.burst ?? false);
+    }
+    return;
+  }
+  spawnPickup('armor', new THREE.Vector3(-6.0, 3.65, 0), 14, false);
+  spawnPickup('health', new THREE.Vector3(6.0, 3.65, 0), 18, false);
+  spawnPickup('ammo', new THREE.Vector3(0, 6.55, -30), 26, false);
+}
+
+function createHardcodedLevel() {
   // Larger four-tier arena: ground, mid bridges, high balconies, and tiny crown platforms.
   // Slabs are thin walkable geometry instead of solid columns so the space stays open and readable.
   world.bounds = 44;
@@ -2547,6 +2865,11 @@ function createLevel() {
     mesh.rotation.x = -Math.PI / 2;
     mesh.position.set(l.cx, 0.045, l.cz);
     scene.add(mesh);
+    const trench = addEnvironmentPrefabVisual('lava-trench-module', 'lava-trench-module', tmpV1.set(l.cx, 0.035, l.cz), {
+      scaleTo: [l.sx, 0.16, l.sz],
+      decorate: true
+    });
+    if (trench) mesh.visible = false;
     world.lavaPlanes.push({ mesh, minX: l.cx - l.sx / 2, maxX: l.cx + l.sx / 2, minZ: l.cz - l.sz / 2, maxZ: l.cz + l.sz / 2 });
   }
   // Ground landmarks and soft cover: deliberately chunky, leaving long sightlines and dash lanes.
@@ -2556,20 +2879,22 @@ function createLevel() {
   addRuneGlassPanel('west-argent-glass', -34.5, 4.6, 0, 20, 4.2, Math.PI / 2);
   addRuneGlassPanel('east-argent-glass', 34.5, 4.6, 0, 20, 4.2, Math.PI / 2);
   for (const [x, z, sx, sz] of [[-25,-25,8,5],[25,25,8,5],[-25,25,5,8],[25,-25,5,8],[-28,0,4,10],[28,0,4,10],[0,-28,10,4],[0,28,10,4]]) {
-    addBlock('low-hell-cover', x, 1.18, z, sx, 1.18, sz, materials.wall, { edgeOpacity: 0.11 });
+    addRuntimeBoxPrefab('low-hell-cover', 'low-hell-cover', x, 1.18, z, sx, 1.18, sz, materials.wall, { edgeOpacity: 0.11 });
   }
   for (const [x, z] of [[-22,-12],[22,12],[-22,12],[22,-12],[-8,-26],[8,26]]) {
     const cyl = addCylinder('rune-pillar', new THREE.Vector3(x, 2.35, z), 0.9, 4.7, materials.obsidian, 8, { edges: true, edgeColor: 0x913dff });
+    const visual = addEnvironmentPrefabVisual('rune-pillar', 'rune-pillar-runtime', tmpV1.set(x, 0, z), { scaleTo: [1.9, 4.7, 1.9] });
+    if (visual) cyl.visible = false;
     world.boxes.push({ name: 'pillar-collider', min: { x: x - 0.95, y: 0, z: z - 0.95 }, max: { x: x + 0.95, y: 4.7, z: z + 0.95 }, mesh: cyl });
   }
 
   // Mid tier: four separate catwalk arms plus a center square. Keeping the
   // intersections split prevents z-fighting and keeps UVs consistent.
-  addSlab('mid-center-hub', 0, 3.2, 0, 6.2, 6.2, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
-  addSlab('mid-west-catwalk', -12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
-  addSlab('mid-east-catwalk', 12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
-  addSlab('mid-north-catwalk', 0, 3.2, -12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
-  addSlab('mid-south-catwalk', 0, 3.2, 12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12 });
+  addRuntimeSlabPrefab('catwalk-center-hub', 'mid-center-hub', 0, 3.2, 0, 6.2, 6.2, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12, thickness: 0.36 });
+  addRuntimeSlabPrefab('catwalk-straight-arm', 'mid-west-catwalk', -12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12, thickness: 0.36 });
+  addRuntimeSlabPrefab('catwalk-straight-arm', 'mid-east-catwalk', 12.65, 3.2, 0, 19.1, 5.4, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12, thickness: 0.36 });
+  addRuntimeSlabPrefab('catwalk-straight-arm', 'mid-north-catwalk', 0, 3.2, -12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12, thickness: 0.36, rotationY: Math.PI / 2 });
+  addRuntimeSlabPrefab('catwalk-straight-arm', 'mid-south-catwalk', 0, 3.2, 12.65, 5.4, 19.1, materials.catwalk, { edgeColor: 0x79d6ff, edgeOpacity: 0.24, tileSize: 12, thickness: 0.36, rotationY: Math.PI / 2 });
   addSlab('mid-nw-platform', -23, 3.05, -19, 13, 9, materials.metal, { edgeColor: 0xff934b });
   addSlab('mid-se-platform', 23, 3.05, 19, 13, 9, materials.metal, { edgeColor: 0xff934b });
   addSlab('mid-ne-platform', 23, 3.05, -19, 9, 13, materials.metal, { edgeColor: 0xff934b });
@@ -2597,10 +2922,10 @@ function createLevel() {
   addFloatingHellPlatformInstance('sky-se-island', 22, 11.45, 22, { rotationY: -0.24 });
 
   // Dynamic pieces: two vertical lifts and two sliding rune bridges create changing routes but never block the main loop.
-  addMovingPlatform('blood-lift-west', -27.5, 3.1, -7.0, 5.5, 5.5, materials.runeMetal, { axis: 'y', amp: 2.75, speed: 0.52, phase: 0.0 });
-  addMovingPlatform('blood-lift-east', 27.5, 3.1, 7.0, 5.5, 5.5, materials.runeMetal, { axis: 'y', amp: 2.75, speed: 0.52, phase: Math.PI });
-  addMovingPlatform('sliding-bridge-north', -6, 6.15, -23.5, 6.0, 4.2, materials.metal, { axis: 'x', amp: 6.0, speed: 0.34, phase: 1.2, edgeColor: 0x79d6ff });
-  addMovingPlatform('sliding-bridge-south', 6, 6.15, 23.5, 6.0, 4.2, materials.metal, { axis: 'x', amp: 6.0, speed: 0.34, phase: 4.0, edgeColor: 0x79d6ff });
+  addMovingPlatform('blood-lift-west', -27.5, 3.1, -7.0, 5.5, 5.5, materials.runeMetal, { axis: 'y', amp: 2.75, speed: 0.52, phase: 0.0, prefab: 'moving-lift' });
+  addMovingPlatform('blood-lift-east', 27.5, 3.1, 7.0, 5.5, 5.5, materials.runeMetal, { axis: 'y', amp: 2.75, speed: 0.52, phase: Math.PI, prefab: 'moving-lift' });
+  addMovingPlatform('sliding-bridge-north', -6, 6.15, -23.5, 6.0, 4.2, materials.metal, { axis: 'x', amp: 6.0, speed: 0.34, phase: 1.2, edgeColor: 0x79d6ff, prefab: 'sliding-bridge' });
+  addMovingPlatform('sliding-bridge-south', 6, 6.15, 23.5, 6.0, 4.2, materials.metal, { axis: 'x', amp: 6.0, speed: 0.34, phase: 4.0, edgeColor: 0x79d6ff, prefab: 'sliding-bridge' });
 
   // Stairs/ramp-like chunks for ergonomic baseline access to mid tier.
   const stairMat = materials.darkMetal;
@@ -2676,17 +3001,25 @@ function addRail(a, b, mat) {
 function addJumpPad(pos, boost, label) {
   const group = new THREE.Group();
   group.position.copy(pos);
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.25, 0.22, 32), materials.darkMetal);
-  base.castShadow = true; base.receiveShadow = true;
-  group.add(base);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.87, 0.06, 8, 32), materials.greenGlow);
-  ring.rotation.x = Math.PI / 2;
-  ring.position.y = 0.16;
-  group.add(ring);
-  const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.9, 4), materials.greenGlow);
-  arrow.rotation.x = Math.PI / 2;
-  arrow.position.set(0, 0.28, -0.26);
-  group.add(arrow);
+  const runtime = addEnvironmentPrefabVisual('jump-pad', 'jump-pad-runtime', ZERO, {
+    parent: group,
+    scaleTo: [2.7, 0.36, 2.7],
+    decorate: false
+  });
+  let ring = null;
+  if (!runtime) {
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.25, 0.22, 32), materials.darkMetal);
+    base.castShadow = true; base.receiveShadow = true;
+    group.add(base);
+    ring = new THREE.Mesh(new THREE.TorusGeometry(0.87, 0.06, 8, 32), materials.greenGlow);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.16;
+    group.add(ring);
+    const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.9, 4), materials.greenGlow);
+    arrow.rotation.x = Math.PI / 2;
+    arrow.position.set(0, 0.28, -0.26);
+    group.add(arrow);
+  }
   scene.add(group);
   const tunedBoost = boost.clone();
   tunedBoost.y *= 2.15;
@@ -2698,16 +3031,26 @@ function addJumpPad(pos, boost, label) {
 function addHookNode(pos, label) {
   const group = new THREE.Group();
   group.position.copy(pos);
-  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.46, 2), materials.purpleGlow);
-  const ringA = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.045, 8, 32), materials.blueGlow);
-  const ringB = ringA.clone();
-  ringA.rotation.x = Math.PI / 2;
-  ringB.rotation.y = Math.PI / 2;
-  group.add(core, ringA, ringB);
-  const light = new THREE.PointLight(0x8f52ff, 1.05, 7, 2);
-  group.add(light);
+  const runtime = addEnvironmentPrefabVisual('hook-node', 'hook-node-runtime', ZERO, {
+    parent: group,
+    scale: 1.1,
+    decorate: false
+  });
+  let core = null;
+  if (!runtime) {
+    core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.46, 2), materials.purpleGlow);
+    const ringA = new THREE.Mesh(new THREE.TorusGeometry(0.78, 0.045, 8, 32), materials.blueGlow);
+    const ringB = ringA.clone();
+    ringA.rotation.x = Math.PI / 2;
+    ringB.rotation.y = Math.PI / 2;
+    group.add(core, ringA, ringB);
+  }
+  if (!envOnlyMode) {
+    const light = new THREE.PointLight(0x8f52ff, 1.05, 7, 2);
+    group.add(light);
+  }
   scene.add(group);
-  world.hookNodes.push({ pos: pos.clone(), label, group, core, radius: 0.8, alive: true, isHookNode: true });
+  world.hookNodes.push({ pos: pos.clone(), label, group, core: core || runtime, radius: 0.8, alive: true, isHookNode: true });
 }
 
 function setProceduralWeaponVisible(group, visible) {
@@ -2888,11 +3231,13 @@ function createWeapons() {
   finisherSaw.position.set(-0.02, -0.10, -0.18);
   finisherSaw.rotation.set(-0.04, 0.14, -0.08);
   finisherGroup.add(finisherSaw);
-  finisherSpark = new THREE.PointLight(0xff5b18, 0, 3.5, 2);
-  finisherSpark.visible = true;
-  finisherSpark.castShadow = false;
-  finisherSpark.position.set(0, -0.02, -0.9);
-  finisherGroup.add(finisherSpark);
+  if (!envOnlyMode) {
+    finisherSpark = new THREE.PointLight(0xff5b18, 0, 3.5, 2);
+    finisherSpark.visible = true;
+    finisherSpark.castShadow = false;
+    finisherSpark.position.set(0, -0.02, -0.9);
+    finisherGroup.add(finisherSpark);
+  }
   parkFinisherVisual();
 }
 
@@ -2903,7 +3248,7 @@ function setupInput() {
   });
   document.addEventListener('pointerlockchange', () => {
     pausedByLock = document.pointerLockElement !== renderer.domElement;
-    if (running) dom.overlay.classList.toggle('hidden', !pausedByLock);
+    updatePauseIndicator();
     input.lookIgnore = 4;
     input.lastMoveDX = 0;
     input.lastMoveDY = 0;
@@ -2913,11 +3258,6 @@ function setupInput() {
       input.buttons.clear();
       input.fireHeld = false;
       input.altHeld = false;
-    }
-    if (running && pausedByLock) {
-      dom.overlay.querySelector('h1').textContent = 'Paused';
-      dom.overlay.querySelector('p').textContent = 'Click to lock mouse and continue.';
-      dom.startButton.textContent = 'Resume';
     }
   });
 
@@ -2979,6 +3319,12 @@ function setupInput() {
   });
 }
 
+function updatePauseIndicator() {
+  const paused = running && pausedByLock && player.alive && !lightingLabMode;
+  dom.pauseIndicator?.classList.toggle('hidden', !paused);
+  if (running && player.alive) dom.overlay.classList.add('hidden');
+}
+
 function requestPointerLockSafe() {
   try {
     const result = renderer.domElement.requestPointerLock();
@@ -2997,6 +3343,7 @@ async function startGame() {
   running = true;
   pausedByLock = false;
   dom.overlay.classList.add('hidden');
+  updatePauseIndicator();
   requestPointerLockSafe();
   if (!stageState.started) startStage(1);
 }
@@ -3014,6 +3361,7 @@ function setupLightingLab() {
   running = false;
   pausedByLock = false;
   dom.overlay.classList.add('hidden');
+  updatePauseIndicator();
   dom.help.classList.add('hidden');
   dom.crosshair.classList.add('hidden');
   dom.lockHint.classList.add('hidden');
@@ -3066,13 +3414,69 @@ function setLightingLabCamera(index = 0) {
   const preset = lightingLabPresets[index] || lightingLabPresets[0];
   lightingLabState = lightingLabState || {};
   lightingLabState.preset = index;
+  applyCameraInspectorPreset(preset);
+  const out = document.querySelector('#lightingLabShot');
+  if (out) out.textContent = `${preset.name} · pos ${preset.pos.join(', ')} · look ${preset.look.join(', ')}`;
+  document.querySelectorAll('#lightingLabButtons button').forEach((button, i) => button.classList.toggle('active', i === index));
+}
+
+function applyCameraInspectorPreset(preset) {
   camera.fov = preset.fov;
   camera.updateProjectionMatrix();
   camera.position.set(...preset.pos);
   camera.lookAt(new THREE.Vector3(...preset.look));
+}
+
+function setupCameraInspector() {
+  dom.overlay?.classList.add('hidden');
+  dom.help?.classList.add('hidden');
+  dom.crosshair?.classList.add('hidden');
+  dom.lockHint?.classList.add('hidden');
+  dom.status.textContent = 'Camera Inspector: fixed gameplay shots for level composition.';
+  const panel = document.createElement('aside');
+  panel.id = 'lightingLabPanel';
+  panel.className = 'cameraInspectorPanel';
+  panel.innerHTML = `<h2>Camera Inspector</h2><p>Fixed gameplay cameras for level composition checks. Player mode returns control to the FPS camera.</p><div id="lightingLabButtons"></div><output id="lightingLabShot"></output>`;
+  document.body.appendChild(panel);
+  const buttons = panel.querySelector('#lightingLabButtons');
+
+  const playerBtn = document.createElement('button');
+  playerBtn.type = 'button';
+  playerBtn.textContent = 'Player Camera';
+  playerBtn.addEventListener('click', () => {
+    cameraInspectState.locked = false;
+    document.querySelectorAll('#lightingLabButtons button').forEach(button => button.classList.remove('active'));
+    playerBtn.classList.add('active');
+    const out = document.querySelector('#lightingLabShot');
+    if (out) out.textContent = 'Player Camera · live FPS view';
+  });
+  buttons.appendChild(playerBtn);
+
+  lightingLabPresets.forEach((preset, index) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = preset.name;
+    btn.addEventListener('click', () => setCameraInspectorShot(index));
+    buttons.appendChild(btn);
+  });
+
+  cameraInspectState = { panel, preset: -1, locked: false };
+  const requestedShot = Number(qs.get('shot'));
+  if (Number.isFinite(requestedShot)) setCameraInspectorShot(Math.max(0, Math.min(lightingLabPresets.length - 1, requestedShot)));
+  else playerBtn.classList.add('active');
+  window.__hellrushLightingShot = setCameraInspectorShot;
+  window.__hellrushCameraShot = setCameraInspectorShot;
+}
+
+function setCameraInspectorShot(index = 0) {
+  const preset = lightingLabPresets[index] || lightingLabPresets[0];
+  cameraInspectState = cameraInspectState || {};
+  cameraInspectState.preset = index;
+  cameraInspectState.locked = true;
+  applyCameraInspectorPreset(preset);
   const out = document.querySelector('#lightingLabShot');
   if (out) out.textContent = `${preset.name} · pos ${preset.pos.join(', ')} · look ${preset.look.join(', ')}`;
-  document.querySelectorAll('#lightingLabButtons button').forEach((button, i) => button.classList.toggle('active', i === index));
+  document.querySelectorAll('#lightingLabButtons button').forEach((button, i) => button.classList.toggle('active', i === index + 1));
 }
 
 function updateLightingLab(dt, realDt) {
@@ -3087,7 +3491,7 @@ function updateLightingLab(dt, realDt) {
 }
 
 function resetPlayer(soft = false) {
-  player.pos.set(0, 0.05, 11);
+  player.pos.copy(vec3FromArray(activeLevelManifest?.level?.playerStart, [0, 0.05, 11]));
   player.vel.set(0, 0, 0);
   player.yaw = 0;
   player.pitch = 0;
@@ -3141,9 +3545,8 @@ function restartArena() {
   stageState.started = false;
   stageState.stageKills = 0;
   stageState.spawnedThisStage = 0;
-  spawnPickup('armor', new THREE.Vector3(-6.0, 3.65, 0), 14, false);
-  spawnPickup('health', new THREE.Vector3(6.0, 3.65, 0), 18, false);
-  spawnPickup('ammo', new THREE.Vector3(0, 6.55, -30), 26, false);
+  dom.pauseIndicator?.classList.add('hidden');
+  spawnLevelStartPickups();
   dom.overlay.classList.add('hidden');
   startStage(1);
   setStatus('Arena reset. Stage 1 armed.', 1.2);
@@ -3333,6 +3736,10 @@ function resolveAxis(axis) {
       player.jumpsUsed = 0;
       continue;
     }
+    if (b.oriented) {
+      resolveOrientedHorizontal(b);
+      continue;
+    }
     if (axis === 'x') {
       if (player.vel.x > 0) player.pos.x = b.min.x - player.radius - 0.001;
       else if (player.vel.x < 0) player.pos.x = b.max.x + player.radius + 0.001;
@@ -3351,7 +3758,7 @@ function overlappingBoxes(pos = player.pos, radius = player.radius, height = pla
   const yMax = pos.y + height;
   for (const b of world.boxes) {
     if (yMax <= b.min.y + 0.06 || yMin >= b.max.y - 0.04) continue;
-    if (pos.x + radius > b.min.x && pos.x - radius < b.max.x && pos.z + radius > b.min.z && pos.z - radius < b.max.z) arr.push(b);
+    if (boxContainsHorizontal(b, pos.x, pos.z, radius)) arr.push(b);
   }
   return arr;
 }
@@ -3361,7 +3768,7 @@ function resolveVertical(oldY) {
   if (player.vel.y <= 0) {
     let best = null;
     for (const f of world.floors) {
-      if (player.pos.x + player.radius * 0.65 < f.minX || player.pos.x - player.radius * 0.65 > f.maxX || player.pos.z + player.radius * 0.65 < f.minZ || player.pos.z - player.radius * 0.65 > f.maxZ) continue;
+      if (!boxContainsHorizontal(f.box, player.pos.x, player.pos.z, player.radius * 0.65)) continue;
       if (oldY >= f.top - 0.06 && player.pos.y <= f.top + 0.04) {
         if (!best || f.top > best.top) best = f;
       }
@@ -3677,7 +4084,7 @@ function updateFinisherVisual(dt) {
     finisherBlade.scale.set(1, 1, 1.0 + impactPulse * 0.32);
     finisherBlade.rotation.y = Math.sin(t * Math.PI) * 0.35;
   }
-  finisherSpark.intensity = execution.kind === 'chainsaw' ? 1.0 + impactPulse * 2.3 : impactPulse * 1.2;
+  if (finisherSpark) finisherSpark.intensity = execution.kind === 'chainsaw' ? 1.0 + impactPulse * 2.3 : impactPulse * 1.2;
 }
 
 function parkFinisherVisual() {
@@ -3959,7 +4366,11 @@ function hasLineOfSight(a, b) {
 }
 
 function rayAabb(origin, dir, maxDist, box) {
-  return rayAabbExpanded(origin, dir, maxDist, box, 0);
+  return rayBoxExpanded(origin, dir, maxDist, box, 0);
+}
+
+function rayBoxExpanded(origin, dir, maxDist, box, expand = 0) {
+  return box.oriented ? rayObbExpanded(origin, dir, maxDist, box, expand) : rayAabbExpanded(origin, dir, maxDist, box, expand);
 }
 
 function rayAabbExpanded(origin, dir, maxDist, box, expand = 0) {
@@ -3983,11 +4394,49 @@ function rayAabbExpanded(origin, dir, maxDist, box, expand = 0) {
   return tmin;
 }
 
+function rayObbExpanded(origin, dir, maxDist, box, expand = 0) {
+  const dx = origin.x - box.center.x;
+  const dz = origin.z - box.center.z;
+  const localOrigin = {
+    x: dx * box.cos - dz * box.sin,
+    y: origin.y - box.center.y,
+    z: dx * box.sin + dz * box.cos
+  };
+  const localDir = {
+    x: dir.x * box.cos - dir.z * box.sin,
+    y: dir.y,
+    z: dir.x * box.sin + dir.z * box.cos
+  };
+  let tmin = 0, tmax = maxDist;
+  const bounds = {
+    x: [-box.half.x - expand, box.half.x + expand],
+    y: [-box.half.y - expand, box.half.y + expand],
+    z: [-box.half.z - expand, box.half.z + expand]
+  };
+  for (const axis of ['x', 'y', 'z']) {
+    const o = localOrigin[axis];
+    const d = localDir[axis];
+    const min = bounds[axis][0], max = bounds[axis][1];
+    if (Math.abs(d) < 1e-6) {
+      if (o < min || o > max) return null;
+    } else {
+      const inv = 1 / d;
+      let t1 = (min - o) * inv;
+      let t2 = (max - o) * inv;
+      if (t1 > t2) [t1, t2] = [t2, t1];
+      tmin = Math.max(tmin, t1);
+      tmax = Math.min(tmax, t2);
+      if (tmin > tmax) return null;
+    }
+  }
+  return tmin;
+}
+
 function raycastProjectileWorld(origin, dir, maxDist, radius = 0.05) {
   let bestT = Infinity;
   let bestBox = null;
   for (const box of world.boxes) {
-    const hit = rayAabbExpanded(origin, dir, maxDist, box, radius);
+    const hit = rayBoxExpanded(origin, dir, maxDist, box, radius);
     if (hit !== null && hit > 0.001 && hit < bestT) {
       bestT = hit;
       bestBox = box;
@@ -4226,6 +4675,7 @@ function nearestEnemy({ maxDist = 3, staggeredOnly = false, mustFace = false }) 
 }
 
 function spawnEnemy(type = null, pos = null) {
+  if (inspectMode) return null;
   if (!type) {
     const t = Math.random();
     const difficulty = Math.min(1, clockTime / 160);
@@ -4702,6 +5152,7 @@ function damagePlayer(amount, sourcePos = null, dot = false) {
     player.health = 0;
     player.alive = false;
     cancelHook(0.5);
+    dom.pauseIndicator?.classList.add('hidden');
     dom.overlay.classList.remove('hidden');
     dom.overlay.querySelector('h1').textContent = 'Ripped Apart';
     dom.overlay.querySelector('p').textContent = 'Press R to restart, or click Resume after pressing R.';
@@ -4720,6 +5171,14 @@ function startStage(stageNum) {
   stageState.spawnTimer = 0.25;
   stageState.betweenTimer = 0;
   stageState.endlessTimer = 1.8;
+
+  if (inspectMode) {
+    stageState.endless = false;
+    setStatus(envOnlyMode
+      ? 'Env-only inspect: enemies and game punctual lights disabled for PBR comparison.'
+      : 'Inspect mode: enemies disabled. Run, jump, hook nodes, and inspect the arena.', 4.0);
+    return;
+  }
 
   if (stageState.endless) {
     stageState.endlessSpawnDelay = 1.65;
@@ -4750,6 +5209,7 @@ function aliveEnemyCount() {
 }
 
 function spawnDirector(dt) {
+  if (inspectMode) return;
   if (!stageState.started || !player.alive) return;
 
   if (stageState.endless) {
@@ -5051,10 +5511,15 @@ function updateWorld(dt, realDt) {
     const dx = nx - oldX;
     const dz = nz - oldZ;
     const dy = ntop - oldTop;
-    const onTop = player.grounded && player.pos.y >= oldTop - 0.07 && player.pos.y <= oldTop + 0.09 && player.pos.x > box.min.x - player.radius && player.pos.x < box.max.x + player.radius && player.pos.z > box.min.z - player.radius && player.pos.z < box.max.z + player.radius;
+    const onTop = player.grounded && player.pos.y >= oldTop - 0.07 && player.pos.y <= oldTop + 0.09 && boxContainsHorizontal(box, player.pos.x, player.pos.z, player.radius);
     m.mesh.position.set(nx, ntop - m.h / 2, nz);
     box.min.x += dx; box.max.x += dx; box.min.z += dz; box.max.z += dz;
     box.max.y = ntop; box.min.y = ntop - m.h;
+    if (box.oriented) {
+      box.center.x += dx;
+      box.center.y += dy;
+      box.center.z += dz;
+    }
     if (floor) { floor.minX = box.min.x; floor.maxX = box.max.x; floor.minZ = box.min.z; floor.maxZ = box.max.z; floor.top = ntop; }
     if (onTop) {
       player.pos.x += dx;
@@ -5064,7 +5529,7 @@ function updateWorld(dt, realDt) {
     m.prevTop = ntop;
   }
   for (const pad of world.jumpPads) {
-    pad.ring.rotation.z += dt * 2.4;
+    if (pad.ring) pad.ring.rotation.z += dt * 2.4;
     pad.group.scale.setScalar(1 + Math.sin(clockTime * 4 + pad.pos.x) * 0.025);
   }
   for (const node of world.hookNodes) {
@@ -5090,7 +5555,7 @@ function updateHUD(dt = 0.016) {
     dom.fuel.textContent = '▰'.repeat(Math.floor(player.chainsawFuel)) + '▱'.repeat(Math.max(0, player.chainsawMax - Math.floor(player.chainsawFuel)));
     if (dom.glory) dom.glory.textContent = '✚'.repeat(player.gloryCharges) + '·'.repeat(player.gloryMax - player.gloryCharges);
     dom.flame.textContent = player.flameCd <= 0 ? 'READY' : `${player.flameCd.toFixed(1)}s`;
-    if (dom.stage) dom.stage.textContent = stageState.endless ? `HORDE ${aliveEnemyCount()}` : `${stageState.index || 1}/10`;
+    if (dom.stage) dom.stage.textContent = inspectMode ? 'INSPECT' : stageState.endless ? `HORDE ${aliveEnemyCount()}` : `${stageState.index || 1}/10`;
     dom.score.textContent = `${player.score} / ${player.kills}`;
     dom.ammo.textContent = player.weapon === 0 ? `${player.ammo.shells} shells` : `${player.ammo.bullets} bullets`;
   }
@@ -5136,7 +5601,7 @@ function updateMiniMap(dt = 0.016) {
 
 function render(dt) {
   const renderT0 = perfNowMs();
-  if (!lightingLabMode) updateCameraTransform();
+  if (!lightingLabMode && !cameraInspectState?.locked) updateCameraTransform();
   if (composer && PERF.postprocess) composer.render();
   else renderer.render(scene, camera);
   const renderDt = perfNowMs() - renderT0;
@@ -5148,6 +5613,8 @@ function render(dt) {
 }
 
 function defaultStatus() {
+  if (inspectMode && envOnlyMode) return pausedByLock && running ? 'Env-only inspect paused. Click the view to resume.' : 'Env-only inspect: enemies and game punctual lights disabled for PBR comparison.';
+  if (inspectMode) return pausedByLock && running ? 'Inspect mode paused. Click the view to resume.' : 'Inspect mode: enemies disabled for level and asset inspection.';
   if (!player.alive) return 'Press R to restart.';
   if (stageState.endless) return 'Endless Horde — survive, route through vertical space, keep demons burning.';
   if (stageState.betweenTimer > 0) return 'Stage clear. Refill, breathe, get height.';

@@ -1,0 +1,55 @@
+{
+  "asset": "catwalk-straight-arm",
+  "runtimeDir": "assets/environment/catwalk-straight-arm/runtime",
+  "model": {
+    "source": "assets/environment/catwalk-straight-arm/source/catwalk-straight-arm-meshy-refined.glb",
+    "runtime": "assets/environment/catwalk-straight-arm/runtime/models/catwalk-straight-arm.glb",
+    "source_bytes": 12009664,
+    "runtime_bytes": 1798836,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/catwalk-straight-arm/source/textures/base_color.png",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6956822,
+      "runtime_bytes": 425848
+    },
+    "normal": {
+      "source": "assets/environment/catwalk-straight-arm/source/textures/normal.png",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7093047,
+      "runtime_bytes": 7076626
+    },
+    "roughness": {
+      "source": "assets/environment/catwalk-straight-arm/source/textures/roughness.png",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1499317,
+      "runtime_bytes": 202236
+    },
+    "metallic": {
+      "source": "assets/environment/catwalk-straight-arm/source/textures/metallic.png",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1660017,
+      "runtime_bytes": 305866
+    },
+    "emissive": {
+      "source": "assets/environment/catwalk-straight-arm/source/textures/emission.png",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 877555,
+      "runtime_bytes": 57854
+    }
+  },
+  "manifest": "assets/environment/catwalk-straight-arm/runtime/runtime-manifest.json"
+}

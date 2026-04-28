@@ -1,0 +1,160 @@
+{
+  "id": "low-hell-cover",
+  "name": "Low Hell Cover",
+  "prompt": "low rectangular hell arena cover block, jagged obsidian and fused industrial armor, waist high, chipped beveled corners, red lava glowing cracks, readable cover silhouette, no floor, no background, standalone game prop",
+  "previewTaskId": "019dd20e-d65e-7b80-bf77-c875133f92ba",
+  "refineTaskId": "019dd214-86e4-7cc2-8176-afb71eef905e",
+  "meshyProject": "meshy_output/20260427_220802_low-hell-cover_019dd20e",
+  "createdAt": "2026-04-27T22:16:01.851375",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "low rectangular hell arena cover block, jagged obsidian and fused industrial armor, waist high, chipped beveled corners, red lava glowing cracks, readable cover silhouette, no floor, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 32000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd20e-d65e-7b80-bf77-c875133f92ba",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_220802_low-hell-cover_019dd20e/textures/base_color.png",
+    "normal": "meshy_output/20260427_220802_low-hell-cover_019dd20e/textures/normal.png",
+    "roughness": "meshy_output/20260427_220802_low-hell-cover_019dd20e/textures/roughness.png",
+    "metallic": "meshy_output/20260427_220802_low-hell-cover_019dd20e/textures/metallic.png",
+    "emission": "meshy_output/20260427_220802_low-hell-cover_019dd20e/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd20e-d65e-7b80-bf77-c875133f92ba",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3374804306,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "low rectangular hell arena cover block, jagged obsidian and fused industrial armor, waist high, chipped beveled corners, red lava glowing cracks, readable cover silhouette, no floor, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777345682348,
+    "progress": 100,
+    "started_at": 1777345682791,
+    "finished_at": 1777346051535,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20e-d65e-7b80-bf77-c875133f92ba/output/model.glb?Expires=4930934400&Signature=fz1scHh8Dwjk1JuRyvvDjZjUna8WJJPdsEHcd-sKYI0WuuxI8qJJYg5ja2Xc91zr3XihplUwOYtUmu64AYVjgPsHyZ8VLwYpeeMVyfrttsxdXSfciaFo0tZGi3BnuwvrzuQ5EoJ-18YP1Y~ZCSLEQGmg4cRhEEQ2Dxegc7sY1N0Af8zjdhm-fb2keEW75EFD5aY56zRyTZlDuJD9wVRnWVF0K0bpUoFFRiVhqOH7b-MjA2MGM9LhY8oUx1i4xdWYbNz2KnnZZRxAcWAjc4gQJVAaXEJDN-clMkLtPI2qfRUROeNuq4UdQ80IbCYLd6udNeB3IArxV1p3zk4oEKZiNg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20e-d65e-7b80-bf77-c875133f92ba/output/preview.png?Expires=4930934400&Signature=PGN4zvxqzUpARstRhRZOchWeyiqcYPyTW~xOsrxF06pyTba5SGiDM7-YaCPC~lCbr4rFYdQB87fs9dtAnwr4VH3TbdppHS2WTiTnQDLSXjCIFF6PcVD3Ru84RS4twLiubcPZ1pnkTAdDrY8yj02c7m~2T1wtwG66j7v0Ka913J04OtQLAbK3c5kqVXP6F0YyFZdX7oI2VEoGaDCmg9Ix9KwmTduLOUHA1btMcDqh-YLVF5GeLgbq3mImTTu81WnTGDwVoGNVd-RNCbUIIxeR7S554-qDaxJlKejuTk3CHfv9M9KbXO6JEyptHYRXAWOxdUF0q-pJYPJblxAbi-nm6g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd214-86e4-7cc2-8176-afb71eef905e",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3374804306,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "low rectangular hell arena cover block, jagged obsidian and fused industrial armor, waist high, chipped beveled corners, red lava glowing cracks, readable cover silhouette, no floor, no background, standalone game prop",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346054026,
+    "progress": 100,
+    "started_at": 1777346054387,
+    "finished_at": 1777346144704,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/model.glb?Expires=4930934400&Signature=gFHmSrjqAoliY7HrqOQ2dfDUUoze8ww4wicdt1K-HfNQBbbIa4yi7iYdchH6TH7f44~lCtjsWJX759q7eG4MhCNK8ne0VfOCyOGYpu-tE-MnuxhVN1JbHmlMMMNwLB3g-VicYXw2j3eeuYsmrBCVCJhVVZMYNcrWy3XZO38L5NQaL~oKonjD~OCOGop66fWLuWHsjnHXElf0AVYfOKAjPzUcLK0XkcMotJUvg2oVoB~J0UtoGiPHevzYkoZ3Em~UdRPlW0rSofT0lAavkb~UKfyuvt9eEF-d6enhv591cZD8wJXt5aAOQnxb5rLkD2aldJllj9FZoO6L~IxEZrndJQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/preview.png?Expires=4930934400&Signature=NLKhEoImQfwIp1VwWIMxBnnx81k0rkIBjNXfn6q6Glip4oIX9wY5dq3RampFyL1uJ9DtsIck~QPpDaPKVgMG-QD7RGadGiHgdqQ2E8lMnUGVq0cglV0ghPEv7i79rO4joS4nDVmIaPE7IKGQ19LJL3Oz~YGUFhgZb8faH6mzbfN6RAS659xs0keXtxguzZIHa4uTNM7d6Ug0vmifQ6NsrmkAwoMXS2M2vxL~kRqEOuFDVoatqIm71IwEMQ-FlkD78Nu-oZfZq~lD3TGGsAPJNGNyeUUhpXL1MvUTSfhYd3lzgveqg8fA6VvfANW0xLk7WbXfrJ6AwevPaapQAwTIQw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/texture_0.png?Expires=4930934400&Signature=DindA0KfwvM5xzP1le3PAIxzNS3cL1vWIqN~8AbDUBGxloTLxHuqDH2EEpOieA2FHugmb~Q-AxYiawy6pqlWUaNxO0dfNXy2Tz8UjAiTlrKCdfX-UacgXMKblRdn19lq0fOBT6yi64btVQ-39TT~7gz7aq6VEep0S0kVS2pAriAMy9LcaUVkoNIpAKN9~m9v02VWuYjPUXCSHTlRmXJ8xSYYmAt5-4MMjTJ6JW6SzIRZramq2atCpQAwxwNaEpHghvvG9SEcQvvJrZb4x7FwC99ypo7Y9T7WZJY46~Laiuv0oIKAup7lu2UuHFccDlZieAlE5pUDRnYnJX02uev-gw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/texture_0_metallic.png?Expires=4930934400&Signature=RtlgGrXmYOpZ-zs~5JBD-mxiMBL7TVM6CuglCxB9NrFM0V3gtzrwRa~xIcvYVasgX342mhYGIHi1sSeynnBrfrtwacYaDVk6BAjFjq-I~GDMU8LEV~fqNrWfuakJY~QJtfzrL5sjS6hfCu-ptMk-rDKNxSpRsPlJvhb6GNtT~UcwRUK6viJdFwy4TvXcxmHaGc8rL6veJ38KnmClS0TN2Yvn8b~h5NuDJroHEwJ2KjZWkJq-Ib2ojT7GPYg3HpoEaHv5uK83dc0yf0wQiX4X0tdNcGts9t4lvTp~MeoQsoLGNL-5O3a2OCgh3ydREcWp9VEEf-AElCRRzhCyyRsjow__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/texture_0_roughness.png?Expires=4930934400&Signature=H9WbG5kymEhVBXLjz3kq3T8CbreHLyncd-U7XDVuO-vz7YPt2DALIJB8gv6K3vfQxJO12I~Weoqvw~jmDHx3RSZRc0OaWtMcFZdht85MnagpXdaR6VN6qbin-rkBHilTAVZW~wtKPewauieDcvICSjSODrcmgM5FtT6gzvCCiJC4beQ9RfAfL~3Ge6us7v437A5C0hNxvLX1EBTDZu9KJ8zlEJxaGz3OxeJqCTF7GM-Fgp0~eU~HLCfa~R~hDZkNxkKQXFlbkJ-6JNCZArVtzNM1hDhAYwL~fQy4miZYBcspF9otH9WX7zNVMSWEDCPxeoxI6VT7S0B-p2zhbmwovQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/texture_0_normal.png?Expires=4930934400&Signature=IYBqJJ8CUdOT9k3g3VmSKt-QzTdXNdl17ukAJUXZgwKb-VSRQxo0p9ma0U5UCpb~1xTPSHWN371pvudpXW2iZEuRmJkQZSxWTj3iGI3wKv~8xu24tx18Oco6E6z4ITcz3rj6WhAGtVMeLEE2vNnryrNj0TGWuXUtKc0HZY87kP0nsvTZ04t0aDZSBC0q3QNyFSkH~~Gto2PnaVLbc81K2VvxBSjmdu7be2TpANsMO~6xjhh2p8tHgZR-tKF2eO6IjYuTN30f6MiOAD1ClOCMz~vXCrz0uxxGoOlWaKYNbDJEOm~28oMySQh2b-FqD3cqdRJK9b3uFCdICtg1hlxVuA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd214-86e4-7cc2-8176-afb71eef905e/output/texture_0_emission.png?Expires=4930934400&Signature=O7odJ8D1BhaEmpIUUlVP-clHSh9YGbT3uinls55ecU5wrElc9oQJdzsUJabGJo~t29Yfv4i0GwmMT8z~GVt7Aebnm7QzBn-aI8KFpjn~auoCBo-2DHNDBbJG36jGH-yHtcPX4TZlJZXpF95YffRsq~w3ii7J98olrVOpyIIL3SqAZ869zwWAlCmsIIiM~8cQ3H2GQOsN1-RLZQwayLQFMElBQlyiOMI9j8l2rrqeaC8d9vFvB6QoN5Gm9eDQI4V4yXUUreup51F7Z-3iFZfmWUXHJ3TWRbZjZgHYjt5MkUC8UPKOWIIM8U5xgtMbRs57TmG61sqcsLOMjBdiBrJiXw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd20e-d65e-7b80-bf77-c875133f92ba"
+  },
+  "promoted": {
+    "asset": "low-hell-cover",
+    "runtimeDir": "assets/environment/low-hell-cover/runtime",
+    "model": {
+      "source": "assets/environment/low-hell-cover/source/low-hell-cover-meshy-refined.glb",
+      "runtime": "assets/environment/low-hell-cover/runtime/models/low-hell-cover.glb",
+      "source_bytes": 12322904,
+      "runtime_bytes": 1042352,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/low-hell-cover/source/textures/base_color.png",
+        "runtime": "assets/environment/low-hell-cover/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7845264,
+        "runtime_bytes": 680148
+      },
+      "normal": {
+        "source": "assets/environment/low-hell-cover/source/textures/normal.png",
+        "runtime": "assets/environment/low-hell-cover/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7946545,
+        "runtime_bytes": 7896062
+      },
+      "roughness": {
+        "source": "assets/environment/low-hell-cover/source/textures/roughness.png",
+        "runtime": "assets/environment/low-hell-cover/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1401201,
+        "runtime_bytes": 185690
+      },
+      "metallic": {
+        "source": "assets/environment/low-hell-cover/source/textures/metallic.png",
+        "runtime": "assets/environment/low-hell-cover/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1605205,
+        "runtime_bytes": 309790
+      },
+      "emissive": {
+        "source": "assets/environment/low-hell-cover/source/textures/emission.png",
+        "runtime": "assets/environment/low-hell-cover/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1008140,
+        "runtime_bytes": 121618
+      }
+    },
+    "manifest": "assets/environment/low-hell-cover/runtime/runtime-manifest.json"
+  }
+}

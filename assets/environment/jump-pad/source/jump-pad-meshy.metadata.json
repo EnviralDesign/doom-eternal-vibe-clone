@@ -1,0 +1,160 @@
+{
+  "id": "jump-pad",
+  "name": "Jump Pad",
+  "prompt": "single sci fi hell jump pad game environment prop, circular launch platform, chunky blackened metal base, demonic orange lava cracks, bright green energy ring, no floor, no background, centered standalone asset, physically based material, game ready",
+  "previewTaskId": "019dd1fa-4b8c-710a-a383-d04b76a55cca",
+  "refineTaskId": "019dd1fd-f090-719b-8dd6-030a49356ad2",
+  "meshyProject": "meshy_output/20260427_214538_jump-pad_019dd1fa",
+  "createdAt": "2026-04-27T21:51:07.391008",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "single sci fi hell jump pad game environment prop, circular launch platform, chunky blackened metal base, demonic orange lava cracks, bright green energy ring, no floor, no background, centered standalone asset, physically based material, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 36000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd1fa-4b8c-710a-a383-d04b76a55cca",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_214538_jump-pad_019dd1fa/textures/base_color.png",
+    "normal": "meshy_output/20260427_214538_jump-pad_019dd1fa/textures/normal.png",
+    "roughness": "meshy_output/20260427_214538_jump-pad_019dd1fa/textures/roughness.png",
+    "metallic": "meshy_output/20260427_214538_jump-pad_019dd1fa/textures/metallic.png",
+    "emission": "meshy_output/20260427_214538_jump-pad_019dd1fa/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd1fa-4b8c-710a-a383-d04b76a55cca",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3509245824,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "single sci fi hell jump pad game environment prop, circular launch platform, chunky blackened metal base, demonic orange lava cracks, bright green energy ring, no floor, no background, centered standalone asset, physically based material, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777344338316,
+    "progress": 100,
+    "started_at": 1777344338504,
+    "finished_at": 1777344568806,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fa-4b8c-710a-a383-d04b76a55cca/output/model.glb?Expires=4930934400&Signature=KPyXrkU4s~XjBaZxin8PeqF-yNxWK22WasVL95ZNySNT~X4KSNo9fG0QjZRLWG~J3ecaG~r7cRraOl-HisRfPWYHxIpbVBXO17yP-4U4L~PGBYYuN9Pe4lCUFMtDfEIEmMAZLStrOnChLx6mPB4bqCdQIpqLpXe3ByFi6u~-M8ysFfyr3aQnHiBEOSzmQVmPd0rsic8~15cL0GUKfpKa9apYU-bgcXLjrUQHf9NOML-t17~XJ75F1qhq4QpPzS4vX4CMPZIz2ivLjOslGjklwwKe0g-jjZ0NQmt9T8l8X7jTJ4Rt2ZCoJwH20q5Cs93XDgqcY9MoetR~j-FWyakRew__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fa-4b8c-710a-a383-d04b76a55cca/output/preview.png?Expires=4930934400&Signature=EF6crdIScwKeMMXHxH2S1lc8-QFMbt9cxZMS~MfCN8p9gyJIR8Hc7qtO0XENCLE8h4JYe~12hCDwI-46pwEln0qa16r-dupGueX0Ce1bj2yCrhKoWheVwycHhAypHy-hR05~~Yx6KQ4EQi5XNDqE4uNH6JpO2K2dcz4Qnq7eInofouW0kpOdJWYq-vH9F8G-ZqOcPAoXckCOSevAbiq4qfVgJ3eOmxii89UWvyMNSusiZM1l2G5~tHhyE9oosNYYdddr38CZxvJdUcCorR5akDhJeRsdO9LW~b924AtXDoadvZtXlIK8lXF4pL4vfAbzsXPKv1DnvcixTzCsHHmwXA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd1fd-f090-719b-8dd6-030a49356ad2",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3509245824,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "single sci fi hell jump pad game environment prop, circular launch platform, chunky blackened metal base, demonic orange lava cracks, bright green energy ring, no floor, no background, centered standalone asset, physically based material, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777344574620,
+    "progress": 100,
+    "started_at": 1777344574952,
+    "finished_at": 1777344655781,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/model.glb?Expires=4930934400&Signature=Hpg3T80cqkCSYypaPV694VPPe-3kAdrHbSexxeI7c9ZxBcvQH6dkELoKZLcpsCuBuH8kMPbJ~rt-QXLoAIID~JQYbQsCjMlRbSxkeCExIbqNK6fTMivvcTzcDLRdjmIGS-yUKOYA7V-wn62JbgmCXMB-bsbA4fDOM~qWLiGf9NmW~h1bUivTlf5vPJdvkOr3yLh-7VARSi2ztN0WlHgtJtUNERgK5QVDfkXMIQtLB~YoyUIf4AnQy-IkU2xXeY9IgHPNojJZvhkjehKnjrElpiYIeSzyC44wALAKeBehuKCmbjJ6spxMZgySTDuRP-7JZpySz41VoBB~ws~6I0JRMw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/preview.png?Expires=4930934400&Signature=A0It39aFjtJNx0zPihaKZuQGOtdeGYsGCTHyPMb8gJw5f~FppU4RUlMrIzH2alMms7uTagyePkmkDsu3-yr7K2Qlao1wev5cOo83uDMUBDOw8eOROIi7bJpe5D0d846E2CbEoOE7E09qk2Fi18ga0BVOkoQUYxOacGDTZawZ9cbyKESyeC50Ml0DkMltOJiDAty9KPON9HW5PTfOLm1DErb59SksxN5sBIy0IijrmPxwnM6RB5LUnuBtozOJWuFYgZNtjluvIXkQ8VKiHh4YMX9oTkV3SetiXFFMXdjgzLgHb7ykPWKF8LfdKth-~z7iYGmkdKQ~i3TZpGnCrp1R2g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/texture_0.png?Expires=4930934400&Signature=SKhdicNCc-qB-0zUPUq2f31VmmS67xq7eOKMyq-suF-OpydzdoJqQMmSVpFcf4mK~aEsOTkSKNlQQcjcF3tYDtuXHQ8OrPEK3eEFvO5G~Df2ZWqe0HieRUJnWIDYytPgah9HjUQgIQ7zr~Cxj2fCE~-eDrPCIsgNPtgwXqP7vZb2NQeOZD1B97dfQNoObestMYKXCMq41nTkHyB8cc1pIhGrjvn5nD0X-pcenkhIiAQRGmVjni0xWkIAWS6tikoRT1hYC6sS6f6i8uB0ysBFhkgt2TMLGDk7xZOz8Okl2pKJIXzdzrQyXGzecomah-1ZXvx3bnAXeAIoi9Atzx7Abg__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/texture_0_metallic.png?Expires=4930934400&Signature=LlVmRTlCMa9kbzRhJoYdz7NojlzJ3-K~xPV6hC8MsJPQfml~Xplxg091QP2NtTLsZUsYX9xqHeRTbXcRy4M6wximz4iS4OlmshjX1sBnI0b6FW6wB2ThHYLvIItiK8hYqKB39PxqqMfFbGU6zdbN8fbVTXQggw9dFzBJwxZMwBRebnTTu93L7lM2suFJUeiS5zvGXkGOAfeJO22ZZiMdG-UvEi-kY7R9Ga6JS7ApW-AgTA7~b~hzCnj89eJQ5isYEMm7E0br5zkmR~RAiDJhJz4rjirjqW-PpWPHE1qBhfJDWRORYBtM3vmcdUT4ktaRBWNlZffyKQRmG~t11NKt6A__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/texture_0_roughness.png?Expires=4930934400&Signature=ldKQND0E~s15go0Kp-jJu2dmQYNqnC8YXowHwqY627d9LYsw-4tEcb4e9cCXED7eecbQCfFJjfwjp9cestbJMpEzy-TJrn9SaeeqotlZr0Uy6R67EOnRCvOA~YraRlPqmVyBQNrm9XwlJ1SqTfEIV~KAGPjMvBo3-3k~YzAdHWdq2AL~~9rJ2tlcwcHzLowGCVHox1tcT--nPBKu-A9u8zc7u29qnCd6mzYU-7D0hdgy2T8TMVE~RP4LltXlQfnM7fkgGEWBBXyGrMcu4fvHPMZustxeX994qSPY~P5qInIrf6ONdE0Jhb1pkWtl022Fop9ZARW8XoBEXmF2V8BpSw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/texture_0_normal.png?Expires=4930934400&Signature=Dts6glGuLf9oP~S9gn6PoxTjtmYF1ogkal~c6AWvt2hOSlf8~7GLySrmTMbzN3x0mus8unhNB2TQdWBc~YZbLSUFf3~jZMdQ-l7dXrpa2lBAnMwpdebL-YMqAOkeB4DkrhXIETX8oTwHnUG3GdsJu4C1W~dQTE0RYZEYSzlbrStUBszv9SDlv2EznOAfRTWqv~3Ds58ZZN2Z2GZaFK-xPbejpqnkfNFA115mR97EBSWfrMeESs2naOV~llwbDA1PSxji5a0yOLttthuBw08cfbllNFab0x04OglAd49FJQOahF4MSRQ6NBS6uASOvVBRBD3pA7ApOGIT1KUOQ1Zi9g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd1fd-f090-719b-8dd6-030a49356ad2/output/texture_0_emission.png?Expires=4930934400&Signature=LvU2PqubzVOi3x-n3q~dAdNqebOEfj67Oz~Zjw1dzzkCFejaRITwJzX8t0NlmXjxOzkVu2WIkWc64chas~~eELBG-Pp-4dUYmNdhBaYUo4UBhraTW0hoZjh9aJ4WhkXleJ5ecuWmlN-nRjqMvfQ7O4i8pzGszGY7HWn4CFDiKhXb~UlG9vZ2GpJnYNclfb5pH5CZmMQCdTxopmvPBzS3WqhiYgF5TR6yZSLa2f96M4lo5OHTJrIK7~ZkySgRXNrDDY8Mz8mhaVwLJ9~L8LSqNHgZbv9yRz1VfC4TZ7uK0ki8oODfgnu1i0J5JgWSomrUcImNW9uHkB~8Stq4VAkJHQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd1fa-4b8c-710a-a383-d04b76a55cca"
+  },
+  "promoted": {
+    "asset": "jump-pad",
+    "runtimeDir": "assets/environment/jump-pad/runtime",
+    "model": {
+      "source": "assets/environment/jump-pad/source/jump-pad-meshy-refined.glb",
+      "runtime": "assets/environment/jump-pad/runtime/models/jump-pad.glb",
+      "source_bytes": 11363180,
+      "runtime_bytes": 1179236,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/jump-pad/source/textures/base_color.png",
+        "runtime": "assets/environment/jump-pad/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6829141,
+        "runtime_bytes": 415252
+      },
+      "normal": {
+        "source": "assets/environment/jump-pad/source/textures/normal.png",
+        "runtime": "assets/environment/jump-pad/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6963830,
+        "runtime_bytes": 6930989
+      },
+      "roughness": {
+        "source": "assets/environment/jump-pad/source/textures/roughness.png",
+        "runtime": "assets/environment/jump-pad/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1530860,
+        "runtime_bytes": 245302
+      },
+      "metallic": {
+        "source": "assets/environment/jump-pad/source/textures/metallic.png",
+        "runtime": "assets/environment/jump-pad/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1418165,
+        "runtime_bytes": 211202
+      },
+      "emissive": {
+        "source": "assets/environment/jump-pad/source/textures/emission.png",
+        "runtime": "assets/environment/jump-pad/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1178654,
+        "runtime_bytes": 109218
+      }
+    },
+    "manifest": "assets/environment/jump-pad/runtime/runtime-manifest.json"
+  }
+}

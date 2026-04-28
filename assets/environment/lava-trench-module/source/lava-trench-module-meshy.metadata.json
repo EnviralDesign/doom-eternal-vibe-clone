@@ -1,0 +1,160 @@
+{
+  "id": "lava-trench-module",
+  "name": "Lava Trench Module",
+  "prompt": "rectangular lava trench insert module for arena floor, molten orange lava channel surrounded by broken black stone and metal rim, emissive liquid center, top-down readable, shallow no background standalone game environment asset",
+  "previewTaskId": "019dd225-782b-7fc3-8eff-5e16fd60cee1",
+  "refineTaskId": "019dd228-6356-7077-a702-e6cfd5fa0ab1",
+  "meshyProject": "meshy_output/20260427_223246_lava-trench-module_019dd225",
+  "createdAt": "2026-04-27T22:37:44.093744",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "rectangular lava trench insert module for arena floor, molten orange lava channel surrounded by broken black stone and metal rim, emissive liquid center, top-down readable, shallow no background standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 36000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd225-782b-7fc3-8eff-5e16fd60cee1",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_223246_lava-trench-module_019dd225/textures/base_color.png",
+    "normal": "meshy_output/20260427_223246_lava-trench-module_019dd225/textures/normal.png",
+    "roughness": "meshy_output/20260427_223246_lava-trench-module_019dd225/textures/roughness.png",
+    "metallic": "meshy_output/20260427_223246_lava-trench-module_019dd225/textures/metallic.png",
+    "emission": "meshy_output/20260427_223246_lava-trench-module_019dd225/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd225-782b-7fc3-8eff-5e16fd60cee1",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 958513838,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "rectangular lava trench insert module for arena floor, molten orange lava channel surrounded by broken black stone and metal rim, emissive liquid center, top-down readable, shallow no background standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777347165721,
+    "progress": 100,
+    "started_at": 1777347166363,
+    "finished_at": 1777347340870,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd225-782b-7fc3-8eff-5e16fd60cee1/output/model.glb?Expires=4930934400&Signature=fanbAFTBexuj2Jlgncg2QaymB0~nZTwGN8kEsX7bCmzQu1uij7LV9U9TTPLU~lCSPCTR6Hx0Qr-kT7XEcEed1EAuMeF6IWcXUtMIgl-cHSBQnbammgmuiebFSwz2mPhd06bWQ~wIcTcSrUCciUCFcOr59X4WuC3xxUGDwxU06ghFOsPB4k5d15WJsunTzfHXQBf5lOZQcysEAbGqlnLXOA0fjEGD54ek94nuxAZlWl9sCGje4OWE1xLimbNp96cXSbrNcuVed5ojn~U4CfE1LDh9U0SXk-qWowdpcqg89178lhzCL3-sjK40wZzCLYNviCk0Ks1oP8bd-KZtuca1pA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd225-782b-7fc3-8eff-5e16fd60cee1/output/preview.png?Expires=4930934400&Signature=fOS2DgAiffffYmTJWLACwevpvdZr73Fk2aVZRctdPGnaDN5HMxpb5cXyFQc7zSkjSxlf~OD~-jXno4Tn66ozkuPjv8cHxR7WgfIoudG-N7nzDLrPuyViraiHXLEbL062DxSd5kPKN3xTm3jzOes5TEUEQNHW~vmuiqlpi3HK7y60~b7nwW5aS7XefgBgbybtedFbaRiIjf6YcvQ8ZWlujNKuZNobcFfnYCqrUeHoBZJ8bHZHzR9eEQXMFqP8Ez5rO9LjB16PDFWaEHZ6xSFAOpAALmdYzUpibXCHPJs23kSwX7evAcxhy3U9sVjKJrvCcAutZo13tuBHZer-6zCS6Q__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd228-6356-7077-a702-e6cfd5fa0ab1",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 958513838,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "rectangular lava trench insert module for arena floor, molten orange lava channel surrounded by broken black stone and metal rim, emissive liquid center, top-down readable, shallow no background standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777347355635,
+    "progress": 100,
+    "started_at": 1777347356019,
+    "finished_at": 1777347450258,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/model.glb?Expires=4930934400&Signature=Un5UHG4ZDv5vQCl8IMq-gktxoKcZnbw3j51eKvp9i62G0~-ofn2EOQTqpgF7p-28drsy-ts4ElwmmIH5xMCMEa~evekGMSoENMyQm9648hWSVrg1pxlI9nJ~83rkbTfFKACUreluOkTsA98VXludg8Davs4F5BU7tayzUIHYoRilywNMLZ472Od3fmrr~KARVAgN8af3Bc9KOg2LxNfdTzPOOR2rBkFAM~48UNG~RtbPDmMKVd9vly4FU1QKsYupHbFg5ar6sfWsjgPK7e2OgzXFSI~YCaub7C9-U1p19oL5F9CXoaDEDtLmQLS34gDT6sVU9tVHOpzQQuOCAl02dg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/preview.png?Expires=4930934400&Signature=IgDZzknL4jFyuGV4f4hzD~~Vjbv-995-iEJ6e8nd63hf-69XLLaVNmtdm137Zx4HT3C7nZyezKZeGLoaX8BDQnekXqZ45qWGJjVFr9cUcQ2J0HD21LpfDVfi1J9w5Qc7wtDABs3unpObYxGzMpYJTzTZJcbNAF~-7eCkZmjI~6dV7ATc1BdyTIxY~Y3dx5~OZp5zuVtQgZrLl3td3Z7vE2hh~r~Kb~cX31CqsEYtlhghTwbqRAi8rqD6P801XEv571BQv7F27WQ0AukK2qCmKg7BayKKInD8H1zuDSVSeFh5hBwzR-GVqtV~izg1RjdDuruO9Rp~mrVXjS6eH6Z~8g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/texture_0.png?Expires=4930934400&Signature=BNXbAxCGM4qmIC71a80QuEsjuL2c2qV5mREujtrqBJMED-y3HUJDaEyoy7iJLSrgW0Fzi49y4u1sasVhDT8jEQQqOx3BUE0etkxus9-jOtomIlXBpks5wEooNWzDZtLrIYosTTxbjuvYD6xCJlLysRbpvZtNMLsx6KdokRyJlsPgDfzefi2TurCJ653wQ17cm5ZlyA3xfHEMIyE0WxN~rkM0C2zQZ7lKQZ8c~E31BfHCVMDobmxlepeUUHBlhHzunmBOS378dIryJJmp-sl1SIcv93IUp3UXFPlJsESX9OaYfQRm5vAL15s8d35KZcN6xx~S0tATJiMIBh51HplaMQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/texture_0_metallic.png?Expires=4930934400&Signature=CxaCl0Q6lsdebuqISN~FRVdPy-fDuJXvXnr-Vi8urCEI3y3O~8CSmqtZ3HThKxFETvBGcEDoYO9Nbu62GjEAJT5iIpGcD2vEpeZxxYN7NbiMMHVaVpEpzwGAz0vgPS~ID~vIulRSzpQqSiRV1GLRkkVU3M797tC1MZ~cT-WbBf3FL~MqHFnuXsE~C086~VPn7pt~KPkj2QDIxmo2ibpuB0WoAWnvBzhOY~kHPdL~HczdCp3XGQcXZhjlFD8mxZVb2zpjuND~TEx3W3lqFWT-rLsdbdIJUCF8PPHgxF4sqImkr299Yi-4yYaQQ9ks3qoFzih7QVaxDabsPY5UQaCjXQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/texture_0_roughness.png?Expires=4930934400&Signature=KRbNhRmu17hBf5F5fkrDZ2yuYH1udGtyftVNapb-5wKGeQsa57KchcITZiWLRHe5rTgrM-YQy94vpYgAu9UPEgTTcSJZiOXJrz0AUt2GxvWcxAPxTOBDzqFZxpicQ1-Eg6YOyemHFEsi1q2eGninaatWWjbIPslUH0oF07xVGYZMTB938v8GiRMC85IIsoVJlVKkAOIth7UW7x4xgaM0P~ApyY7EzaEAXKQyyHBmJ87-4IQzA6l3W95UoSAUYOSXbq3qX~r8mWUEGa1UrHeBak6oh44fhYOzuce-em8rC6rFrNpOzv1HkBxTOoRhm4jVuIUrMfcAYQDvtgiUM4imyw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/texture_0_normal.png?Expires=4930934400&Signature=AToQ2Z7J-LV33nR~bb7GMyjg~QD9raq-ZZozS0bB--t1Oqz9QXsDAfvmkAEmtw9G4fM2K5RWKjjYFiSqcEYhxGOOT1wNrAoTxUdN7TE2XtlUMIs4SvDmQ48VNwgIJjS-8csLiwIOF10bdmBDZbai3YoD7t~9KFx6pgdCXK7NKzZL1NNYOfiXxYP5JzvaWQMlfF3udD2U3GnMlvjoFZBnI7EtvntxNMDWp7lL8S2S1CdcqVxU83lpqLp7y46b0lYWCZSxNzIejZCZ1eK89~YWs3A~~8CdsYmZy9IeBvmMN6vBJWw95O6CggD0jXqD8YaJo0PsbT1jAKHoTu8XIApkMg__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd228-6356-7077-a702-e6cfd5fa0ab1/output/texture_0_emission.png?Expires=4930934400&Signature=EsYpIiz4Qu9V-nfN5oPMEHjHxlpMZLuD3B1oNhVCLCMmahyZdcUJibcB9vUOJZNIYyRVCWy-hTyE8pKPJvgqfy0mSK1SZN~7gj3ZII-BZ1cmhwRva4OxMiYHpykenZdUuIakkE2BpgKtOTaStfKyOuRLr6S~3AEidABFmIVPibRIyrA9pPfOZ0VdnOfKRV6vr7vB1naCX4my~34FXkEcK7~DN6ihZFELufNq48VgTfyIXkEWS2m1~OQCRPm~CNwBu853ERDorTL7LZszj~HK00mZKzuHFLH~HE-reQrn6d9nWA6lmHxytRoDmTuu512AthbPkQwrqHO-Tmvxyy~puw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd225-782b-7fc3-8eff-5e16fd60cee1"
+  },
+  "promoted": {
+    "asset": "lava-trench-module",
+    "runtimeDir": "assets/environment/lava-trench-module/runtime",
+    "model": {
+      "source": "assets/environment/lava-trench-module/source/lava-trench-module-meshy-refined.glb",
+      "runtime": "assets/environment/lava-trench-module/runtime/models/lava-trench-module.glb",
+      "source_bytes": 14171648,
+      "runtime_bytes": 1209728,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/lava-trench-module/source/textures/base_color.png",
+        "runtime": "assets/environment/lava-trench-module/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 8098292,
+        "runtime_bytes": 815530
+      },
+      "normal": {
+        "source": "assets/environment/lava-trench-module/source/textures/normal.png",
+        "runtime": "assets/environment/lava-trench-module/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 8604805,
+        "runtime_bytes": 8596129
+      },
+      "roughness": {
+        "source": "assets/environment/lava-trench-module/source/textures/roughness.png",
+        "runtime": "assets/environment/lava-trench-module/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1227686,
+        "runtime_bytes": 132502
+      },
+      "metallic": {
+        "source": "assets/environment/lava-trench-module/source/textures/metallic.png",
+        "runtime": "assets/environment/lava-trench-module/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 970136,
+        "runtime_bytes": 71388
+      },
+      "emissive": {
+        "source": "assets/environment/lava-trench-module/source/textures/emission.png",
+        "runtime": "assets/environment/lava-trench-module/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 3538526,
+        "runtime_bytes": 348982
+      }
+    },
+    "manifest": "assets/environment/lava-trench-module/runtime/runtime-manifest.json"
+  }
+}

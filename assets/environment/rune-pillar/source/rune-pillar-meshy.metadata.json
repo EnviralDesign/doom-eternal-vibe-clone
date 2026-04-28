@@ -1,0 +1,160 @@
+{
+  "id": "rune-pillar",
+  "name": "Rune Pillar",
+  "prompt": "octagonal demonic rune pillar environment prop, black obsidian stone and metal bands, vertical purple runes, chipped gothic sci fi edges, about five meters tall, no floor, no background, standalone game asset",
+  "previewTaskId": "019dd216-3a5e-7d41-bc29-cb802d91c437",
+  "refineTaskId": "019dd217-c0fb-75c8-a7a4-40692ec95983",
+  "meshyProject": "meshy_output/20260427_221607_rune-pillar_019dd216",
+  "createdAt": "2026-04-27T22:19:18.337561",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "octagonal demonic rune pillar environment prop, black obsidian stone and metal bands, vertical purple runes, chipped gothic sci fi edges, about five meters tall, no floor, no background, standalone game asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 34000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd216-3a5e-7d41-bc29-cb802d91c437",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_221607_rune-pillar_019dd216/textures/base_color.png",
+    "normal": "meshy_output/20260427_221607_rune-pillar_019dd216/textures/normal.png",
+    "roughness": "meshy_output/20260427_221607_rune-pillar_019dd216/textures/roughness.png",
+    "metallic": "meshy_output/20260427_221607_rune-pillar_019dd216/textures/metallic.png",
+    "emission": "meshy_output/20260427_221607_rune-pillar_019dd216/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd216-3a5e-7d41-bc29-cb802d91c437",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 1702921883,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "octagonal demonic rune pillar environment prop, black obsidian stone and metal bands, vertical purple runes, chipped gothic sci fi edges, about five meters tall, no floor, no background, standalone game asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346166649,
+    "progress": 100,
+    "started_at": 1777346166708,
+    "finished_at": 1777346253685,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd216-3a5e-7d41-bc29-cb802d91c437/output/model.glb?Expires=4930934400&Signature=EsdePtIFHuYTueND0bwGBLKR17-7zPyAohjP4ULWbyxhGclEEHoqjhRNDSxHT4LSFjxActvlOM~QWfB~ccRoLUJ5PalWgHBPeK44Z2~j6p6E6xe0j5aiOuTOes-UHNTBVdt3YRXx1y054ONgM4tcOnQ-IzE4fEOQdWTHCeQQcmkBYzyJC2jh81-Ngi2FXFBZJ6-flaq9hkz977FMbHdC~1zotDf97hyaMmxyDSyNtDgaFqXo46OXHj25-OpqMBAdqT8KbP0c6t4OgzRnIHi0gGN4s0mEIk03BXfslp0WSoUDc5qlgWdqqrvNcdcD72WAhAZPFOLdj~l76vMZNM-Z-Q__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd216-3a5e-7d41-bc29-cb802d91c437/output/preview.png?Expires=4930934400&Signature=GGhEx~QDmU3~tqilH-vGsl~EIn~DiTane3-N8e~MT83DmO2wYE8FQTpFRHEw-lvJ3RQynXg2iFxod~Mpo1ZUqaT9rZUldcmvC6nddyXmNuheNC7Po61rBGoLXZc-gWRCW708J8rFUN45vZLcosYiiprzq~fV1H5PigdP-l5KBaTNaK9moMSXCkQkGzl5Eaq70V2YAqycIoG8MFaC8bAJsGJO5NYFQvyausHFf8BkJ-wbdzibQ8dYBu1Wh4Jn1FV1vfyJ-371RNr4lSQF5gCDIMQM73cqgb1xO3TcGuQ56Yp-H~0NWunCRd6ERvihB7xoXYkztPM03CdeT1Ruf9U7YA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd217-c0fb-75c8-a7a4-40692ec95983",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 1702921883,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "octagonal demonic rune pillar environment prop, black obsidian stone and metal bands, vertical purple runes, chipped gothic sci fi edges, about five meters tall, no floor, no background, standalone game asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346265723,
+    "progress": 100,
+    "started_at": 1777346266280,
+    "finished_at": 1777346332246,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/model.glb?Expires=4930934400&Signature=myAlD871RrjiLnWBjuMWfsXe~Mvh8ldr4mfl~LCKK-oqGsJugNz7krvF93y6jU1tEGl3sh~CHQ1ktm07W5M~r5QKU3m0Tu0hgYMUL392ynTe9wHp2Jx-GgKiVKruOXL-vY~59ie1~B6j6WjAHTKKXTke-mWDwUTYIJ7I49Nv4PEEs6KhUBX9cIYPbc-jX-9nZ8I2Bo7N0EdqPxD7WDhy~TRd5ziOn36IDvkHugS9B~ktAW5qZ4MEWMhZp5N2kyrewxrqymDX4QrZYQJ26s0-TV4m44XODbWHb-OPHzCusSoaCiZLC~yG5qklPLjONlF7BPAieOtoT9tpkHB2zRrmAQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/preview.png?Expires=4930934400&Signature=PXuRUnkQmFrIVkg2DSedpy9xOOSnkPEPZnLoOjKjNEuT0WvGrJ-71FReit0z7938gsgY5rwEwnmcLUDo3F-qhsdPtdS1Fwq~Y7pY8pd1of0bAjkzNqv0tkFc~Ne4~m1~Nlx~LcRXe8MgWSx2CDeVZfqgoMnWz6oKMO~MGEDID~XA2k5rFwJNrTmnAnaLSY8MpYT7Syu92Vb-pFBif5m0pc~TSHyR6IyTghRFflOK8LNJpgBU7i7uJqk~auhlIg~CZzTWOTadRDiVw4Tl6qBL0CgNSXbnvkPPeaQautE8muVd73V-6I3ZxS1xUumIq4cGohc4Rys-Dr~oukcv6bOgww__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/texture_0.png?Expires=4930934400&Signature=f6s~ViQqboSrWarrG1wqPgO0nA04rFiakQanNekl9p2soM6WEZlRBMMSHskCk248whKm~~6uELBD02RouCJ2c9q8sqv96cDghWeS0-YLY4Iv4A9AB~eHLs10WcVlqlwrOYeOvSbgilRsjbT3nbFkjJFLBe~StJ-yk6MkAtrmZ49QRvpEv1d4dEILL4cfhqAQCwbGJktMgDHRpu6XovSSGqUBfcUCZUSrIbfh2j8PFT4dIruTY2oW75iOxuCfDdPFp4luv4LTnxdQkqkdmWR6fejZRpc851svEsIeyqwPuvZ7dMy033eQnHB2F0hSADFGW33Pr~nxMdBQ7W3YIQR-JQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/texture_0_metallic.png?Expires=4930934400&Signature=AY7wQ~aGPwre-bOh1M1UKmkTDAYiQwIxsuOPw8S3A7DTajPWSyaZjVJ~9IXf4yKLr~7nbSnY1olF36d3omWp~tS274b95htryytbvE~jUsXoBA361Vy2zQA3129fZYO4VYnSOi8xf--AwI7LrzrdqnIuebkGHfPYEyE7NRsgh3Ms0ScK1KOkCpwl3QmYgbV-ObaAlglWG9dxRZjwaysasiyl0aMzOoOncJTsODVvV5tHhEc9kuqx3WPGY00A1dgEJ~v9BsMHRLeGjKXalAfi33WPENl9Gw67oDmR1SRH-23SgsMKy4kKFl-HBG7QT2Tp1acb2qlpYQ4MOjKkwtjXvw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/texture_0_roughness.png?Expires=4930934400&Signature=REiKLuld0P0zQBHj~81~mxgMryOtf-jo8Ueyan43jao6v0S~aNnewqrcKWIy5H0dbh5mr3GeaPFC9-Lrmsr2boOYoEjvopLaNl-V~60Y6xzYZ-wo7BV0Y-lB0Zd-T7MtfE0dWJNNU691-VaNN~FOAmBKUDm0ryME2AqbBHJKs9kKysBqjJNygUXMQ~hOq5vwwQGvXCxT9Qx54BjBwLYHfeAAcblYheMQmlEZVrAwWLXssUSNwyt22Hwuy-W0esv4diGzhVRfrsXgQAiNfmluT5Rrk3DOZa6HSjMq5RUgkw0v8PiHXc~LZnkHLQBljI~ICaQXOohhCxo76PzZdID7Xg__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/texture_0_normal.png?Expires=4930934400&Signature=br66UuTxmdIgEKYIL0PVXKw2V5bT9DXYxTGwgBWKpDm8f72LA63qmPmU86nxWE6yumYcbFNVGKk7AC-pYlcXbDeGSosbbljqeSxO01sjWSlnakh9QFfaVSQdOxhaCxWqIzhsWUwUlp6L0C8GNjN1nnwPjrIlif~~-5Ofj7PK-ObQ9j8Ywe4Q-qwQLHAUzSbyH~A3fK~nzTfKE1OiSeBdhQHWYhkcSlvqLex7gch24D0LZCGRSY0PLR~9yMAaneOmD1LCXPpelZXBbA9FC~~OWO3-kJsgV5qfU47XPcrBv4y9KkBotseq-kw1cl7GNjaXkjtqu5rvYgqPmqyi6rNxvw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd217-c0fb-75c8-a7a4-40692ec95983/output/texture_0_emission.png?Expires=4930934400&Signature=HyDTmGKIbRv-0OWUZr2sONLsKSZ5kv-Tkrsui~ZGPBWUZMwH-7vgQ0Mx1AWrO1s01lC6SDnQZWKw5248l~rVo1ss~kr4XJ7DkwtDDeDghTaT6Qx5ZPQC1ztFGTFHHbRaBB2xPw856cDMXpF93~8w1PUh8T7lNBG10IOWp-f8KmKkBhkD6cGLZzMUDcyxGHsKn5RZxWMEOUUfpkMVq8tGwVhuBG5XM9bY~u2bp3AcjxOWUVeEOTRmdIY1jvKoAcnSuusal4ENEeh3j48frNnMnM69wumezxeQoWZyDtRbpwO7VES9ljc-~5cGeeekL1~iY8Ad0pRZWDOJC9alKP~n8w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd216-3a5e-7d41-bc29-cb802d91c437"
+  },
+  "promoted": {
+    "asset": "rune-pillar",
+    "runtimeDir": "assets/environment/rune-pillar/runtime",
+    "model": {
+      "source": "assets/environment/rune-pillar/source/rune-pillar-meshy-refined.glb",
+      "runtime": "assets/environment/rune-pillar/runtime/models/rune-pillar.glb",
+      "source_bytes": 10025768,
+      "runtime_bytes": 1128592,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/rune-pillar/source/textures/base_color.png",
+        "runtime": "assets/environment/rune-pillar/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6516783,
+        "runtime_bytes": 302618
+      },
+      "normal": {
+        "source": "assets/environment/rune-pillar/source/textures/normal.png",
+        "runtime": "assets/environment/rune-pillar/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6421239,
+        "runtime_bytes": 6391335
+      },
+      "roughness": {
+        "source": "assets/environment/rune-pillar/source/textures/roughness.png",
+        "runtime": "assets/environment/rune-pillar/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1274244,
+        "runtime_bytes": 145638
+      },
+      "metallic": {
+        "source": "assets/environment/rune-pillar/source/textures/metallic.png",
+        "runtime": "assets/environment/rune-pillar/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1344937,
+        "runtime_bytes": 165472
+      },
+      "emissive": {
+        "source": "assets/environment/rune-pillar/source/textures/emission.png",
+        "runtime": "assets/environment/rune-pillar/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 764744,
+        "runtime_bytes": 84462
+      }
+    },
+    "manifest": "assets/environment/rune-pillar/runtime/runtime-manifest.json"
+  }
+}

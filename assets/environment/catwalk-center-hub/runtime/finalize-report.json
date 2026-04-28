@@ -1,0 +1,55 @@
+{
+  "asset": "catwalk-center-hub",
+  "runtimeDir": "assets/environment/catwalk-center-hub/runtime",
+  "model": {
+    "source": "assets/environment/catwalk-center-hub/source/catwalk-center-hub-meshy-refined.glb",
+    "runtime": "assets/environment/catwalk-center-hub/runtime/models/catwalk-center-hub.glb",
+    "source_bytes": 11769448,
+    "runtime_bytes": 1662472,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/catwalk-center-hub/source/textures/base_color.png",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6626690,
+      "runtime_bytes": 411528
+    },
+    "normal": {
+      "source": "assets/environment/catwalk-center-hub/source/textures/normal.png",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6798393,
+      "runtime_bytes": 6778257
+    },
+    "roughness": {
+      "source": "assets/environment/catwalk-center-hub/source/textures/roughness.png",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1465999,
+      "runtime_bytes": 204890
+    },
+    "metallic": {
+      "source": "assets/environment/catwalk-center-hub/source/textures/metallic.png",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1361897,
+      "runtime_bytes": 173730
+    },
+    "emissive": {
+      "source": "assets/environment/catwalk-center-hub/source/textures/emission.png",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 861905,
+      "runtime_bytes": 110130
+    }
+  },
+  "manifest": "assets/environment/catwalk-center-hub/runtime/runtime-manifest.json"
+}

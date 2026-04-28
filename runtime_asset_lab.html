@@ -21,8 +21,10 @@
     .row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:7px; }
     .actions { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
     .tabs { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin:9px 0; }
+    .toolbar { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:9px 0; }
     .tabs button { background:rgba(255,255,255,.08); color:#f8efe2; border-color:rgba(255,255,255,.14); }
     .tabs button.active { background:#9ce8ff; color:#051116; }
+    .toolbar button.secondary { background:rgba(255,255,255,.08); color:#f8efe2; border-color:rgba(255,255,255,.14); }
     output, pre { display:block; margin:9px 0 0; padding:9px; background:rgba(0,0,0,.48); border:1px solid rgba(255,255,255,.11); color:#ffdcb0; white-space:pre-wrap; font-size:12px; line-height:1.42; }
   </style>
   <script type="importmap">
@@ -39,12 +41,28 @@
     <h1>Hellrush Runtime Asset Lab</h1>
     <p>Environment prefab GLB inspection with editable local mesh and collision calibration. Left-drag orbits, right-drag pans, wheel zooms. Yellow wireframe is the local gameplay proxy; cyan wireframe is mesh bounds.</p>
     <label>Asset <select id="assetSelect"></select></label>
+    <label>Lighting
+      <select id="lightingSelect">
+        <option value="level">Level</option>
+        <option value="studio">Studio + 3-Point</option>
+      </select>
+    </label>
     <label>Model URL <input id="modelUrl" /></label>
     <div class="tabs">
       <button id="boundsButton" class="active" type="button">Bounds</button>
       <button id="colliderButton" class="active" type="button">Collider</button>
       <button id="wireButton" type="button">Wire</button>
       <button id="gridButton" class="active" type="button">Grid</button>
+    </div>
+    <div class="toolbar">
+      <button id="visualTargetButton" type="button">Visual</button>
+      <button id="colliderTargetButton" class="secondary" type="button">Collider</button>
+      <button id="frameButton" class="secondary" type="button">Frame</button>
+    </div>
+    <div class="toolbar">
+      <button id="translateButton" type="button">Move</button>
+      <button id="rotateButton" class="secondary" type="button">Rotate</button>
+      <button id="scaleButton" class="secondary" type="button">Scale</button>
     </div>
     <label>Visual Position</label>
     <div class="row">
@@ -76,6 +94,7 @@
       <input id="sizeY" type="number" step="0.05" />
       <input id="sizeZ" type="number" step="0.05" />
     </div>
+    <button id="fitColliderButton" type="button">Fit Collider To Mesh Bounds</button>
     <label>Material <select id="materialSelect"></select></label>
     <div class="row">
       <label>Roughness <input id="matRoughness" type="number" min="0" max="1" step="0.01" /></label>
@@ -94,10 +113,14 @@
   <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+    import {
+      createGameComposer,
+      createGameRenderer,
+      createPmremGenerator,
+      loadAndApplyGameEnvironment
+    } from './src/render-pipeline.js';
+    import { installLabLighting } from './src/lab-lighting.js';
+    import { createEditorTransformGizmo } from './src/editor-transform-gizmo.js';
 
     const qs = new URLSearchParams(location.search);
     const presets = [
@@ -106,42 +129,39 @@
         name: 'Floating Hell Platform',
         manifest: 'assets/environment/floating-hell-platform/runtime/runtime-manifest.json',
       },
+      { id: 'jump-pad', name: 'Jump Pad', manifest: 'assets/environment/jump-pad/runtime/runtime-manifest.json' },
+      { id: 'hook-node', name: 'Meat Hook Node', manifest: 'assets/environment/hook-node/runtime/runtime-manifest.json' },
+      { id: 'catwalk-center-hub', name: 'Catwalk Center Hub', manifest: 'assets/environment/catwalk-center-hub/runtime/runtime-manifest.json' },
+      { id: 'catwalk-straight-arm', name: 'Catwalk Straight Arm', manifest: 'assets/environment/catwalk-straight-arm/runtime/runtime-manifest.json' },
+      { id: 'low-hell-cover', name: 'Low Hell Cover', manifest: 'assets/environment/low-hell-cover/runtime/runtime-manifest.json' },
+      { id: 'rune-pillar', name: 'Rune Pillar', manifest: 'assets/environment/rune-pillar/runtime/runtime-manifest.json' },
+      { id: 'hell-torch', name: 'Hell Torch', manifest: 'assets/environment/hell-torch/runtime/runtime-manifest.json' },
+      { id: 'moving-lift', name: 'Moving Lift', manifest: 'assets/environment/moving-lift/runtime/runtime-manifest.json' },
+      { id: 'sliding-bridge', name: 'Sliding Bridge', manifest: 'assets/environment/sliding-bridge/runtime/runtime-manifest.json' },
+      { id: 'lava-trench-module', name: 'Lava Trench Module', manifest: 'assets/environment/lava-trench-module/runtime/runtime-manifest.json' },
     ];
     const $ = id => document.getElementById(id);
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x080706);
     scene.fog = new THREE.Fog(0x080706, 14, 36);
     const camera = new THREE.PerspectiveCamera(48, innerWidth / innerHeight, 0.02, 160);
-    const renderer = new THREE.WebGLRenderer({ antialias:false, powerPreference:'high-performance' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    const renderer = createGameRenderer({ antialias:false, maxDpr:1.5, shadowMap:false });
     document.body.appendChild(renderer.domElement);
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.22, 0.42, 0.86));
-    composer.addPass(new OutputPass());
+    const { composer } = createGameComposer(renderer, scene, camera);
 
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromEquirectangular(makeEnv()).texture;
-    scene.add(new THREE.HemisphereLight(0xadc7ff, 0x260d05, 0.52));
-    const key = new THREE.SpotLight(0xffd2a0, 620, 30, Math.PI * 0.24, 0.55, 1.25);
-    key.position.set(-5, 6, 5); key.target.position.set(0, 0, 0); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.00003; key.shadow.normalBias = 0.055; scene.add(key, key.target);
-    const rim = new THREE.SpotLight(0x5ad7ff, 260, 28, Math.PI * 0.26, 0.55, 1.3);
-    rim.position.set(5, 3.2, -6); rim.target.position.set(0, 0, 0); scene.add(rim, rim.target);
-    const warm = new THREE.PointLight(0xff4a18, 2.4, 10, 2); warm.position.set(0, 1.5, -2.5); scene.add(warm);
+    const pmrem = createPmremGenerator(renderer);
     const grid = new THREE.GridHelper(16, 16, 0x603224, 0x2c2522); scene.add(grid);
 
     const root = new THREE.Group(); scene.add(root);
     let current = null, loadedManifest = {}, currentPreset = null, materialEntries = [];
+    let labLighting = null;
+    let transformTarget = 'visual';
+    let transformDragging = false;
     const meshBox = new THREE.Box3();
     const meshHelper = new THREE.Box3Helper(meshBox, 0x62e8ff); scene.add(meshHelper);
     const collider = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({ color:0xffd24a, wireframe:true, transparent:true, opacity:0.9, depthTest:false }));
     collider.renderOrder = 10; scene.add(collider);
+    collider.name = 'runtime-asset-collider';
     const state = {
       theta: 0.55,
       phi: 0.22,
@@ -161,17 +181,11 @@
     if (qs.get('asset')) $('assetSelect').value = qs.get('asset');
     if (qs.get('model')) $('modelUrl').value = qs.get('model');
 
-    function makeEnv() {
-      const c = document.createElement('canvas'); c.width = 768; c.height = 384;
-      const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0,0,0,c.height);
-      g.addColorStop(0,'#ffdfb5'); g.addColorStop(.42,'#334253'); g.addColorStop(.72,'#1b0c08'); g.addColorStop(1,'#050303');
-      ctx.fillStyle = g; ctx.fillRect(0,0,c.width,c.height);
-      for (const [x,y,color] of [[150,90,'rgba(255,198,96,.9)'],[570,118,'rgba(92,205,255,.65)'],[405,310,'rgba(255,70,20,.75)']]) {
-        const r = ctx.createRadialGradient(x,y,0,x,y,180); r.addColorStop(0,color); r.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle = r; ctx.fillRect(0,0,c.width,c.height);
-      }
-      const tex = new THREE.CanvasTexture(c); tex.mapping = THREE.EquirectangularReflectionMapping; tex.colorSpace = THREE.SRGBColorSpace; return tex;
+    async function loadGameEnvironment() {
+      await loadAndApplyGameEnvironment({ renderer, scene, pmrem });
+    }
+    function setLighting(mode) {
+      labLighting?.setMode(mode);
     }
     async function fetchJson(url) {
       const resp = await fetch(url, { cache:'no-store' });
@@ -196,6 +210,76 @@
     }
     function dir(url) {
       const clean = url.split('?')[0]; return clean.includes('/') ? clean.slice(0, clean.lastIndexOf('/') + 1) : './';
+    }
+    function cacheSuffix(url) {
+      const query = url.includes('?') ? url.slice(url.indexOf('?')) : '';
+      return query || `?v=${Date.now()}`;
+    }
+    function collectMaterials(object) {
+      const materials = [];
+      const seen = new Set();
+      object.traverse((child) => {
+        if (!child.isMesh || !child.material) return;
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        for (const mat of mats) {
+          if (!mat || seen.has(mat.uuid)) continue;
+          seen.add(mat.uuid);
+          materials.push(mat);
+        }
+      });
+      return materials;
+    }
+    async function loadTextureUrl(url, colorSpace) {
+      const tex = await new THREE.TextureLoader().loadAsync(url);
+      tex.colorSpace = colorSpace;
+      tex.flipY = false;
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return tex;
+    }
+    async function applySidecarMaterialOverrides(modelUrl, object) {
+      const bust = cacheSuffix(modelUrl);
+      const baseDir = dir(modelUrl);
+      const candidates = [`${baseDir}material-overrides.json${bust}`, `${baseDir}../material-overrides.json${bust}`];
+      let found = null;
+      for (const url of candidates) {
+        try {
+          const resp = await fetch(url, { cache: 'no-store' });
+          if (resp.ok) {
+            found = { url, manifest: await resp.json() };
+            break;
+          }
+        } catch {
+          // Try the next sidecar location.
+        }
+      }
+      if (!found) return;
+      const manifestDir = dir(found.url);
+      const loaded = {};
+      for (const [key, spec] of Object.entries(found.manifest.maps || {})) {
+        if (!spec?.file) continue;
+        const space = spec.colorSpace === 'srgb' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+        loaded[key] = await loadTextureUrl(`${manifestDir}${spec.file}${bust}`, space);
+      }
+      for (const mat of collectMaterials(object)) {
+        if (loaded.baseColor) mat.map = loaded.baseColor;
+        if (loaded.normal) mat.normalMap = loaded.normal;
+        if (loaded.roughness) {
+          mat.roughnessMap = loaded.roughness;
+          mat.roughness = 1;
+        }
+        if (loaded.metallic) {
+          mat.metalnessMap = loaded.metallic;
+          mat.metalness = 1;
+        }
+        if (loaded.emissive) {
+          mat.emissiveMap = loaded.emissive;
+          mat.emissive?.set(0xffffff);
+          mat.emissiveIntensity = found.manifest.maps?.emissive?.intensity || mat.emissiveIntensity || 1;
+        }
+        mat.userData.baseEmissiveIntensity = mat.emissiveIntensity || 1;
+        mat.needsUpdate = true;
+      }
     }
     function num(id) { return Number($(id).value); }
     function setNum(id, v) { $(id).value = Number(v).toFixed(3).replace(/\\.000$/,''); }
@@ -225,6 +309,52 @@
         materialOverrides
       };
     }
+    function syncTransformFieldsFromObjects() {
+      if (current) {
+        setNum('visualX', current.position.x);
+        setNum('visualY', current.position.y);
+        setNum('visualZ', current.position.z);
+        setNum('visualRotX', current.rotation.x);
+        setNum('visualRotY', current.rotation.y);
+        setNum('visualRotZ', current.rotation.z);
+        const visualScale = (current.scale.x + current.scale.y + current.scale.z) / 3;
+        current.scale.setScalar(visualScale);
+        setNum('visualScale', visualScale);
+      }
+      setNum('colX', collider.position.x);
+      setNum('colY', collider.position.y);
+      setNum('colZ', collider.position.z);
+      setNum('sizeX', Math.abs(collider.scale.x));
+      setNum('sizeY', Math.abs(collider.scale.y));
+      setNum('sizeZ', Math.abs(collider.scale.z));
+      updateCollider();
+    }
+    const transformGizmo = createEditorTransformGizmo({
+      camera,
+      domElement: renderer.domElement,
+      scene,
+      modeButtons: {
+        translate: $('translateButton'),
+        rotate: $('rotateButton'),
+        scale: $('scaleButton')
+      },
+      onDraggingChanged: value => { transformDragging = value; },
+      onChange: () => composer.render(),
+      onObjectChange: syncTransformFieldsFromObjects
+    });
+    function setTransformTarget(targetName) {
+      transformTarget = targetName;
+      $('visualTargetButton').classList.toggle('secondary', targetName !== 'visual');
+      $('colliderTargetButton').classList.toggle('secondary', targetName !== 'collider');
+      const targetObject = targetName === 'collider' ? collider : current;
+      if (targetObject && transformGizmo.object !== targetObject) transformGizmo.attach(targetObject);
+      else if (!targetObject) transformGizmo.detach();
+      if (targetName === 'collider' && transformGizmo.mode === 'rotate') transformGizmo.setMode('translate');
+      $('rotateButton').disabled = targetName === 'collider';
+    }
+    function syncTransformTarget() {
+      setTransformTarget(transformTarget);
+    }
     function mergedManifestDraft() {
       return {
         ...loadedManifest,
@@ -245,6 +375,7 @@
       collider.visible = $('colliderButton').classList.contains('active');
       grid.visible = $('gridButton').classList.contains('active');
       $('jsonOut').value = JSON.stringify(currentAssetDraft(), null, 2);
+      syncTransformTarget();
     }
     function homeCamera() {
       state.theta = 0.55;
@@ -262,11 +393,26 @@
       setNum('visualZ', num('visualZ') - center.z);
       updateCollider();
     }
+    function fitColliderToMeshBounds() {
+      if (!current) return;
+      current.updateMatrixWorld(true);
+      meshBox.setFromObject(current);
+      const center = meshBox.getCenter(new THREE.Vector3());
+      const size = meshBox.getSize(new THREE.Vector3());
+      setNum('colX', center.x);
+      setNum('colY', center.y);
+      setNum('colZ', center.z);
+      setNum('sizeX', Math.max(0.05, size.x));
+      setNum('sizeY', Math.max(0.05, size.y));
+      setNum('sizeZ', Math.max(0.05, size.z));
+      updateCollider();
+      setTransformTarget('collider');
+    }
     function applyMaterials(object) {
       object.traverse(o => {
         o.frustumCulled = false;
         if (!o.isMesh) return;
-        o.castShadow = true; o.receiveShadow = false;
+        o.castShadow = false; o.receiveShadow = false;
         const mats = Array.isArray(o.material) ? o.material : [o.material];
         for (const mat of mats) {
           if (mat.map) mat.map.colorSpace = THREE.SRGBColorSpace;
@@ -376,6 +522,7 @@
       if (current) root.remove(current);
       const gltf = await new GLTFLoader().loadAsync(`${resolved.modelUrl}${resolved.modelUrl.includes('?') ? '&' : '?'}v=${Date.now()}`);
       current = gltf.scene;
+      if (loadedManifest.materialOverride) await applySidecarMaterialOverrides(resolved.modelUrl, current);
       applyMaterials(current);
       root.add(current);
       rebuildMaterialInspector();
@@ -411,6 +558,7 @@
       const centerArr = collision.center || [0, topY - cSize[1] * 0.5, 0];
       setNum('colX', centerArr[0]); setNum('colY', centerArr[1]); setNum('colZ', centerArr[2]);
       updateCollider();
+      setTransformTarget('visual');
       state.target.set(num('colX'), num('colY'), num('colZ'));
       state.homeTarget.copy(state.target);
       let meshes=0, tris=0, textures=new Set();
@@ -434,19 +582,31 @@
     $('copyButton').addEventListener('click', async () => navigator.clipboard?.writeText($('jsonOut').value));
     $('saveButton').addEventListener('click', () => saveManifest().catch(err => $('stats').textContent = String(err.message || err)));
     $('alignTopButton').addEventListener('click', alignMeshTopCenterToOrigin);
+    $('fitColliderButton').addEventListener('click', fitColliderToMeshBounds);
     $('homeButton').addEventListener('click', homeCamera);
     $('homeButton2').addEventListener('click', homeCamera);
+    $('visualTargetButton').addEventListener('click', () => setTransformTarget('visual'));
+    $('colliderTargetButton').addEventListener('click', () => setTransformTarget('collider'));
+    $('frameButton').addEventListener('click', () => {
+      const object = transformGizmo.object || current || collider;
+      if (!object) return;
+      object.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(object);
+      box.getCenter(state.target);
+      state.homeTarget.copy(state.target);
+    });
     renderer.domElement.addEventListener('contextmenu', ev => ev.preventDefault());
     renderer.domElement.addEventListener('pointerdown', ev => {
+      if (transformDragging) return;
       state.dragging = true;
       state.dragButton = ev.button;
       state.x = ev.clientX;
       state.y = ev.clientY;
       renderer.domElement.setPointerCapture(ev.pointerId);
     });
-    renderer.domElement.addEventListener('pointerup', ev => { state.dragging=false; renderer.domElement.releasePointerCapture(ev.pointerId); });
+    renderer.domElement.addEventListener('pointerup', ev => { state.dragging=false; if (renderer.domElement.hasPointerCapture(ev.pointerId)) renderer.domElement.releasePointerCapture(ev.pointerId); });
     renderer.domElement.addEventListener('pointermove', ev => {
-      if (!state.dragging) return;
+      if (!state.dragging || transformDragging) return;
       const dx = ev.clientX - state.x;
       const dy = ev.clientY - state.y;
       if (state.dragButton === 2) {
@@ -474,8 +634,13 @@
       camera.lookAt(state.target);
       composer.render();
     }
+    await loadGameEnvironment();
+    labLighting = installLabLighting(scene, { target: new THREE.Vector3(0, 0.2, 0) });
+    $('lightingSelect').addEventListener('change', () => setLighting($('lightingSelect').value));
+    setLighting('level');
     loadAsset().catch(err => $('stats').textContent = String(err.message || err));
     animate();
   </script>
+  <script type="module" src="src/app-nav.js?v=1"></script>
 </body>
 </html>

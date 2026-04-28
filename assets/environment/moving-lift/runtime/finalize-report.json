@@ -1,0 +1,55 @@
+{
+  "asset": "moving-lift",
+  "runtimeDir": "assets/environment/moving-lift/runtime",
+  "model": {
+    "source": "assets/environment/moving-lift/source/moving-lift-meshy-refined.glb",
+    "runtime": "assets/environment/moving-lift/runtime/models/moving-lift.glb",
+    "source_bytes": 15324888,
+    "runtime_bytes": 1618996,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/moving-lift/source/textures/base_color.png",
+      "runtime": "assets/environment/moving-lift/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 8586466,
+      "runtime_bytes": 1069790
+    },
+    "normal": {
+      "source": "assets/environment/moving-lift/source/textures/normal.png",
+      "runtime": "assets/environment/moving-lift/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 9273718,
+      "runtime_bytes": 9269150
+    },
+    "roughness": {
+      "source": "assets/environment/moving-lift/source/textures/roughness.png",
+      "runtime": "assets/environment/moving-lift/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1231042,
+      "runtime_bytes": 116744
+    },
+    "metallic": {
+      "source": "assets/environment/moving-lift/source/textures/metallic.png",
+      "runtime": "assets/environment/moving-lift/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1659836,
+      "runtime_bytes": 376444
+    },
+    "emissive": {
+      "source": "assets/environment/moving-lift/source/textures/emission.png",
+      "runtime": "assets/environment/moving-lift/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1980498,
+      "runtime_bytes": 212982
+    }
+  },
+  "manifest": "assets/environment/moving-lift/runtime/runtime-manifest.json"
+}

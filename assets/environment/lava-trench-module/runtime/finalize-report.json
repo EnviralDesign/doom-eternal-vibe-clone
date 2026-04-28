@@ -1,0 +1,55 @@
+{
+  "asset": "lava-trench-module",
+  "runtimeDir": "assets/environment/lava-trench-module/runtime",
+  "model": {
+    "source": "assets/environment/lava-trench-module/source/lava-trench-module-meshy-refined.glb",
+    "runtime": "assets/environment/lava-trench-module/runtime/models/lava-trench-module.glb",
+    "source_bytes": 14171648,
+    "runtime_bytes": 1209728,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/lava-trench-module/source/textures/base_color.png",
+      "runtime": "assets/environment/lava-trench-module/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 8098292,
+      "runtime_bytes": 815530
+    },
+    "normal": {
+      "source": "assets/environment/lava-trench-module/source/textures/normal.png",
+      "runtime": "assets/environment/lava-trench-module/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 8604805,
+      "runtime_bytes": 8596129
+    },
+    "roughness": {
+      "source": "assets/environment/lava-trench-module/source/textures/roughness.png",
+      "runtime": "assets/environment/lava-trench-module/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1227686,
+      "runtime_bytes": 132502
+    },
+    "metallic": {
+      "source": "assets/environment/lava-trench-module/source/textures/metallic.png",
+      "runtime": "assets/environment/lava-trench-module/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 970136,
+      "runtime_bytes": 71388
+    },
+    "emissive": {
+      "source": "assets/environment/lava-trench-module/source/textures/emission.png",
+      "runtime": "assets/environment/lava-trench-module/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 3538526,
+      "runtime_bytes": 348982
+    }
+  },
+  "manifest": "assets/environment/lava-trench-module/runtime/runtime-manifest.json"
+}

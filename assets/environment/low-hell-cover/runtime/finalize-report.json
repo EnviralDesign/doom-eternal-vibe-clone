@@ -1,0 +1,55 @@
+{
+  "asset": "low-hell-cover",
+  "runtimeDir": "assets/environment/low-hell-cover/runtime",
+  "model": {
+    "source": "assets/environment/low-hell-cover/source/low-hell-cover-meshy-refined.glb",
+    "runtime": "assets/environment/low-hell-cover/runtime/models/low-hell-cover.glb",
+    "source_bytes": 12322904,
+    "runtime_bytes": 1042352,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/low-hell-cover/source/textures/base_color.png",
+      "runtime": "assets/environment/low-hell-cover/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7845264,
+      "runtime_bytes": 680148
+    },
+    "normal": {
+      "source": "assets/environment/low-hell-cover/source/textures/normal.png",
+      "runtime": "assets/environment/low-hell-cover/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7946545,
+      "runtime_bytes": 7896062
+    },
+    "roughness": {
+      "source": "assets/environment/low-hell-cover/source/textures/roughness.png",
+      "runtime": "assets/environment/low-hell-cover/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1401201,
+      "runtime_bytes": 185690
+    },
+    "metallic": {
+      "source": "assets/environment/low-hell-cover/source/textures/metallic.png",
+      "runtime": "assets/environment/low-hell-cover/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1605205,
+      "runtime_bytes": 309790
+    },
+    "emissive": {
+      "source": "assets/environment/low-hell-cover/source/textures/emission.png",
+      "runtime": "assets/environment/low-hell-cover/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1008140,
+      "runtime_bytes": 121618
+    }
+  },
+  "manifest": "assets/environment/low-hell-cover/runtime/runtime-manifest.json"
+}

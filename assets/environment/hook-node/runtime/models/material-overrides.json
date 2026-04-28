@@ -1,0 +1,31 @@
+{
+  "materialName": "EnvironmentRuntimeMaterial",
+  "source": "Finalized Meshy environment runtime texture set.",
+  "maps": {
+    "baseColor": {
+      "file": "../textures/base_color.webp",
+      "colorSpace": "srgb"
+    },
+    "normal": {
+      "file": "../textures/normal.png",
+      "colorSpace": "linear"
+    },
+    "roughness": {
+      "file": "../textures/roughness.webp",
+      "colorSpace": "linear"
+    },
+    "metallic": {
+      "file": "../textures/metallic.webp",
+      "colorSpace": "linear"
+    },
+    "emissive": {
+      "file": "../textures/emission.webp",
+      "colorSpace": "srgb",
+      "intensity": 1.35
+    }
+  },
+  "notes": [
+    "External PBR/emissive maps restored by runtime/lab sidecar loading.",
+    "Roughness and metalness scalar multipliers should remain 1.0 when maps are present."
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "asset": "sliding-bridge",
+  "runtimeDir": "assets/environment/sliding-bridge/runtime",
+  "model": {
+    "source": "assets/environment/sliding-bridge/source/sliding-bridge-meshy-refined.glb",
+    "runtime": "assets/environment/sliding-bridge/runtime/models/sliding-bridge.glb",
+    "source_bytes": 12452620,
+    "runtime_bytes": 1412800,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/sliding-bridge/source/textures/base_color.png",
+      "runtime": "assets/environment/sliding-bridge/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7152430,
+      "runtime_bytes": 563404
+    },
+    "normal": {
+      "source": "assets/environment/sliding-bridge/source/textures/normal.png",
+      "runtime": "assets/environment/sliding-bridge/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7474480,
+      "runtime_bytes": 7456539
+    },
+    "roughness": {
+      "source": "assets/environment/sliding-bridge/source/textures/roughness.png",
+      "runtime": "assets/environment/sliding-bridge/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1496075,
+      "runtime_bytes": 222500
+    },
+    "metallic": {
+      "source": "assets/environment/sliding-bridge/source/textures/metallic.png",
+      "runtime": "assets/environment/sliding-bridge/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1522940,
+      "runtime_bytes": 262558
+    },
+    "emissive": {
+      "source": "assets/environment/sliding-bridge/source/textures/emission.png",
+      "runtime": "assets/environment/sliding-bridge/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1173513,
+      "runtime_bytes": 113484
+    }
+  },
+  "manifest": "assets/environment/sliding-bridge/runtime/runtime-manifest.json"
+}

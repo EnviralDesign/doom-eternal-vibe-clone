@@ -1,0 +1,160 @@
+{
+  "id": "catwalk-center-hub",
+  "name": "Catwalk Center Hub",
+  "prompt": "square modular hell tech catwalk center hub, 6 meter square platform tile, black gunmetal panels, cyan argent circuitry grooves, orange molten seams, beveled industrial border, top surface walkable, no legs, no background, game environment asset",
+  "previewTaskId": "019dd204-e7b4-72db-a2ca-5ef5dbe827ea",
+  "refineTaskId": "019dd208-8505-7a41-9b85-5724f2c8eb4f",
+  "meshyProject": "meshy_output/20260427_215711_catwalk-center-hub_019dd204",
+  "createdAt": "2026-04-27T22:02:39.865492",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "square modular hell tech catwalk center hub, 6 meter square platform tile, black gunmetal panels, cyan argent circuitry grooves, orange molten seams, beveled industrial border, top surface walkable, no legs, no background, game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 46000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd204-e7b4-72db-a2ca-5ef5dbe827ea",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_215711_catwalk-center-hub_019dd204/textures/base_color.png",
+    "normal": "meshy_output/20260427_215711_catwalk-center-hub_019dd204/textures/normal.png",
+    "roughness": "meshy_output/20260427_215711_catwalk-center-hub_019dd204/textures/roughness.png",
+    "metallic": "meshy_output/20260427_215711_catwalk-center-hub_019dd204/textures/metallic.png",
+    "emission": "meshy_output/20260427_215711_catwalk-center-hub_019dd204/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd204-e7b4-72db-a2ca-5ef5dbe827ea",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 1396991678,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "square modular hell tech catwalk center hub, 6 meter square platform tile, black gunmetal panels, cyan argent circuitry grooves, orange molten seams, beveled industrial border, top surface walkable, no legs, no background, game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777345031515,
+    "progress": 100,
+    "started_at": 1777345031791,
+    "finished_at": 1777345261441,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd204-e7b4-72db-a2ca-5ef5dbe827ea/output/model.glb?Expires=4930934400&Signature=Zmi-M9sL0tsEEsPAWImPpGPx4fEuzF-j5NHBWnhPcos4OOUiF8cn1syhBYdMvwqfsHx6fGj~gK~XEv8P8rOGw2f2cokwf6jRxAE-MMPSJsU~ven9tYAHMlnWjuolnYuNIWj~2cMcQXffn8hqYfDlRwC3ga4150aaGT0Ckmak5s~9IgZggRtJZ-3c-cvfc07CCDvtcjp7zRk0YcqOfQtaeKfJ0T7Q~-SArjgIdau0LplJlmurqkX-5eZ1Lu3b-QEKHEv74PIV-qEtFrE17EfVwQBNvNoMlD0cEsVNqqaXoQPw2tgKX9nSnrxAlQTOyMBN2qAMBJ6u8n3KluIJ4VN~vg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd204-e7b4-72db-a2ca-5ef5dbe827ea/output/preview.png?Expires=4930934400&Signature=EoWiPQ3oX~wPFHi9OA3YcLhJNHjsULDHmSpE1lIV5N6Wsy-icqtkQLBv-2rMt1KpMvM97RP0fpEdm~EKmLWkrV1I~H4FxS4WMGR-xtEjW7JLQCg2B88lwL39Vnkkt~dPeqsWy2HCNz-CwUuiybTF3l-MLO8Sujo914uxXYIORoavKs2d0MqL5N2hUAja5coAXvk-Tj6vihAJJJ5dStm-Yn2-IFg2qUG8zT8p1STEksK8qp9X3OIkSpnNZ5pA1QBHlEOleyz5ZdornXQlI~Gk-R0Mv95ECPeZQDrilV0Vyu7uvHqJacbxYbCqsA0zMPhiZmVNBx3TYoEd8ExZA2fLBQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd208-8505-7a41-9b85-5724f2c8eb4f",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 1396991678,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "square modular hell tech catwalk center hub, 6 meter square platform tile, black gunmetal panels, cyan argent circuitry grooves, orange molten seams, beveled industrial border, top surface walkable, no legs, no background, game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777345267163,
+    "progress": 100,
+    "started_at": 1777345267208,
+    "finished_at": 1777345345959,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/model.glb?Expires=4930934400&Signature=Z38mNkFdgbJ8vQl9uu0GH6Hoqt-ogvYaN7HUAKdIcoi8UjneK6ylouMs9MZ16txAImEDad5zSlZO5Z6wpNLnwSIOHAUSt6r1Cgr5LeXH9KZYiqYXjzZrwSgR1q4Jbp05jNcPSaEm~8eGU0mPhCE20e~TtSrBu8u5Us359simsl2cUqqBe3IwFapoLxmS8Kt3obd6-gw7iVj6iAlyGrr0rzyVAqG9V7soM0k5-Me0ufYrnBgxQuh7EgWJ~gWZYcqHhThCHId6GteChrxWKGCw6NyvF1pmXBfR-Gyj74paQpYvmeTFd2KoazSQestjeU8yEYHxaHfUKFnyr~Zy8uKq-w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/preview.png?Expires=4930934400&Signature=EedssA4wZEExWnJFVpPB4wurmHDfeF-9cO52c~U4Q12YVf4-38iagS11M3yrnhfz72XOoTtYuJZIP9mP1tB1RabYiGvq-a3o8w27-8OOC4czJZfC9nQ-h371MQReJu~m~F3nUykCxi6XfT6JGK1euMDviQ5lZ2G1LzIHrrl38fY-~PoVO7mIlkUHET4HDrU40L2V7sGrzT5mq3xjlpm9g6TqbK8S1QHexjPAcW~5vHxewf7v0diLRhSUuhvCxPUL2WRkdpM61wXtXjc9KC-T0LnEr4iBoV5R3jdJpwdeuLLZK7MWpGZbLVGWn6aJazdwOa1pw~nThEl-HE4jd-kRmA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/texture_0.png?Expires=4930934400&Signature=Kl8qcTRlKBk2cC7rbYzfbJt5IxTkW9lFW8fxInMOUiMwFmTtaqNzeedCH6tPZbWkOvPo-kWgO3FNAyzC3fe~ka4ThepSO9QQMH328j775~dVqVtbySu9rRH53IhvbPo7ASghLdeFgjH1TWWQNlr9dKynriXw9WSoEpN9JiQ935gcY8z30ABLrbNfCeLrp-91csAq05ehKZqNiGlLfy7jBpE29XqtbPuM238kCEF-fPOapylgmfxFvGy0Zizc2O~FDiuh6aeo66NE3l6gdfM2q0DKi-ml~puJOUxSKLBTGj5Iqr6a-RmHkvt3fHR5u6KPeVBsX8d-rxVng0F0ZBTR6w__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/texture_0_metallic.png?Expires=4930934400&Signature=UUdiNwLj5pmmCSkokKPp~hG790~BqZwSjyjq3Ca~dEqqwSpIxONyB4RsElWgomjmuXqNmzEWN5gxevM3FFT8LeU2jM~5S536xrHxsKNODoX0mm220hL7mGp9SCdFTA-vv086-G~QHqjFF7p-uDq5t7hr1tKnUfv-yfn-G2LJhynHEIyOcSzaeURD0myD6g9S7wuKGRepcMqIokYdNEHCiKvlCDmasQDu7VafXexrm1LZ2v~dWrdwvgPv0WDZvzcxOW62yh0hYpz9cFGtNjPct2joZnDN5ZdrsuXQ3Flnb1wNrdGAfimuHvJfrSSqy6ShyzqzwWd8VdLOT1YuI4Xg0g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/texture_0_roughness.png?Expires=4930934400&Signature=QGD5YCqOyeldbDh7MQkb1AHKOBjXrL-ELPvyHTeex~fn8RQYxTzxGRpDIdKZ5iS4mVrRSxbOF9i9-tarjwlHhccRvSd5UjRsa2-19gVkP~OFopy0~3gPpiNOzN6bZoYE3aNNe7ZAJnWL49cHxQTjDN3S7tAVTVFTBZmfkELfGoy0w5IcDd8BJPT~ACYr7xn8dfpDDprBAjt5MKdUqNqP6Hx50BfTXbESpV2QmgPG3zgT64Z9awGLSzmxOIPrgQsW7jT-A6fXR4FYMgoEqby0Et6PEOe35E8-EMDkIvIYI1MR2oBf7Wp4H-tIYuROmbevpFIf9XrE8PBYLT~xxnDWtA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/texture_0_normal.png?Expires=4930934400&Signature=SeXxJ09lM-mXfE-GwEULlp6gYf3EWBM94h84F5bBpXxO4V8aFrekz59Tx1AbodcujKZhdUjfExzSRmbVhIq~sIuZc4xjcIpYBolpmRT4lInOglFTwug1vbVyDspCBbiNMpCplS67ujg0ZzbAC3NnuxAYnqQ4ojfE3kQpKNBlfRxWpyUjrEosvabSdtnff0sr1w9QgVqKZmlRQw5FGBDFj1yfOf~x0JHPUzvFzLtoVTxJyN3~sezBjADqsBt5YYQG7-2GtKzpW~qHsid9HL3~I~ka62~L75tb0bAOYyeEOC0CobQohpw1FHGTPS70IdSc2ts1lhiKaPs3ETxvtMxcoA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd208-8505-7a41-9b85-5724f2c8eb4f/output/texture_0_emission.png?Expires=4930934400&Signature=jpUsR3cU7vK5ceSyFZ3TSuHIgRnUcrcULQnQ8PTQ8vbq1toDWQkN8TW3bDwQjy4p7FhTnetEkRMovnCUz4Zd0Zg2AxH1hZHxQNR3gtX2NREBhwjadVJvj8044JTnEkjoJyEmK3g4~ytUFYbicnmFSvN0MP-wpFJfKMWfxlliLbJjtjwxJYF-21qu2-mlbRq765AIXoBkTrWOBzCTPtFIFTJduKQNrCK5iSXKMeDcMei3rcu~yDrlefSpW8q1y0s9LKBKbemOlfo~HBcNBslO6lxMPAsFF26Is95hMnjzfI3X~gTedvVuz-bXjeOhqJAYLEs50riPb4VUCKaBagJNvg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd204-e7b4-72db-a2ca-5ef5dbe827ea"
+  },
+  "promoted": {
+    "asset": "catwalk-center-hub",
+    "runtimeDir": "assets/environment/catwalk-center-hub/runtime",
+    "model": {
+      "source": "assets/environment/catwalk-center-hub/source/catwalk-center-hub-meshy-refined.glb",
+      "runtime": "assets/environment/catwalk-center-hub/runtime/models/catwalk-center-hub.glb",
+      "source_bytes": 11769448,
+      "runtime_bytes": 1662472,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/catwalk-center-hub/source/textures/base_color.png",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6626690,
+        "runtime_bytes": 411528
+      },
+      "normal": {
+        "source": "assets/environment/catwalk-center-hub/source/textures/normal.png",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6798393,
+        "runtime_bytes": 6778257
+      },
+      "roughness": {
+        "source": "assets/environment/catwalk-center-hub/source/textures/roughness.png",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1465999,
+        "runtime_bytes": 204890
+      },
+      "metallic": {
+        "source": "assets/environment/catwalk-center-hub/source/textures/metallic.png",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1361897,
+        "runtime_bytes": 173730
+      },
+      "emissive": {
+        "source": "assets/environment/catwalk-center-hub/source/textures/emission.png",
+        "runtime": "assets/environment/catwalk-center-hub/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 861905,
+        "runtime_bytes": 110130
+      }
+    },
+    "manifest": "assets/environment/catwalk-center-hub/runtime/runtime-manifest.json"
+  }
+}

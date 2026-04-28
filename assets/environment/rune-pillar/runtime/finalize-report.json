@@ -1,0 +1,55 @@
+{
+  "asset": "rune-pillar",
+  "runtimeDir": "assets/environment/rune-pillar/runtime",
+  "model": {
+    "source": "assets/environment/rune-pillar/source/rune-pillar-meshy-refined.glb",
+    "runtime": "assets/environment/rune-pillar/runtime/models/rune-pillar.glb",
+    "source_bytes": 10025768,
+    "runtime_bytes": 1128592,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/rune-pillar/source/textures/base_color.png",
+      "runtime": "assets/environment/rune-pillar/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6516783,
+      "runtime_bytes": 302618
+    },
+    "normal": {
+      "source": "assets/environment/rune-pillar/source/textures/normal.png",
+      "runtime": "assets/environment/rune-pillar/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6421239,
+      "runtime_bytes": 6391335
+    },
+    "roughness": {
+      "source": "assets/environment/rune-pillar/source/textures/roughness.png",
+      "runtime": "assets/environment/rune-pillar/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1274244,
+      "runtime_bytes": 145638
+    },
+    "metallic": {
+      "source": "assets/environment/rune-pillar/source/textures/metallic.png",
+      "runtime": "assets/environment/rune-pillar/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1344937,
+      "runtime_bytes": 165472
+    },
+    "emissive": {
+      "source": "assets/environment/rune-pillar/source/textures/emission.png",
+      "runtime": "assets/environment/rune-pillar/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 764744,
+      "runtime_bytes": 84462
+    }
+  },
+  "manifest": "assets/environment/rune-pillar/runtime/runtime-manifest.json"
+}

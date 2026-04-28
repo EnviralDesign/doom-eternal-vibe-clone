@@ -1,0 +1,160 @@
+{
+  "id": "catwalk-straight-arm",
+  "name": "Catwalk Straight Arm",
+  "prompt": "long modular hell tech catwalk bridge segment, rectangular 19 by 5 meter platform, black worn metal plates, cyan glowing grooves, orange heat cracks along seams, beveled rails integrated into sides, no supports, no background, game ready",
+  "previewTaskId": "019dd209-fdc3-7ab1-b303-3848f80ef72c",
+  "refineTaskId": "019dd20d-22ea-7699-851d-de08e1f17de9",
+  "meshyProject": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209",
+  "createdAt": "2026-04-27T22:07:57.486521",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "long modular hell tech catwalk bridge segment, rectangular 19 by 5 meter platform, black worn metal plates, cyan glowing grooves, orange heat cracks along seams, beveled rails integrated into sides, no supports, no background, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 52000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd209-fdc3-7ab1-b303-3848f80ef72c",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209/textures/base_color.png",
+    "normal": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209/textures/normal.png",
+    "roughness": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209/textures/roughness.png",
+    "metallic": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209/textures/metallic.png",
+    "emission": "meshy_output/20260427_220245_catwalk-straight-arm_019dd209/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd209-fdc3-7ab1-b303-3848f80ef72c",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3234804929,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "long modular hell tech catwalk bridge segment, rectangular 19 by 5 meter platform, black worn metal plates, cyan glowing grooves, orange heat cracks along seams, beveled rails integrated into sides, no supports, no background, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777345364772,
+    "progress": 100,
+    "started_at": 1777345364810,
+    "finished_at": 1777345558093,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd209-fdc3-7ab1-b303-3848f80ef72c/output/model.glb?Expires=4930934400&Signature=NzDNpzVNT6f2FBtXjFYdJC-YV6uDbiG9~dQDb~0QFmQ2diwEp3KCaMe3YXKFA6kVRIc17MD1KGZ2Xx8RN7887xWUS34buYjX59kvzNT6SYDykuRJdorOr9ia-5u82fYGdkfGZcKCoKT7q95d0Kz3lAQeDEgBnhXG8gY9uNnV-d4zAPy1Cmi69lcLrBWnl7qKtfZKh0Rk9lMEuQ83uAp7GHWxJ6Et3qlmN3lROXv8eTWyTlZWYKC1EVlVA0Hr13NPD2keTyhpdAV4MNW1Olzq5bWbd-6f5Fn~KOX2vUPleWB~w0I5RXR8IHrajq7sHw-xetQp5U5XSx6QXAdRwDsZjQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd209-fdc3-7ab1-b303-3848f80ef72c/output/preview.png?Expires=4930934400&Signature=aTNgYVE4M-1gZz2bj9Gq8VVbO97BTo9pUSiNHIR3c~F3mWJpDzEEnCq70qii1sng1wsumratcHQ5kEJmMa~IeSGGCTzgZFrmFOJITeocpMUV8KbXE2tI7VVTAjhXE5ufsofg34WCTRJXFl5ivIRzUyJTlGX-A8MZptC1hD-28kKgk8aefFeDXqYIkGN7J~DHj0RD7FVAylfnF52iURlQA3CK6ll~~~wLObDLeWplOHyUUwBEXnCC3DCP3F-o2Qi3CYit4IU91exxT94rCTw1Gz97JVfN69vK0nXwywdVZWrGhOC~6ZLfb4yu2jS5qmp2VxSYoVUI~sAo6D6KsOkMCA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd20d-22ea-7699-851d-de08e1f17de9",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 3234804929,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "long modular hell tech catwalk bridge segment, rectangular 19 by 5 meter platform, black worn metal plates, cyan glowing grooves, orange heat cracks along seams, beveled rails integrated into sides, no supports, no background, game ready",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777345569712,
+    "progress": 100,
+    "started_at": 1777345569981,
+    "finished_at": 1777345663011,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/model.glb?Expires=4930934400&Signature=Il4v33yfruTbK6YpOjFivMV-V33rrWDJJ1Jizb3lV~XLhOKWvTnAsVuV3I3v9emED2AbQUg18Z57akhIimTxdqk~ZPcQxnrTLvzVJpYu7ARFNH~qBRS8qVG1KQJMmTGZwtdZ~UVN9~UCpTEwDmCkE4bVtbMinEYrsXmPCHOtJj-9eXOKKhd44QXOZB7qe93l0KzpJ2NNjdnhIIrDkG8vQFoZL0kPFYBEKppMHMOHRZMcTgk4X51mruJaGN0iHsWJk3cNfKvkc6XhUzP8Tmm9P17Js1iCvYoQsOgOgb9Jm7gLBCHwsk81D9gvEc8yC0rc2fw9HWmVgjPNIyWWX11e5Q__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/preview.png?Expires=4930934400&Signature=djpngPlrOLVt5p~CDl0y1C9V3hhMtix4kcKEebdLPj9S~LnT7ytiBJlDNv3FlINGgm5Gg5Lqz-tl9OZzOU556vWmueZ2qjKecoPCmb3rt--yVJho9Q4wEq3lPb5mpz-gQ87HCaxwHgGZV86W6ubBXIXsfm3EtzOuknrWPG6asOrMgE1J~NoUMMVUxQE9RHJDF~Kar4ifYYdP6~uKMXTT-bs0Gz5vc~6-Alumzc5QpX7HV9gggrismvbD~~1dthwQTTv0GKWJ5vzgB5Mz7R3wtfB8cSJw2lVYTTUSGIBvNuOeriwmivz5wfuD1u9a~14w~UbvytQhj5YRD8mDNRCQng__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/texture_0.png?Expires=4930934400&Signature=Qb~MH0qd3n8HGHoowlJoLQ7DPsEeM6TqsG61B5khfPNeatDsmI9ROU45~euuXXfVGCQ8KgDZNCOiK53ijCOGfX62U8kY5r~rmG7OSUUuY8qIdo9WTqHymMsI4mcWm0uIUV7YxbuSgYNqbSn1y80lpEdyIfJxEVNghdtGsnxK~p43oGooAHMffnv3dvgzf8EyCL~ND9OFYynS7~hNRXb8HPIB8WNBE76weXYyyN5qxGAHPdUwjtwIJQAvlif8vFNhAn-5PMj9a5XNxFDnnhA3NPLWS5H926jYgbDD8bw0vxyt0pQxx9w4~4-GD8CsXPNv-2o0-4ooZY0G1xjNB2OAjA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/texture_0_metallic.png?Expires=4930934400&Signature=JA5s8CCxZ5y-Yd3MVY2zFLEp6C9j4-uZFKxTxP3rsFjfH5Ags4XjMTnvP~iO5cmKQtOirKtv7rfIt5smrzFpLlR~b6c~gHmtGrS-gaGAhh57EqxSYwr4IHaOpdC-u-cXHmPsyx0BTK2jviueF5d3xx7FGbL~7TIviSk8RP6zFhjodM7i2oWPatguSU2ZQk~BUE3Q3MbTMi~kHJ6Y9CSHY9DTa3FE9MryWg6LsBiMbMtii-mjM2Eextr-z1OngpLmEzsFcCD-dpILV8V-IWamduLVhx64c2xsscjmYB7BCA2K0DY1THNAhNMQt42oge1ERJvragjojIlkH8n49qbxiA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/texture_0_roughness.png?Expires=4930934400&Signature=IW9-QnCO~k38FJ61gU2MVJiTzpIo5R~h06k5JeIMseUu9Ewm7SjSTfRdW5vBiBvLdyGY5roHAoH1aS1e0KbNfsgDY1krjfEVnVkxNUYNI0QMop80KLMIU9dSsIJusJ1F5xIbEIW3WrEECExnjdL8EzAA6Y5QSW6ySp1pbI3yzDzBXA9PuyOC15lbgHYIJaHEr~zp0RnTkAXld7F8q1TsnYbAWrjc~HZBTn3RdtDEK28FC~YhqrD5CbQLSlxef3aVq3LhrTS8x9LYYr8IiN6-A1y-5CYsa2FUVGZzlAAP4-I1Nn-zMFdeckdDZ8W-8AzvH44cPujebrOYndu-ZYZjjw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/texture_0_normal.png?Expires=4930934400&Signature=Q4abVW1j~WOL6NyEHP47W9XAfQyRhjWJ6d1nRagQtt4dpGTuuhphkcLhRS8Ke6wNhg2kq17~D7Sou-7zYDRCRqB4Qtf3VyO-MPffQ5idF9fsPaJA9CVDuG1h8rtf7vCj~XiUvkHvw3mjNduLl22xKlo~2eoFcS5rDiH0JfpaoE8OtR1s2kOrLcf-dl1FHZGSW2DOJGjfgJ1-B0X32W3HvlqmGcfhH96j6eJp6w2PCchsMvvd4WOH9LOZyfWEAVt9RgSWSt6ZWvaATLxnsykjvVVdTeHhd~OF8UXfWYTIF3O-RhgBjc4ho9vmuC53nOzyeRJPT0cqDXAbMFbk9WWn4g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd20d-22ea-7699-851d-de08e1f17de9/output/texture_0_emission.png?Expires=4930934400&Signature=COS~gqGANDJTEKZoPrZlnnfPC6I03mr3Ffw-pFKd4lf5tEWylpFUHXfKck-MlBzGnCL7f3iS4A90ao1KtJNJe8udJIjnEChM9DFfJiNpe3~z~AaNbmSBLfa1kAMSqO8NfkBK2lar9aDHMIAbb2uT4EgPBKWxnBkp-~bqH4OoL3PIuATBvvRt9NKcki9B01ipDmjS7dD2xGMGowE8IGcyv7f6DzB~EBI~4mQYQW1LArIEUpUvdAOMjNfrb67vPO7j7WplwhgvVj~6lqb7M0vHi8CPAZ8S7yMNzaQ13ZuhKhcf80QUZ-Ijs2rDx4m~Av7za4Zs-JbJLHoP4DR8sbCMgQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd209-fdc3-7ab1-b303-3848f80ef72c"
+  },
+  "promoted": {
+    "asset": "catwalk-straight-arm",
+    "runtimeDir": "assets/environment/catwalk-straight-arm/runtime",
+    "model": {
+      "source": "assets/environment/catwalk-straight-arm/source/catwalk-straight-arm-meshy-refined.glb",
+      "runtime": "assets/environment/catwalk-straight-arm/runtime/models/catwalk-straight-arm.glb",
+      "source_bytes": 12009664,
+      "runtime_bytes": 1798836,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/catwalk-straight-arm/source/textures/base_color.png",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 6956822,
+        "runtime_bytes": 425848
+      },
+      "normal": {
+        "source": "assets/environment/catwalk-straight-arm/source/textures/normal.png",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 7093047,
+        "runtime_bytes": 7076626
+      },
+      "roughness": {
+        "source": "assets/environment/catwalk-straight-arm/source/textures/roughness.png",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1499317,
+        "runtime_bytes": 202236
+      },
+      "metallic": {
+        "source": "assets/environment/catwalk-straight-arm/source/textures/metallic.png",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1660017,
+        "runtime_bytes": 305866
+      },
+      "emissive": {
+        "source": "assets/environment/catwalk-straight-arm/source/textures/emission.png",
+        "runtime": "assets/environment/catwalk-straight-arm/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 877555,
+        "runtime_bytes": 57854
+      }
+    },
+    "manifest": "assets/environment/catwalk-straight-arm/runtime/runtime-manifest.json"
+  }
+}

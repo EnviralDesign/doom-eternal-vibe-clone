@@ -20,6 +20,12 @@ Then open:
 http://127.0.0.1:8066/index.html
 ```
 
+For level inspection without enemy spawns:
+
+```text
+http://127.0.0.1:8066/index.html?inspect
+```
+
 Or run it manually:
 
 ```bash
@@ -55,7 +61,7 @@ Other mechanics bundled into the arena: finite staged waves, endless horde after
 - Generated hell-material textures in `assets/textures`.
 - Meshy-generated Ember Runt character source, reference art, PBR maps, and lean runtime GLBs in `assets/characters/ember-runt`.
 - A generated 2:1 equirectangular deep-hell panorama in `assets/skies`, used as the live sky background with PMREM-processed environment lighting for PBR materials.
-- A Meshy-generated floating hell platform in `assets/environment/floating-hell-platform`, with concept art, authoring GLB, remeshed runtime GLB, and a simple gameplay collision proxy.
+- Meshy-generated environment prefabs in `assets/environment`, with source GLBs, lean runtime GLBs, external PBR maps, runtime manifests, and simple gameplay collision proxies.
 - A local `runtime_asset_lab.html` for environment prefab calibration only: finalized runtime GLBs, local mesh transform, yellow editable collision proxy, explicit manifest save, and query-param preloading for assets such as `?asset=floating-hell-platform`.
 - A local `character_lab.html` for inspecting animated GLB characters with runtime PBR/emissive sidecar textures.
 - A local `weapon_lab.html` for inspecting procedural or finalized Meshy weapon viewmodels with game-style PBR lighting, bloom, bounds, and first-person camera presets.
@@ -121,6 +127,7 @@ Useful render flags:
 
 ```text
 index.html?lightingLab
+index.html?inspect
 index.html?quality=gameplay
 index.html?performance
 ```

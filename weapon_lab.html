@@ -53,10 +53,8 @@
     <div class="row">
       <label>Lighting
         <select id="lightingSelect">
-          <option value="hero">Hero PBR</option>
-          <option value="arena">Arena</option>
-          <option value="studio">Studio</option>
-          <option value="flat">Flat</option>
+          <option value="level">Level</option>
+          <option value="studio">Studio + 3-Point</option>
         </select>
       </label>
       <label>Camera
@@ -118,10 +116,13 @@
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
     import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js';
-    import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-    import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-    import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-    import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+    import {
+      createGameComposer,
+      createGameRenderer,
+      createPmremGenerator,
+      loadAndApplyGameEnvironment
+    } from './src/render-pipeline.js';
+    import { installLabLighting } from './src/lab-lighting.js';
 
     const TAU = Math.PI * 2;
     const qs = new URLSearchParams(location.search);
@@ -146,20 +147,10 @@
     scene.background = new THREE.Color(0x080707);
     scene.fog = new THREE.Fog(0x080707, 10, 22);
     const camera = new THREE.PerspectiveCamera(46, innerWidth / innerHeight, 0.02, 100);
-    const renderer = new THREE.WebGLRenderer({ antialias:false, powerPreference:'high-performance' });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    const renderer = createGameRenderer({ antialias:false, maxDpr:1.5, shadowMap:true, shadowType:THREE.PCFShadowMap });
     document.body.appendChild(renderer.domElement);
 
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.28, 0.48, 0.86));
-    composer.addPass(new OutputPass());
+    const { composer } = createGameComposer(renderer, scene, camera);
 
     const root = new THREE.Group();
     scene.add(root);
@@ -188,17 +179,9 @@
     muzzleGroup.name = 'weapon-muzzle-marker';
     debugRoot.add(muzzleGroup);
 
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromEquirectangular(createEnvironmentTexture()).texture;
-
-    const hemi = new THREE.HemisphereLight(0xaec8ff, 0x2a1006, 0.45);
-    const key = new THREE.SpotLight(0xffd1a0, 640, 22, Math.PI * 0.24, 0.58, 1.2);
-    key.position.set(-4.2, 4.2, 4.1); key.target.position.set(0, 0, -0.25); key.castShadow = true; key.shadow.bias = -0.00008; key.shadow.normalBias = 0.025;
-    const rim = new THREE.SpotLight(0x43d8ff, 210, 18, Math.PI * 0.28, 0.55, 1.4);
-    rim.position.set(3.8, 2.4, -4.2); rim.target.position.set(0, 0, -0.25);
-    const hot = new THREE.PointLight(0xff4a18, 3.5, 7, 2);
-    hot.position.set(-0.35, -0.25, -1.3);
-    scene.add(hemi, key, key.target, rim, rim.target, hot);
+    const pmrem = createPmremGenerator(renderer);
+    await loadGameEnvironment();
+    const labLighting = installLabLighting(scene, { target: new THREE.Vector3(0, 0.15, -0.25) });
 
     let manifest = { weapons: [] };
     let current = null;
@@ -244,21 +227,8 @@
     muzzleGroup.add(makeLine([new THREE.Vector3(0, -0.18, 0), new THREE.Vector3(0, 0.18, 0)], 0xff4bff));
     muzzleGroup.add(makeLine([new THREE.Vector3(0, 0, 0.22), new THREE.Vector3(0, 0, -0.34)], 0xff4bff));
 
-    function createEnvironmentTexture() {
-      const c = document.createElement('canvas'); c.width = 768; c.height = 384;
-      const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 0, c.height);
-      g.addColorStop(0, '#ffdfb5'); g.addColorStop(0.38, '#314052'); g.addColorStop(0.7, '#1b0c08'); g.addColorStop(1, '#050303');
-      ctx.fillStyle = g; ctx.fillRect(0, 0, c.width, c.height);
-      for (const [x, y, color] of [[160, 90, 'rgba(255,190,95,.9)'], [560, 120, 'rgba(92,205,255,.65)'], [410, 310, 'rgba(255,70,20,.8)']]) {
-        const r = ctx.createRadialGradient(x, y, 0, x, y, 180);
-        r.addColorStop(0, color); r.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = r; ctx.fillRect(0, 0, c.width, c.height);
-      }
-      const tex = new THREE.CanvasTexture(c);
-      tex.mapping = THREE.EquirectangularReflectionMapping;
-      tex.colorSpace = THREE.SRGBColorSpace;
-      return tex;
+    async function loadGameEnvironment() {
+      await loadAndApplyGameEnvironment({ renderer, scene, pmrem });
     }
 
     function makeMats() {
@@ -559,10 +529,7 @@
     }
 
     function setLighting(mode) {
-      if (mode === 'flat') { hemi.intensity = 2.1; key.intensity = 0; rim.intensity = 0; hot.intensity = 0; scene.environmentIntensity = 0.25; }
-      else if (mode === 'studio') { hemi.intensity = 0.95; key.intensity = 280; rim.intensity = 95; hot.intensity = 0.8; scene.environmentIntensity = 0.8; }
-      else if (mode === 'arena') { hemi.intensity = 0.34; key.intensity = 360; rim.intensity = 230; hot.intensity = 3.8; scene.environmentIntensity = 0.55; }
-      else { hemi.intensity = 0.45; key.intensity = 640; rim.intensity = 210; hot.intensity = 3.5; scene.environmentIntensity = 0.9; }
+      labLighting.setMode(mode);
     }
 
     async function init() {
@@ -577,7 +544,7 @@
       const requestedWeapon = (qs.get('weapon') || '').toLowerCase();
       const requested = manifest.weapons.find(item => item.id.toLowerCase() === requestedWeapon || item.name.toLowerCase() === requestedWeapon);
       if (requested) weaponSelect.value = requested.id;
-      setLighting('hero');
+      setLighting('level');
       await loadWeapon();
     }
 
@@ -653,5 +620,6 @@
     init();
     animate();
   </script>
+  <script type="module" src="src/app-nav.js?v=1"></script>
 </body>
 </html>

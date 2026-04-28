@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hellrush: Meathook Arena V6.4 — Environment Runtime Pipeline</title>
   <link rel="icon" href="data:," />
-  <link rel="stylesheet" href="style.css?v=lighting-lab1" />
+  <link rel="stylesheet" href="style.css?v=camera-inspector1" />
   <script type="importmap">
   {
     "imports": {
@@ -39,6 +39,7 @@
   </section>
 
   <div id="ammoStrip"><span>Shells <b id="shells">18</b></span><span>Bullets <b id="bullets">110</b></span></div>
+  <div id="pauseIndicator" class="hidden"><b>Paused</b><span>Click view to resume</span></div>
   <div id="status">Click Start. Then WASD + mouse, Space double-jump, Shift dash. Minimap is on by default.</div>
   <pre id="perfLog" class="hidden"></pre>
 
@@ -56,7 +57,7 @@
   <div id="overlay">
     <div class="panel">
       <h1>Hellrush: Meathook Arena V6.4</h1>
-      <p>V6.4 keeps the PBR lighting and weapon runtime paths, then adds the first Meshy-generated environment prop: a remeshed floating hell platform mounted over a simple gameplay collision slab.</p>
+      <p>V6.4 keeps the PBR lighting and weapon runtime paths, then expands the arena with Meshy-generated environment prefabs mounted over simple gameplay collision proxies.</p>
       <div id="bootMeter" aria-hidden="true"><span id="bootFill"></span></div>
       <p id="bootStatus" class="tiny">Preparing renderer</p>
       <div class="controlGrid">
@@ -73,6 +74,7 @@
     </div>
   </div>
 
-  <script type="module" src="src/game.js?v=6-meshy-weapons1"></script>
+  <script type="module" src="src/app-nav.js?v=2"></script>
+  <script type="module" src="src/game.js?v=camera-inspector2"></script>
 </body>
 </html>

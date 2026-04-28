@@ -1,0 +1,160 @@
+{
+  "id": "hell-torch",
+  "name": "Hell Torch",
+  "prompt": "hell arena torch prop, black metal and bone tripod sconce, orange flame crystal core, emissive lava vents, compact vertical silhouette, no floor, no background, standalone game environment asset",
+  "previewTaskId": "019dd219-3a22-7da4-8ded-415edc78c673",
+  "refineTaskId": "019dd21a-49e2-7dd8-a070-c565bfa0e67d",
+  "meshyProject": "meshy_output/20260427_221923_hell-torch_019dd219",
+  "createdAt": "2026-04-27T22:22:04.622238",
+  "previewPayload": {
+    "mode": "preview",
+    "prompt": "hell arena torch prop, black metal and bone tripod sconce, orange flame crystal core, emissive lava vents, compact vertical silhouette, no floor, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "art_style": "realistic",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 28000,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ],
+    "symmetry_mode": "auto"
+  },
+  "refinePayload": {
+    "mode": "refine",
+    "preview_task_id": "019dd219-3a22-7da4-8ded-415edc78c673",
+    "enable_pbr": true,
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "remove_lighting": true,
+    "ai_model": "latest",
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "textures": {
+    "base_color": "meshy_output/20260427_221923_hell-torch_019dd219/textures/base_color.png",
+    "normal": "meshy_output/20260427_221923_hell-torch_019dd219/textures/normal.png",
+    "roughness": "meshy_output/20260427_221923_hell-torch_019dd219/textures/roughness.png",
+    "metallic": "meshy_output/20260427_221923_hell-torch_019dd219/textures/metallic.png",
+    "emission": "meshy_output/20260427_221923_hell-torch_019dd219/textures/emission.png"
+  },
+  "rawPreviewTask": {
+    "id": "019dd219-3a22-7da4-8ded-415edc78c673",
+    "type": "text-to-3d-preview",
+    "mode": "preview",
+    "name": "",
+    "model_type": "standard",
+    "seed": 2440522711,
+    "art_style": "realistic",
+    "texture_richness": "",
+    "prompt": "hell arena torch prop, black metal and bone tripod sconce, orange flame crystal core, emissive lava vents, compact vertical silhouette, no floor, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346363128,
+    "progress": 100,
+    "started_at": 1777346363814,
+    "finished_at": 1777346427035,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd219-3a22-7da4-8ded-415edc78c673/output/model.glb?Expires=4930934400&Signature=ecnqnGvGTE4p4JJwzzYi0zHWycd-IZd6cF~xx~bpBzlKS9nGcJnn2mTJKoh0n8vvyVBWDCzMW9B4t2ogS~iX9ZZGzr1-BahYlwOgERnW2MLE3PY6lqOg1XplhqcRTTRq6rYjEE4eIHkPaLyOnCRNIp~UAB~saFSCS7qNkeyGqVrpEaZCdi66s6aa91tUanMOXeNugd2g~yrvu9~e2BksL1fenoGhqTserxB6EkKgRrupZ1BQ6I6JNkM8ADLF3qiromdPtEh-yn62KcQCNr3C8yliwvA7XUXIe8c9DviwWTr1KFzxfE4-x0mG0mfnFqNu4NIInQ-0Z~H1~N8tszkdwA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd219-3a22-7da4-8ded-415edc78c673/output/preview.png?Expires=4930934400&Signature=BZngfipcxZweKNrEDG705scd-D1PB-hYjhvf0SzupjGGQtVugYrsFEvsPh0EU95fJ5uzR1ERjom~mRBPQgBtw55boB1D7VOFu-RChsQYwV4F7gkc7LMPfLArxc2VVf9WNDILWCVdlGOywwq~jCa6Of~4IMOHzYomxSDFknF5i95KWvzwpUMYzmAcF0CGwsL5ptVW~aWqdGK3GKe9HSqDu4QNp-t9PYCcW51f9rAJTmxhldmwQOPZmJKqzhofPYMfzSR5U4hkGjqjAoWVxJQDXAz3HhjR51thLl~bq419LsFzxCUq3wx3cjxbZKjmnvJ9rSoc-t8Ieulg0EYEW30WXQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [],
+    "consumed_credits": 20
+  },
+  "rawRefineTask": {
+    "id": "019dd21a-49e2-7dd8-a070-c565bfa0e67d",
+    "type": "text-to-3d-refine",
+    "mode": "refine",
+    "name": "",
+    "model_type": "standard",
+    "seed": 2440522711,
+    "art_style": "realistic",
+    "texture_richness": "high",
+    "prompt": "hell arena torch prop, black metal and bone tripod sconce, orange flame crystal core, emissive lava vents, compact vertical silhouette, no floor, no background, standalone game environment asset",
+    "negative_prompt": "character, creature, person, weapon, hands, text, logo, watermark, background scene, floor plane",
+    "texture_prompt": "game ready PBR material, blackened metal, obsidian stone, molten orange cracks, cyan or purple emissive accents where appropriate, rough believable surfaces, no baked dramatic lighting",
+    "texture_image_url": "",
+    "status": "SUCCEEDED",
+    "created_at": 1777346431622,
+    "progress": 100,
+    "started_at": 1777346432208,
+    "finished_at": 1777346504997,
+    "task_error": null,
+    "model_urls": {
+      "glb": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/model.glb?Expires=4930934400&Signature=OxsnDTlucFS1Z5xyBhieVoBfEtR-74YVETV5t4d1ta6c-Gw~~BYfZoK5w4nqXpjxm9ENtJvhC32SnFCJvsYLduHB4-9DXErywYi5qYum~mzCRUgGS7lSBinFmszGcSgC-zzrIIbwar45T8C5GzBVhIoixOTjUc7D~2ZxBwPnO~kxD5FGO4c8SkyLGy472iSqR-fO~HiWh3i2yspCcWpiBGjjOR6oDJnruE1NAycMNKYE395wJeV5Vtm8t0KtfCqQoGsAdAwqSEzNg4I8J1VzwTjWc~dWjSrr38ZFsnfZacME4gE4DzRthofP57yzsLzdODqMvJCOdmZpl0jyu44nEQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+    },
+    "thumbnail_url": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/preview.png?Expires=4930934400&Signature=IfkaTV8dR~TTwVC4R~jYkXuuXanD0d4L6TO3Gem3O~V-4iTtvBe1SHC-MAaUVcV5XE9lJi8S4TjtX7CRTKUomnhTnncUtEPDGZmAl5JRIfACrKhAyoJJggdL6nuhS~ecqQgCh-t6XSmtFJszPHZbmkCLjfuukhRk1AD-24CmoiiN3J2f8ASB1cgR6i1UlOoQaPpSGDmNn0X9wUSP6a-2fnzBkpQp~9-6lzOEoDX9U5v0XEYlrl4aPd67uTKju9jSA5bti1cpfAx~R5-QJbxLAeSOF8p4cfb~4gDsu9GkqaIgy3FbRahV6GgKZJ6QwgmvAfffXi2osqPqq~errJCR-A__&Key-Pair-Id=K1VGYTHIYLM9UM",
+    "video_url": "",
+    "texture_urls": [
+      {
+        "base_color": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/texture_0.png?Expires=4930934400&Signature=drefWEqq3NN6ZqMcKSCoMdYTNpLggjJ8JxgFrMcaCQQuj5VrM0f~afaPaSu5-B1kGU7Xq8p7gcZS8R~lfC5me0XjHrXu0p1W2ImrHPD~P5TAj9GFjT7ucYTREDWUpWhYtMg2vQ9~EpMmq5m7-fg~zUoiAwKMP3NLOv4YKiEzJrQNMIpqfUkPVRcNJFoW4CY8mDh160LMONOmQRQxGZF~RsmsOORv8sukNTJLwZOzBu4WZ0nKm48Peu7oDRciIDwpPjg120pER~tBF0IxCczzwXXeQi0tyskPeqGpgl~knFRBFbuVJJAd9nwzWmkL~1DvIRWRM2CQmUbU422xCc1KHw__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "metallic": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/texture_0_metallic.png?Expires=4930934400&Signature=ESUPKR5b1VdM~WqVC1s2QIinhwC2ydiB3NzUOZoirvo4a7cnEC0d6PNik6xXuudOa8rO1ZS~J4Y5x7cMcidOEFQc7aKNPDLlHWDGXZ0ze4MzJ2oVNnyV~6wIVftFF5ZoiJJqx5avsPz88ZHQcQnFnwmKHsfHQROCn84WbYRFTaFKpFCzGmOF7pBEGZuDaSMnEoFJgbAe0Jf0WCiXj12s0EsNJGoyBqMax74daZ-U9lwmVsez3g8kA0CNWHhtBeczwlYeExzOQuNcEtJPAP-HnmgkPqCpFxBKNDkjgEB7MWR6HdOQ4IURsdfHTMj0v8ze36V3Pxtw6Zjo4aDRUJQk2w__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "roughness": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/texture_0_roughness.png?Expires=4930934400&Signature=C7F58mn2cn9G2zvbyNteY7uz8KIK6yJ-UgnZ7xvRFohud1qat0~zh0v0uG4S1IbFicoqvILXAdYwRFu5VaZ-HRvbI-TA6MY7jjfz2b4irfIX~142NKNOZYtxx5RTIE5hioG9kDfezGk~RLF-lVxlRF3MFjZrjyEEsVjUTkAh-a3hBqOGABz9QVsw1-mIA2nNGB5I2gV8ttSBJgCdWw-yzOe4XYGZ2oWOesFlxeT7kr2C2K3v27x9kIAlfhdCQdebQV5I69vcPLiWAkfkB2twEROPruzfdxCy-sqq2rK1XTYlWT28yTES6rgvEbUreLvue1e2rjFgccZ2Kh408aLH4g__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "normal": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/texture_0_normal.png?Expires=4930934400&Signature=R5wq~4Ea0JQkKL1gvi6qPpySoyso03n437hro4mlBfv8Np5oYUJvIe2vgqF7rg0QRrNk4sC299FgIygN~bM-tk3JhyMnLUMtjhpSJfWbUWAXGQgX0gfF3eGTEsr9rBPd-0BjANLFzAjfvfoOXDyLIlDBakktkSant2WscgYr4y4abT8cydloDdFqTiDu8lpFX6mQI1tjhRvOYtu4cougumB2GKktsrHUL7DXz-pheJ1z~~zqoUA~6qTGwPisGKrterTGOkEE0OTgjImKE2wdX1YdLpCoV13X8jNK2tqQq-lhHm1KZIXC1GcPguK45nBWXDpLwOwr4XjkcK8hkHdH5A__&Key-Pair-Id=K1VGYTHIYLM9UM",
+        "emission": "https://assets.meshy.ai/11f76892-dfc4-4f06-8ca2-f5b87b7a42d1/tasks/019dd21a-49e2-7dd8-a070-c565bfa0e67d/output/texture_0_emission.png?Expires=4930934400&Signature=C41t-3Vf62BUzd0H5iMr1gTxeevQeCQK8zk9Puzp9pVkGPbX-uYQvTP~bzfPrVj~C~izzVzhBR2G2WYJgmQKglDZ2i2AinTa6MjMBSaEMSz~J9gjCtqp3QIScyCSeND5RqwetmOmouXaQw0z4joOtjzrzyzg68noa2poPxpPicdtWOu4X7SJRo-CG2ftSD9XQMA4lTWYUbAAwvp-RhRgurFkFUbL3mFrKnsG54xONNPbGxYJHWytky3CHz63nJq~cDt9S5S4KdTbrWoDTSTgfYwSdzY8B1QLdPuCM3MEI9oCrocg0QZ~wqSxB3GMa8kFOVAngAlwFZBr8iOCou5EKQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+      }
+    ],
+    "remove_lighting": true,
+    "consumed_credits": 10,
+    "preview_task_id": "019dd219-3a22-7da4-8ded-415edc78c673"
+  },
+  "promoted": {
+    "asset": "hell-torch",
+    "runtimeDir": "assets/environment/hell-torch/runtime",
+    "model": {
+      "source": "assets/environment/hell-torch/source/hell-torch-meshy-refined.glb",
+      "runtime": "assets/environment/hell-torch/runtime/models/hell-torch.glb",
+      "source_bytes": 13214288,
+      "runtime_bytes": 974172,
+      "removed_images": 4,
+      "removed_image_buffer_views": 4
+    },
+    "textures": {
+      "baseColor": {
+        "source": "assets/environment/hell-torch/source/textures/base_color.png",
+        "runtime": "assets/environment/hell-torch/runtime/textures/base_color.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 8138426,
+        "runtime_bytes": 812480
+      },
+      "normal": {
+        "source": "assets/environment/hell-torch/source/textures/normal.png",
+        "runtime": "assets/environment/hell-torch/runtime/textures/normal.png",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 8574712,
+        "runtime_bytes": 8554421
+      },
+      "roughness": {
+        "source": "assets/environment/hell-torch/source/textures/roughness.png",
+        "runtime": "assets/environment/hell-torch/runtime/textures/roughness.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1064945,
+        "runtime_bytes": 101680
+      },
+      "metallic": {
+        "source": "assets/environment/hell-torch/source/textures/metallic.png",
+        "runtime": "assets/environment/hell-torch/runtime/textures/metallic.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 1224124,
+        "runtime_bytes": 172682
+      },
+      "emissive": {
+        "source": "assets/environment/hell-torch/source/textures/emission.png",
+        "runtime": "assets/environment/hell-torch/runtime/textures/emission.webp",
+        "original_size": "2048x2048",
+        "runtime_size": "2048x2048",
+        "source_bytes": 3197856,
+        "runtime_bytes": 185978
+      }
+    },
+    "manifest": "assets/environment/hell-torch/runtime/runtime-manifest.json"
+  }
+}

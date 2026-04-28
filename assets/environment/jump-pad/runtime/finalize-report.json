@@ -1,0 +1,55 @@
+{
+  "asset": "jump-pad",
+  "runtimeDir": "assets/environment/jump-pad/runtime",
+  "model": {
+    "source": "assets/environment/jump-pad/source/jump-pad-meshy-refined.glb",
+    "runtime": "assets/environment/jump-pad/runtime/models/jump-pad.glb",
+    "source_bytes": 11363180,
+    "runtime_bytes": 1179236,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/jump-pad/source/textures/base_color.png",
+      "runtime": "assets/environment/jump-pad/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6829141,
+      "runtime_bytes": 415252
+    },
+    "normal": {
+      "source": "assets/environment/jump-pad/source/textures/normal.png",
+      "runtime": "assets/environment/jump-pad/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 6963830,
+      "runtime_bytes": 6930989
+    },
+    "roughness": {
+      "source": "assets/environment/jump-pad/source/textures/roughness.png",
+      "runtime": "assets/environment/jump-pad/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1530860,
+      "runtime_bytes": 245302
+    },
+    "metallic": {
+      "source": "assets/environment/jump-pad/source/textures/metallic.png",
+      "runtime": "assets/environment/jump-pad/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1418165,
+      "runtime_bytes": 211202
+    },
+    "emissive": {
+      "source": "assets/environment/jump-pad/source/textures/emission.png",
+      "runtime": "assets/environment/jump-pad/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1178654,
+      "runtime_bytes": 109218
+    }
+  },
+  "manifest": "assets/environment/jump-pad/runtime/runtime-manifest.json"
+}

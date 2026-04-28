@@ -1,0 +1,55 @@
+{
+  "asset": "hell-torch",
+  "runtimeDir": "assets/environment/hell-torch/runtime",
+  "model": {
+    "source": "assets/environment/hell-torch/source/hell-torch-meshy-refined.glb",
+    "runtime": "assets/environment/hell-torch/runtime/models/hell-torch.glb",
+    "source_bytes": 13214288,
+    "runtime_bytes": 974172,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/hell-torch/source/textures/base_color.png",
+      "runtime": "assets/environment/hell-torch/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 8138426,
+      "runtime_bytes": 812480
+    },
+    "normal": {
+      "source": "assets/environment/hell-torch/source/textures/normal.png",
+      "runtime": "assets/environment/hell-torch/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 8574712,
+      "runtime_bytes": 8554421
+    },
+    "roughness": {
+      "source": "assets/environment/hell-torch/source/textures/roughness.png",
+      "runtime": "assets/environment/hell-torch/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1064945,
+      "runtime_bytes": 101680
+    },
+    "metallic": {
+      "source": "assets/environment/hell-torch/source/textures/metallic.png",
+      "runtime": "assets/environment/hell-torch/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1224124,
+      "runtime_bytes": 172682
+    },
+    "emissive": {
+      "source": "assets/environment/hell-torch/source/textures/emission.png",
+      "runtime": "assets/environment/hell-torch/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 3197856,
+      "runtime_bytes": 185978
+    }
+  },
+  "manifest": "assets/environment/hell-torch/runtime/runtime-manifest.json"
+}

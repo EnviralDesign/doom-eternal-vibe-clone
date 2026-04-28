@@ -1,0 +1,55 @@
+{
+  "asset": "hook-node",
+  "runtimeDir": "assets/environment/hook-node/runtime",
+  "model": {
+    "source": "assets/environment/hook-node/source/hook-node-meshy-refined.glb",
+    "runtime": "assets/environment/hook-node/runtime/models/hook-node.glb",
+    "source_bytes": 11438308,
+    "runtime_bytes": 1011416,
+    "removed_images": 4,
+    "removed_image_buffer_views": 4
+  },
+  "textures": {
+    "baseColor": {
+      "source": "assets/environment/hook-node/source/textures/base_color.png",
+      "runtime": "assets/environment/hook-node/runtime/textures/base_color.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7836100,
+      "runtime_bytes": 683222
+    },
+    "normal": {
+      "source": "assets/environment/hook-node/source/textures/normal.png",
+      "runtime": "assets/environment/hook-node/runtime/textures/normal.png",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 7976275,
+      "runtime_bytes": 7948968
+    },
+    "roughness": {
+      "source": "assets/environment/hook-node/source/textures/roughness.png",
+      "runtime": "assets/environment/hook-node/runtime/textures/roughness.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 823190,
+      "runtime_bytes": 48036
+    },
+    "metallic": {
+      "source": "assets/environment/hook-node/source/textures/metallic.png",
+      "runtime": "assets/environment/hook-node/runtime/textures/metallic.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 954793,
+      "runtime_bytes": 101520
+    },
+    "emissive": {
+      "source": "assets/environment/hook-node/source/textures/emission.png",
+      "runtime": "assets/environment/hook-node/runtime/textures/emission.webp",
+      "original_size": "2048x2048",
+      "runtime_size": "2048x2048",
+      "source_bytes": 1317828,
+      "runtime_bytes": 119902
+    }
+  },
+  "manifest": "assets/environment/hook-node/runtime/runtime-manifest.json"
+}
